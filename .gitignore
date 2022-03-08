@@ -1,0 +1,16 @@
+*.root
+*.txt
+*.pyc
+*.png
+*.log
+test.py
+*.json
+./data/*
+./EventContent.cpp
+*__init__.py
+*.so
+*.o
+./myLib/*
+./Test/*
+*_cpp.d
+*_cpp_ACLiC_dict_rdict.pcm
