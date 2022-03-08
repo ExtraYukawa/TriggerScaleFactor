@@ -2,12 +2,15 @@
 
 The structure of the code is simply derived from ![TTC_plots](https://github.com/menglu21/TTC_plots.git)
 
+# Pre-requiste
+- CMSSW version >= CMSSW_12_1_0_pre3
+
 ## Steps to produce Trigger Scale Factors for three channels.
 
 ### step1: 
 ```
-mkdir TriggerScaleFactor
-cd TriggerScaleFactor
+cd $CMSSW_BASE/src
+
 git clone https://github.com/ZhengGang85129/TriggerScaleFactor.git
 ```
 
