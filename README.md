@@ -39,12 +39,12 @@ ex: for DoubleElectron and MC samples(TTTo2L).
 python3 WorkFlow/main.py --mode TrigEff_Calc --year2017 --channel DoubleElectron --Type MC
 ```
 After the program is done, you can see your /eos/user/y/yourname/ExtraYukawa/TriggerSF/files/DoubleElectron directory, see what's the change.
-By the way, the cost time of this phase is roughly half of a day. If you are eager to see what's the output, you could simply add the arguments [-n/--nevents]
- to limit the number of events input to the programs. 
+By the way, the cost time of this phase is roughly half of a day. Thus for impatient people, you could simply add the arguments [-n/--nevents]
+ to limit the number of events. If you want to collect efficiency results for DoubleElectron, take it for example, that means you should type the command twice (MC and Data) at least.
 
 ### step5: Trigger Efficiency Plot
 
-At the moment, you have to collect the trigger efficiency results of both types (MC/Data) from above actions for one channel, otherwise, you can't implement this step.
+Before proceed into the further step, pleas make sure you have collected the trigger efficiency results of both types (MC/Data) from above actions for one channel, otherwise you can't implement this step.
 For DoubleElectron:
 
 ```
