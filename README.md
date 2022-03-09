@@ -34,17 +34,17 @@ python3 WorkFlow/main.py --mode BuildDir --year2017 --task TriggerSF --DirOut /e
 ### step4: Trigger Efficiency Calculation
 
 At the moment, the analysis code haven't include multi-thread calculation, thus you need to calculate channel by channel, type by type(MC/Data).
-ex: for DoubleElectron and MC samples(TTTo2L).
+ex: Channel: DoubleElectron and Type: MC.
 ```
 python3 WorkFlow/main.py --mode TrigEff_Calc --year2017 --channel DoubleElectron --Type MC
 ```
 After the program is done, you can see your /eos/user/y/yourname/ExtraYukawa/TriggerSF/files/DoubleElectron directory, see what's the change.
-By the way, the cost time of this phase is roughly half of a day. Thus for impatient people, you could simply add the arguments [-n/--nevents]
+By the way, the cost time of this phase is roughly half of a day. Thus for **impatient people**, you could simply add the argument **[-n/--nevents]**
  to limit the number of events. If you want to collect efficiency results for DoubleElectron, take it for example, that means you should type the command twice (MC and Data) at least.
 
 ### step5: Trigger Efficiency Plot
 
-Before proceed into the further step, pleas make sure you have collected the trigger efficiency results of both types (MC/Data) from above actions for one channel, otherwise you can't implement this step.
+Before proceed into the further step, to collect DoubleElectron Channel TrigEfficiency Plots, **pleas make sure you have collected the trigger efficiency results for both types (MC/Data)** , otherwise you can't implement this step, and the compilier will throw a error message.
 For DoubleElectron:
 
 ```
