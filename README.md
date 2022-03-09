@@ -63,6 +63,6 @@ After the program is done, you can see trigSF plots and files in your /eos/user/
 - [ ] Rewrite the script in MakeFile.
 - [ ] Multi-Thread Implementation in Trigger Efficiency Calculation.
 - [ ] Further divide Efficiency Calculation into two sub-programs. 
- - Saving Cut-Flow dataframe into root files. 
- - Read corresponding root files, and plot them.
+      - Saving Cut-Flow dataframe into root files. 
+      - Read corresponding root files, and plot them.
 
