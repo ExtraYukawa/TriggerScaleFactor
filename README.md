@@ -1,6 +1,7 @@
 # TriggerScaleFactor
 
-The structure of the code is simply derived from [TTC_plots Packages](https://github.com/menglu21/TTC_plots.git)
+The structure of the code is simply derived from [TTC_plots Packages](https://github.com/menglu21/TTC_plots.git).
+The main difference is that the previous work is based on python, and this package is based on RDataframe(c++ based).
 
 # Pre-requisite
 - CMSSW version >= CMSSW_12_1_0_pre3
