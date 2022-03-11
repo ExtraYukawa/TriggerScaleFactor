@@ -23,8 +23,8 @@ git clone https://github.com/ZhengGang85129/TriggerScaleFactor.git
 
 - Build necessary paths to Data and MC directory.
 ```
-python3 WorkFlow/main.py --mode Init --channels DoubleElectron DoubleMuon ElectronMuon --year 2017
 sh ./script/script.sh
+python3 WorkFlow/main.py --mode Init --channels DoubleElectron DoubleMuon ElectronMuon --year 2017
 ```
 ### step3: Build Directory
 
