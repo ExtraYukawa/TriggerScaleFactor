@@ -1,6 +1,6 @@
 # TriggerScaleFactor
 
-The structure of the code is simply derived from ![TTC_plots](https://github.com/menglu21/TTC_plots.git)
+The structure of the code is simply derived from [TTC_plots](https://github.com/menglu21/TTC_plots.git)
 
 # Pre-requisite
 - CMSSW version >= CMSSW_12_1_0_pre3
