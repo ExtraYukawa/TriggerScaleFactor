@@ -24,13 +24,13 @@ git clone https://github.com/ZhengGang85129/TriggerScaleFactor.git
 - Build necessary paths to Data and MC directory.
 ```
 sh ./script/script.sh
-python3 WorkFlow/main.py --mode Init --channels DoubleElectron DoubleMuon ElectronMuon --year 2017
+python3 WorkFlow/main.py --mode Init  --year 2017
 ```
 ### step3: Build Directory
 
 - Build Output Directory
 ```
-python3 WorkFlow/main.py --mode BuildDir --year 2018 --task TriggerSF --DirOut /eos/user/y/yourname/
+python3 WorkFlow/main.py --mode BuildDir --year 2018 --task TriggerSF --DirOut /eos/user/y/yourname/ --channels DoubleElectron DoubleMuon ElectronMuon
 ```
 ### step4: Trigger Efficiency Calculation
 
