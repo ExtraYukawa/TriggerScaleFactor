@@ -1,4 +1,4 @@
-import ROOT
+import ROOT,json
 import sys
 import os 
 CURRENT_WORKDIR = os.getcwd()
@@ -10,14 +10,9 @@ import numpy as np
 import math
 from math import sqrt
 from multiprocessing import Queue, Manager
-Define_Hists ='''
-#include "TH2D.h"
-#include "TFile.h"
-TFile *f_l1pteta_{0} = TFile::Open("/afs/cern.ch/user/m/melu/public/output.root");
-TH2D * h_l1pteta_{0} = (TH2D*) f_l1pteta_{0}->Get("EleIDDataEff");
-//TFile *f_l2pteta_{0} = TFile::Open("/afs/cern.ch/user/m/melu/public/output.root");
-//TH2D * h_l2pteta_{0} = (TH2D*) f_l1pteta_{0}->Get("EleIDDataEff");
-'''
+from Utils.General_Tool import get_NumberOfEvent
+from Utils.Header import *
+
 
 class MyDataFrame(object):
     def __init__(self,settings:dict) -> None:
@@ -29,85 +24,111 @@ class MyDataFrame(object):
         self._filters -> Offline triggers for Dileptons
         self._File_Paths -> Paths for input Files
         '''
-        self._channel = settings.get('channel')
-        if self._channel == 'DoubleElectron':
-            DY_region = 3 
-        elif self._channel == 'DoubleMuon':
-            DY_region = 1
-        elif self._channel == 'ElectronMuon':
+        self.__Data = settings.get('Data')
+        self.__trig_SF_on = settings.get('trig_SF_on')
+        self.__channel = settings.get('channel')
+        
+        if not self.__Data:
+            self.__TriggerSF_File = settings.get('TriggerSF')['file'][self.__channel]
+            self.__TriggerSF_Branch = settings.get('TriggerSF')['branchname']
+            ROOT.gInterpreter.ProcessLine(Histogram_Definition['Diff_Type'].format(self.__TriggerSF_File['l1'],self.__TriggerSF_File['l2'],self.__TriggerSF_Branch['l1'],self.__TriggerSF_Branch['l2']))
+
+        
+        if self.__channel == 'ElectronMuon':
             DY_region = 2 
+            self.__lepton_weights = 'Electron_RECO_SF[OPS_l2_id]'
+        elif self.__channel != None:
+            if self.__channel == 'DoubleElectron':
+                DY_region = 3
+                self.__lepton_weights = 'Electron_RECO_SF[OPS_l1_id]*Electron_RECO_SF[OPS_l2_id]'
+            elif self.__channel == 'DoubleMuon':
+                DY_region = 1
+                self.__lepton_weights = '1'
+        
         else:
             raise ValueError(f'No such channel{self.__channel}')
         
-        self._filters = 'DY_region=={0} && DY_z_mass > 60 && DY_z_mass<120 && (DY_l1_pt>30 || DY_l2_pt>30) && DY_drll>0.3'.format(DY_region)    
-        self._Data = bool()
-        self._df_tree = ROOT.RDataFrame
-        self._Hists = Manager().dict()
+        self.__filters = 'OPS_region=={0} && OPS_z_mass > 60 && OPS_z_mass<120 && (OPS_l1_pt>30 || OPS_l2_pt>30) && OPS_drll>0.3'.format(DY_region)    
+        self.__df_tree = ROOT.RDataFrame
+        self.__Hists = Manager().dict()
         
-        self._Trigger_Condition = settings.get('Trigger_Condition')
-        self._weights = settings.get('weight')
-        self._Data = settings.get('Data')
+        self.__Trigger_Condition = settings.get('Trigger_Condition')
+        
+        
+        self.__nevents =  settings.get('nevents')       
+        
         File_Paths = settings.get('File_Paths')
-        
-
-        self._File_Paths = ROOT.std.vector('string')()
-        if type(File_Paths) is list :
+        self.__File_Paths = ROOT.std.vector('string')()
+        if self.__Data == True:
             for path in File_Paths:
-                self._File_Paths.push_back(path)
+                self.__File_Paths.push_back(path)
         else:
-            self._File_Paths.push_back(File_Paths)
+            self.__File_Paths.push_back(File_Paths)
     @property
     def Tree(self) ->ROOT.RDataFrame.Filter:
-        return self._df_tree
+        return self.__df_tree
     @property
-    def Data(self) ->bool:
-        return self._Data
+    def IsData(self) ->bool:
+        return self.__Data
     @property
     def channel(self)->str:
-        return self._channel
+        return self.__channel
     @channel.setter
     def channel(self,channel:str)->str:
-        self._channel = channel
+        self.__channel = channel
     @property
     def Trigger_Condition(self)->str:
-        return self._Trigger_Condition
+        return self.__Trigger_Condition
     @property
     def lepton_weights(self) -> dict:
-        return self._weights
+        return self.__lepton_weights
     @property
     def File_Paths(self) ->ROOT.std.vector('string')():
-        return self._File_Paths
+        return self.__File_Paths
     @property
     def offline_trig(self) -> str:
-        return self._filters 
+        return self.__filters 
     @Tree.setter
     def Tree(self, Tree:ROOT.RDataFrame.Filter):
-        self._df_tree = Tree
-
+        self.__df_tree = Tree
     @property
     def Hists(self) ->dict():
-        return self._Hists
+        return self.__Hists
 
     @Hists.setter
     def Hists(self, Hists:dict):
-        self._Hists =Hists
-
-def Filtering(df:ROOT.RDataFrame,HistsSettings:dict):
+        self.__Hists =Hists
+    @property
+    def nevents(self)->int:
+        return self.__nevents
     
-    Tree= ROOT.RDataFrame('Events',df.File_Paths)
-    if not df.Data:
-        Tree = Tree.Define('trigger_SF','trigger_sf(h_l1pteta_{0},h_l1pteta_{0},DY_l1_pt,DY_l2_pt,DY_l1_eta,DY_l2_eta)'.format(df.channel))
-        lepton_weight = '*'.join([ w + '[DY_l1_id]' for w in df.lepton_weights['l1'] ] +[w + '[DY_l2_id]' for w in df.lepton_weights['l2']])
-        Tree = Tree.Define('genweight',f'puWeight*PrefireWeight*{lepton_weight}*trigger_SF*genWeight/abs(genWeight)')
+    @property
+    def w_trig_SF(self)->bool:
+        return self.__trig_SF_on
+
+def Filtering(df:MyDataFrame,HistsSettings:dict):
+    
+    if df.nevents ==-1:
+        Tree= ROOT.RDataFrame('Events',df.File_Paths)
+    else:
+        Tree = ROOT.RDataFrame('Events',df.File_Paths).Range(0,df.nevents)
+    if not df.IsData:
+        if df.w_trig_SF:
+            print('Apply Trigger_SF on MC Sample')
+            Tree = Tree.Define('trigger_SF','Trigger_sf(h1,OPS_l1_pt,OPS_l1_eta)*Trigger_sf(h2,OPS_l2_pt,OPS_l2_eta)')
+        elif not df.w_trig_SF:
+            print('Without Trigger_SF on MC Sample')
+            Tree = Tree.Define('trigger_SF','1.')
+        Tree = Tree.Define('genweight',f'puWeight*PrefireWeight*{df.lepton_weights}*trigger_SF*genWeight/abs(genWeight)')
 
     Tree = Tree.Filter(df.offline_trig)
-    df.Tree = Trigger(Tree,df.Trigger_Condition)
+    df.Tree =Tree.Filter(df.Trigger_Condition)
 
     Hists =dict()
     for name in HistsSettings.keys():
         setting = HistsSettings[name]
-        if df.Data is not None:
-            if df.Data :
+        if df.IsData != None:
+            if df.IsData :
                 Hists[name] = df.Tree.Histo1D((setting['name'],'',setting['nbins'],setting['lowedge'],setting['highedge']),setting['name'])
             else:
                 Hists[name] = df.Tree.Histo1D((setting['name'],'',setting['nbins'],setting['lowedge'],setting['highedge']),setting['name'],'genweight')
@@ -115,12 +136,6 @@ def Filtering(df:ROOT.RDataFrame,HistsSettings:dict):
             raise ValueError
     df.Hists = Hists
 
-def overunder_flowbin(h=None):
-    h.SetBinContent(1,h.GetBinContent(0)+h.GetBinContent(1))
-    h.SetBinError(1,sqrt(h.GetBinError(0)*h.GetBinError(0)+h.GetBinError(1)*h.GetBinError(1)))
-    h.SetBinContent(h.GetNbinsX(),h.GetBinContent(h.GetNbinsX())+h.GetBinContent(h.GetNbinsX()+1))
-    h.SetBinError(h.GetNbinsX(),sqrt(h.GetBinError(h.GetNbinsX())*h.GetBinError(h.GetNbinsX())+h.GetBinError(h.GetNbinsX()+1)*h.GetBinError(h.GetNbinsX()+1)))
-    return h
 
 
 def set_axis(histo,coordinate:str,title:str,is_energy:bool):
@@ -149,7 +164,7 @@ def set_axis(histo,coordinate:str,title:str,is_energy:bool):
         axis.SetTitle(title)
 
 from collections import OrderedDict
-def Plot(Histo:OrderedDict, x_name:str, lumi=int,save_dir='/eos/user/z/zhenggan/ttcbar/DrellYan',channel='DoubleElectron'):
+def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:int,trig_SF_on:bool,channel='DoubleElectron'):
 
     Histo['MC']['DY'].SetFillColor(ROOT.kRed)
     Histo['MC']['WJets'].SetFillColor(ROOT.kBlue - 7)
@@ -187,7 +202,6 @@ def Plot(Histo:OrderedDict, x_name:str, lumi=int,save_dir='/eos/user/z/zhenggan/
         max_yields_temp = h_stack.GetStack().Last().GetBinContent(i)
         if max_yields_temp>max_yields:max_yields=max_yields_temp
 
-
     max_yields_data = 0
 
     for i in range(1,Nbins+1):
@@ -218,7 +232,7 @@ def Plot(Histo:OrderedDict, x_name:str, lumi=int,save_dir='/eos/user/z/zhenggan/
 
     
 
-    from  utils.CMSTDRStyle import setTDRStyle
+    from  Utils.CMSTDRStyle import setTDRStyle
     T = setTDRStyle()
     T.cd()
     c= ROOT.TCanvas()
@@ -246,8 +260,8 @@ def Plot(Histo:OrderedDict, x_name:str, lumi=int,save_dir='/eos/user/z/zhenggan/
     if 'DY_z_mass' in x_name:set_axis(h_stack,'x', 'Z mass', True)
     set_axis(h_stack,'y', 'Event/Bin', False)
     
-    import utils.CMSstyle as CMSstyle
-    CMSstyle.SetStyle(pad1)
+    import Utils.CMSstyle as CMSstyle
+    CMSstyle.SetStyle(pad1,year)
 
    #legend
     leg1 = ROOT.TLegend(0.66, 0.75, 0.94, 0.88)
@@ -287,7 +301,7 @@ def Plot(Histo:OrderedDict, x_name:str, lumi=int,save_dir='/eos/user/z/zhenggan/
     hData.SetMarkerSize(0.85)
     hData.SetMarkerColor(1)
     hData.SetLineWidth(1)
-
+    
     hData.GetYaxis().SetTitle("Data/MC")
     hData.GetXaxis().SetTitle(h_stack.GetXaxis().GetTitle())
     hData.GetYaxis().CenterTitle()
@@ -302,8 +316,19 @@ def Plot(Histo:OrderedDict, x_name:str, lumi=int,save_dir='/eos/user/z/zhenggan/
     hData.Draw()
 
     c.Update()
-    c.SaveAs(os.path.join(save_dir,channel+x_name+'.pdf'))
-    c.SaveAs(os.path.join(save_dir,channel+x_name+'.png'))
+    
+    with open(f'./data/year{year}/DrellYan/User.json') as f:
+        UserName = json.load(f)['UserName']
+
+    Dir = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/DrellYan/year{year}/{channel}/plots'
+    if trig_SF_on:
+        c.SaveAs(os.path.join(Dir,x_name+'.pdf'))
+        c.SaveAs(os.path.join(Dir,x_name+'.png'))
+    elif not trig_SF_on:
+        c.SaveAs(os.path.join(Dir,'no_trigSF_'+x_name+'.pdf'))
+        c.SaveAs(os.path.join(Dir,'no_trigSF_'+x_name+'.png'))
+    else:
+        raise ValueError('weired.')
     c.Close()
     #pad1.Close()
     #pad2.Close()
@@ -312,3 +337,157 @@ def Plot(Histo:OrderedDict, x_name:str, lumi=int,save_dir='/eos/user/z/zhenggan/
     del c
     del hData
     del hMC
+
+def GenTriggerSF_Path(year:str):
+    with open(f'./data/year{year}/TriggerSF/User.json','r') as f:
+        UserName = json.load(f)['UserName']
+
+    path = dict()
+    path['file'] =dict()
+    path['file']['DoubleElectron']  =dict()
+    path['file']['DoubleMuon'] = dict()
+    path['file']['ElectronMuon'] = dict()
+    
+    path['branchname'] = dict()
+    
+    path['file']['DoubleElectron']['l1'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/DoubleElectron/files/SF_l1pteta.root'
+    path['file']['DoubleElectron']['l2'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/DoubleElectron/files/SF_l2pteta.root'
+
+    path['file']['DoubleMuon']['l1'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/DoubleMuon/files/SF_l1pteta.root'
+    path['file']['DoubleMuon']['l2'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/DoubleMuon/files/SF_l2pteta.root'
+    
+    path['file']['ElectronMuon']['l1'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/ElectronMuon/files/SF_l1pteta.root'
+    path['file']['ElectronMuon']['l2'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/ElectronMuon/files/SF_l2pteta.root'
+    
+    path['branchname']['l1'] = 'l1pteta'
+    path['branchname']['l2'] = 'l2pteta'
+
+
+    with open(f'./data/year{year}/DrellYan/path/triggerSF.json','wt') as f:
+        json.dump(path,f,indent=4)
+
+def GenDataPath_File(year:str):
+    '''
+    
+    Build JSON file to record MC/Data paths.
+    
+    '''
+    if year=='2017':
+        data_dir = '/eos/cms/store/group/phys_top/ExtraYukawa/TTC_version9/'
+
+        Dileptons_types = ['DoubleMuon','SingleMuon','DoubleElectron','SingleElectron','ElectronMuon']
+
+
+        data_path = dict()
+        data_path['Data'] = dict()
+        data_path['MC'] = dict()
+
+        for Dileptons_type in  Dileptons_types:
+            data_path['Data'][Dileptons_type] =dict()
+
+        data_path['Data']['DoubleMuon'] = [os.path.join(data_dir,'DoubleMuon' + postfix + '.root') for postfix in ['B','C','D','E','F']]
+        data_path['Data']['SingleMuon'] = [os.path.join(data_dir,'SingleMuon' + postfix + '.root') for postfix in ['B','C','D','E','F']]
+        data_path['Data']['DoubleElectron'] = [os.path.join(data_dir,'DoubleEG' + postfix + '.root') for postfix in ['B','C','D','E','F'] ]
+        data_path['Data']['SingleElectron'] = [os.path.join(data_dir,'SingleEG' + postfix + '.root') for postfix in ['B','C','D','E','F']]
+        data_path['Data']['ElectronMuon'] = [os.path.join(data_dir,'MuonEG' + postfix + '.root' ) for postfix in ['B','C','D','E','F'] ]
+
+
+        MCname_list = ['DYnlo','WJets','osWW','ssWW','WWdps','WZ_ew','WZ_qcd','ZZ','ZG_ew','WWW','WWZ','WZZ','ZZZ','tsch','t_tch','tbar_tch','tW','tbarW','ttWtoLNu','ttWtoQQ','ttZ','ttZtoQQ','ttH','ttWW','ttWZ','ttWH','ttZZ','ttZH','tttJ','tttW','tttt','tzq','TTTo2L','TTTo1L']
+
+        for MCname in MCname_list:
+            data_path['MC'][MCname] = os.path.join(data_dir,MCname+'.root')
+
+    else:
+        raise ValueError("year{year} HLT Path has not been specified yet!")
+    with open(f'./data/year{year}/DrellYan/path/datapath.json','wt') as f:
+        json.dump(data_path,f,indent=4)
+
+
+def GenXsValue_File(year:str):
+    '''
+    
+    Build JSON file to record xs values for associated physics process.
+    
+    '''
+    if year=='2017':
+        Event =dict()
+        Event['xs'] = dict()
+        Event['NumberOfEvents'] = dict()
+        Event['xs']['lumi'] = 41480.
+        Event['xs']['DYnlo'] = 6077.22
+        Event['xs']['WJets'] = 61526.7
+        Event['xs']['osWW'] = 11.09
+        Event['xs']['ssWW'] = 0.04932
+        Event['xs']['WWdps'] = 1.62
+        Event['xs']['WZ_ew'] = 0.0163
+        Event['xs']['WZ_qcd'] = 5.213
+        Event['xs']['ZZ'] = 0.0086
+        Event['xs']['ZG_ew'] = 0.1097
+        Event['xs']['WWW'] = 0.2086
+        Event['xs']['WWZ'] = 0.1707
+        Event['xs']['WZZ'] = 0.05709
+        Event['xs']['ZZZ'] = 0.01476
+        Event['xs']['TTTo2L'] = 88.3419
+        Event['xs']['TTTo1L'] = 365.4574
+        Event['xs']['ttH'] = 0.5269
+        Event['xs']['ttWtoLNu']  = 0.1792
+        Event['xs']['ttWtoQQ'] = 0.3708
+        Event['xs']['ttZ'] = 0.2589
+        Event['xs']['ttZtoQQ'] = 0.6012
+        Event['xs']['ttWW'] = 0.007003
+        Event['xs']['ttWZ'] = 0.002453
+        Event['xs']['ttZZ'] = 0.001386
+        Event['xs']['tzq'] = 0.07561
+        Event['xs']['tW'] = 35.85
+        Event['xs']['tbarW'] = 35.85
+        Event['xs']['tsch'] = 3.36
+        Event['xs']['t_tch'] = 136.02
+        Event['xs']['tbar_tch'] = 80.95
+        Event['xs']['ttWH'] = 0.00114
+        Event['xs']['ttZH'] = 0.00113
+        Event['xs']['tttJ'] = 0.0004
+        Event['xs']['tttW'] = 0.00073
+        Event['xs']['tttt'] = 0.0082
+
+        
+        with open(f'./data/year{year}/DrellYan/path/datapath.json' , 'rb') as f:
+            MC_Paths = json.load(f)['MC']
+
+        for MC in MC_Paths.keys():
+            Event['NumberOfEvents'][MC] = get_NumberOfEvent(MC_Paths[MC])
+
+    else:
+        raise ValueError("year{year} HLT Path has not been specified yet!")
+    with open(f'./data/year{year}/DrellYan/configuration/data_xs.json','wt') as f:
+        json.dump(Event,f,indent=4)
+def GenPaths_HLTTriggerCondition_ForAnalyzer_File(year:str):
+    '''
+    
+    Build JSON file to record trigger conditions for Each particular channels used in Analyzer condition.
+    
+    '''
+
+    trigger =dict()
+
+    if year=='2017' or year=='2018':
+        trigger['All'] = 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ || HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ || HLT_IsoMu27 || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf'
+
+        trigger['DoubleElectron'] =dict()
+
+        trigger['DoubleElectron']['DoubleElectron'] = 'HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ'
+        trigger['DoubleElectron']['SingleElectron'] = '!(HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL) && !(HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ) && (HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf)'
+
+        trigger['DoubleMuon'] = dict()
+        trigger['DoubleMuon']['DoubleMuon'] = '(HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8)'
+        trigger['DoubleMuon']['SingleMuon'] = '!(HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8) && HLT_IsoMu27'
+
+        trigger['ElectronMuon'] = dict()
+        trigger['ElectronMuon']['SingleElectron'] = '!(HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ) && !(HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ) && !(HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ) && (HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf)'
+        trigger['ElectronMuon']['SingleMuon'] = '!(HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ || HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ) && HLT_IsoMu27'
+        trigger['ElectronMuon']['ElectronMuon'] = '(HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ || HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ)'
+    
+    else:
+        raise ValueError("year{year} HLT Path has not been specified yet!")
+    with open(f'./data/year{year}/DrellYan/configuration/HLTTriggerCondition.json','wt')  as f:
+        json.dump(trigger,f,indent=4)
+
