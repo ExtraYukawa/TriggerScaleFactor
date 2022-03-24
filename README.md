@@ -63,6 +63,36 @@ After the program is done, you can see trigSF plots and files in your /eos/user/
 
 Plots for efficiencies and trigger scale factors: [link](https://cernbox.cern.ch/index.php/s/C2DsnT2SjqiApBL)
 
+
+## Steps to do Drell-Yan Process Reconstruction
+
+### step1: preparation
+Firstly you should make some paths to Input Files(Data and MC respectively) and triggerSF files.
+Also, make some files to contain the crossection and number of events of MC sample.
+
+e.g.
+```
+python3 ./WorkFlow/main.py -m Init -t DrellYan --year 2017 
+```
+### step2: Make Output Directory under EOS space and save this path.
+
+In this step, the directories which will be used to contain the plots of DrellYan-related would be constructed.
+Also, the json files which contain the paths to these directories will be also made.
+
+e.g.
+```
+python3 ./WorkFlow/main.py -m BuildDir -t DrellYan --year 2017 --channels DoubleElectron DoubleMuon ElectronMuon 
+```
+### step3: Drell_Yan Process Reconstruction
+
+```
+python3 ./WorkFlow/main.py -m DrellYanRECO -y 2017 -i DoubleElectron -n -1 --trigSF_on
+```
+ arguments: 
+ [-n]: number of events, if specified to be -1, all the events will be loaded.
+ [-a/--trigSF_on]: Apply triggerSF on MC sample or not. If specified, triggerSF will be applied otherwise, the default is no triggerSF.
+
+
 ### To-Do List:
 - [ ] Rewrite the script in MakeFile.
 - [ ] Multi-Thread Implementation in Trigger Efficiency Calculation.
