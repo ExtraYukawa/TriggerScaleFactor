@@ -89,8 +89,8 @@ python3 ./WorkFlow/main.py -m BuildDir -t DrellYan --year 2017 --channels Double
 python3 ./WorkFlow/main.py -m DrellYanRECO -y 2017 -i DoubleElectron -n -1 --trigSF_on
 ```
  arguments: 
- [-n]: number of events, if specified to be -1, all the events will be loaded.
- [-a/--trigSF_on]: Apply triggerSF on MC sample or not. If specified, triggerSF will be applied otherwise, the default is no triggerSF.
+ - [-n]: number of events, if specified to be -1, all the events will be loaded.
+ - [-a/--trigSF_on]: Apply triggerSF on MC sample or not. If specified, triggerSF will be applied otherwise, the default is no triggerSF.
 
 
 ### To-Do List:
