@@ -5,5 +5,5 @@
 
 float IDScaleFact(const char *, TH2D*,TH2D*,float ,float , float , float );
 float ID_sf_singlelepton(TH2D*,float,float);
-
+float Trigger_sf(TH2D *,float , float );
 #endif

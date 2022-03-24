@@ -28,3 +28,13 @@ float ID_sf_singlelepton(TH2D *h, float pt, float eta){
 
 }
 
+
+float Trigger_sf(TH2D *h,float pt , float eta){
+
+    if(pt > 200)
+        pt =199;
+    if (eta < 0)
+        eta = -eta;
+    return h->GetBinContent(h->FindBin(pt,eta));
+
+}

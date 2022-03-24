@@ -37,12 +37,16 @@ def Build_Dir(setting):
         User['DirOut'][channel] = dict()
         MakeDir(Root = DirParName, ChildName = channel)
         DirParName_tmp = os.path.join(DirParName,channel)
-        MakeDir(Root = DirParName_tmp, ChildName = 'files')
         MakeDir(Root = DirParName_tmp, ChildName = 'plots')
-        User['DirOut'][channel]['files'] = os.path.join(DirParName_tmp,'files')
         User['DirOut'][channel]['plots'] = os.path.join(DirParName_tmp,'plots')
+        
+        if Task =='TriggerSF':
+            MakeDir(Root = DirParName_tmp, ChildName = 'files')
+            User['DirOut'][channel]['files'] = os.path.join(DirParName_tmp,'files')
+        else:
+            pass
     User['UserName'] = DirParName.split("/")[4]
-    PrivateFile = f'data/year{setting.year}/User.json'
+    PrivateFile = f'data/year{setting.year}/{setting.task}/User.json'
     print(f'Your Out put file will store here: {PrivateFile}')
     with open(PrivateFile,'w') as f:
         json.dump(User,f,indent=4)

@@ -17,23 +17,23 @@ import Utils.plot_settings as plt_set
 def Trig_Calc(year:str,channel:str,Type:str,nevents:int):
     if year is None:
         raise ValueError('Arguments [year] must be speicified.')
-    with open(f'./data/year{year}/configuration/HLTTrigger.json','rb') as f:
+    with open(f'./data/year{year}/TriggerSF/configuration/HLTTrigger.json','rb') as f:
         HLT_Path = json.load(f)
-    with open(f'./data/year{year}/configuration/name.json','rb') as f :
+    with open(f'./data/year{year}/TriggerSF/configuration/name.json','rb') as f :
         Var_Name = json.load(f)
-    with open(f'./data/year{year}/configuration/flag.json','rb') as f :
+    with open(f'./data/year{year}/TriggerSF/configuration/flag.json','rb') as f :
         Flag = json.load(f)
 
-    with open(f'./data/year{year}/path/filein.json','rb') as f:
+    with open(f'./data/year{year}/TriggerSF/path/filein.json','rb') as f:
         FileIn = json.load(f)
 
-    with open(f'./data/year{year}/User.json','rb') as f:
+    with open(f'./data/year{year}/TriggerSF/User.json','rb') as f:
         User = json.load(f)
     
-    with open(f'./data/year{year}/path/LeptonsID_SF.json','rb') as f:
+    with open(f'./data/year{year}/TriggerSF/path/LeptonsID_SF.json','rb') as f:
         LepSF_File = json.load(f)[channel]
 
-    with open(f'./data/year{year}/configuration/weights.json','rb') as f:
+    with open(f'./data/year{year}/TriggerSF/configuration/weights.json','rb') as f:
         Weights = json.load(f)[Type]
 
     setting={
@@ -58,13 +58,14 @@ def Plot_efficiency(channel:str,year:str):
     '''
     plot Trigger histograms to visualize what's in root file respectively.
     '''
-    with open(f'./data/year{year}/User.json','rb') as f:
+    with open(f'./data/year{year}/TriggerSF/User.json','rb') as f:
         User = json.load(f)
     user_settings={
             'channel':channel,
             'DirIn':User['DirOut'][channel]['files'],
             'DirOut':User['DirOut'][channel]['plots'],
-            'colors' : {'Data':1,'MC':4}
+            'colors' : {'Data':1,'MC':4},
+            'year':year
             }
     tags = {
             'l1':{
@@ -107,12 +108,13 @@ def SF_Calc(channel:str,year:str):
     MC -> TTTo2L
     data -> MET
     '''
-    with open(f'./data/year{year}/User.json','rb') as f:
+    with open(f'./data/year{year}/TriggerSF/User.json','rb') as f:
         User = json.load(f)
     settings={
             'channel':channel,
             'DirIn':User['DirOut'][channel]['files'],
             'DirOut':User['DirOut'][channel]['plots'],
+            'year':year
             }
     
     nominal_names =['l1pteta','l2pteta']

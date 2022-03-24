@@ -55,7 +55,7 @@ def SetAxisandLabels(histo):
     Y.SetLabelOffset(0.007)
     X.SetNdivisions(510)
 
-def SetStyle(gPad):
+def SetStyle(gPad,year:str):
     latex = TLatex()
     latex.SetNDC()
     l = gPad.GetLeftMargin()
@@ -75,11 +75,15 @@ def SetStyle(gPad):
     relPosY = 0.035
 
     # extra
-    extraText = ' Preliminary 2017'
+    extraText = ' Preliminary '+year
     extraOverCmsTextSize =0.76
     extraTextFont = 52
-
-    lumiText ='41.5 fb^{-1}(13 TeV)'
+    
+    if year=='2017':
+        lumiText ='41.5 fb^{-1}(13 TeV)'
+    elif year =='2018': 
+        lumiText ='59.7 fb^{-1}(13 TeV)'
+    
     lumiTextSize = 0.5
     lumiTextOffset = 0.2
     relExtraDY = 1.2
