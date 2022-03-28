@@ -93,8 +93,26 @@ python3 ./WorkFlow/main.py -m DrellYanRECO -y 2017 -i DoubleElectron -n -1 --tri
  - [-a/--trigSF_on]: Apply triggerSF on MC sample or not. If specified, triggerSF will be applied otherwise, the default is no triggerSF.
 
 
+## Steps to do Lepton Fake Rate calculation
+### step1 : Initialization and Building Ourput directory
+
+```
+python3 ./WorkFlow/main.py -m Init -t FakeRate -y 2017
+python3 ./WorkFlow/main.py -m BuildDir -t FakeRate -y 2017 --channels Electron Muon 
+```
+
+The similar data output and FilesInput Info. json files structure as previous steps will present.
+
+### step2 : FakeRate Calculation
+
+```
+python3 ./WorkFlow/main.py -m FakeRate -y 2017 --channel Electron -t FakeRate -n -1 -a
+```
+Note:
+argument [ -a/--trigSF_on] determine whether the trigSF should be applied or not.
+
 ### To-Do List:
-- [ ] Rewrite the script in MakeFile.
+- [x] Rewrite the script in MakeFile.
 - [ ] Multi-Thread Implementation in Trigger Efficiency Calculation.
 - [ ] Further divide Efficiency Calculation into two sub-programs. 
    - Saving Cut-Flow dataframe into root files. 
