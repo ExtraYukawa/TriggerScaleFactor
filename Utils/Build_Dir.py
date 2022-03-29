@@ -16,15 +16,13 @@ def Build_Dir(setting):
     Channels = setting.channels
     Task = setting.task
     
-    if YEAR is None:
-        raise ValueError('Argument: [-y/--year] must be specified.')
-    if DirParName is None:
-        raise ValueError('Argument: [-o/--DirOut] must be specified.')
-    if Channels is None:
-        raise ValueError('Argument: [-c/--channels] must be specified.')
-    if Task is None:
-        raise ValueError('Argument: [-t/--task] must be specified.')
-    
+    if setting.DirOut is None:
+        if  not os.path.isfile(f'./data/year{YEAR}/TriggerSF/User.json'):
+            raise ValueError('Argument: [-o/--DirOut] must be specified.')
+        else:
+            with open(f'./data/year{YEAR}/TriggerSF/User.json','rb') as f:
+                UserName=json.load(f)['UserName']
+                DirParName = f'/eos/user/{UserName[0]}/{UserName}/'
     MakeDir(Root = DirParName,ChildName = 'ExtraYukawa')
     DirParName = os.path.join(DirParName,'ExtraYukawa')
     MakeDir(Root = DirParName,ChildName = Task)
@@ -40,7 +38,7 @@ def Build_Dir(setting):
         MakeDir(Root = DirParName_tmp, ChildName = 'plots')
         User['DirOut'][channel]['plots'] = os.path.join(DirParName_tmp,'plots')
         
-        if Task =='TriggerSF':
+        if Task =='TriggerSF' or Task == 'FakeRate':
             MakeDir(Root = DirParName_tmp, ChildName = 'files')
             User['DirOut'][channel]['files'] = os.path.join(DirParName_tmp,'files')
         else:

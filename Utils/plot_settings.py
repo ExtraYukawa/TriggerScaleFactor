@@ -16,6 +16,6 @@ njetbin=array('d',[0,1,2,3,4,5,6,7,8,9,10])
 metbin=array('d',[100,110,120,130,140,160,180,200,250])
 abs_etabin=array('d',[0,0.4,0.9,1.5,2.5])
 
-
-#def draw_plots(hist_array:dict(), draw_data:bool, x_name:str, isem:int):
+fr_ptbin= array('d',[20, 30, 40, 60, 80])
+fr_etabin=array('d',[0, 0.5,1.0,1.5,2.0,2.5])
 

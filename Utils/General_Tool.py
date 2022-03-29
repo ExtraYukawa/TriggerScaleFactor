@@ -60,3 +60,67 @@ def overunder_flowbin(h=None,Hist_dim='1D'):
         raise ValueError(f'Dim: {Hist_dim} is not specified.')
     return h
 
+
+
+
+
+def Hist2D_to_Binx_Equal(h_original:ROOT.TH2D,IsFakeRate=False)->ROOT.TH2D:
+
+
+    nx = h_original.GetXaxis().GetNbins()
+    ny = h_original.GetYaxis().GetNbins()
+    xmax = h_original.GetXaxis().GetXmax()
+    ymax = h_original.GetYaxis().GetXmax()
+    xmin = h_original.GetXaxis().GetXmin()
+    ymin = h_original.GetYaxis().GetXmin()
+    xtitle = h_original.GetXaxis().GetTitle()
+    ytitle = h_original.GetYaxis().GetTitle()
+    
+    h_new = ROOT.TH2D("new_h","",nx,xmin,xmax,ny,ymin,ymax)
+
+    h_new.GetXaxis().SetTitle(xtitle)
+    h_new.GetYaxis().SetTitle(ytitle)
+    
+    
+    for i in range(1,nx+1):
+        for j in range(1,ny+1):
+            BinContent= h_original.GetBinContent(i,j)
+            BinError = h_original.GetBinError(i,j)
+            h_new.SetBinContent(i,j,BinContent)
+            h_new.SetBinError(i,j,BinError)
+    h_new.GetXaxis().SetLabelOffset(999)
+    h_new.GetYaxis().SetLabelOffset(999)
+
+#    h_new.Draw('COLZ TEXT E')
+
+
+    label = ROOT.TText()
+    label.SetTextFont(42)
+    label.SetTextSize(0.04)
+    label.SetTextAlign(22)
+    ylabel = h_new.GetYaxis().GetBinLowEdge(1) - 0.15*h_new.GetYaxis().GetBinWidth(1)
+    xlabel = h_new.GetXaxis().GetBinLowEdge(1) - 0.25*h_new.GetXaxis().GetBinWidth(1)
+    h_new.SetEntries(h_original.GetEntries())
+
+    h_new.Draw('COLZ TEXT E')
+    if not IsFakeRate:
+        for i in range(nx+1):
+            xlow = h_original.GetXaxis().GetBinUpEdge(i)
+            xnew = h_new.GetXaxis().GetBinLowEdge(i+1)
+            label.DrawText(xnew,ylabel,f"{int(xlow)}")
+        for i in range(ny+1):
+            ylow = h_original.GetYaxis().GetBinUpEdge(i)
+            ynew = h_new.GetYaxis().GetBinLowEdge(i+1)
+            label.DrawText(xlabel,ynew,f"{ylow:.1f}")
+    else:
+        for i in range(nx+1):
+            xlow = h_original.GetXaxis().GetBinUpEdge(i)
+            xnew = h_new.GetXaxis().GetBinLowEdge(i+1)
+            label.DrawText(xnew,ylabel,f"{xlow:.1f}")
+        for i in range(ny+1):
+            ylow = h_original.GetYaxis().GetBinUpEdge(i)
+            ynew = h_new.GetYaxis().GetBinLowEdge(i+1)
+            label.DrawText(xlabel,ynew,f"{int(ylow)}")
+    #mypalette.colorPalette()
+    return h_new
+
