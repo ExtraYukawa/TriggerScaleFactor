@@ -14,59 +14,9 @@ import json
 import fnmatch 
 CURRENT_WORKDIR = os.getcwd()
 sys.path.append(CURRENT_WORKDIR)
-from Utils.General_Tool import get_NumberOfEvent
+from Utils.General_Tool import get_NumberOfEvent,Hist2D_to_Binx_Equal
 
 
-def Hist2D_to_Binx_Equal(h_original:ROOT.TH2D)->ROOT.TH2D:
-
-
-    nx = h_original.GetXaxis().GetNbins()
-    ny = h_original.GetYaxis().GetNbins()
-    xmax = h_original.GetXaxis().GetXmax()
-    ymax = h_original.GetYaxis().GetXmax()
-    xmin = h_original.GetXaxis().GetXmin()
-    ymin = h_original.GetYaxis().GetXmin()
-    xtitle = h_original.GetXaxis().GetTitle()
-    ytitle = h_original.GetYaxis().GetTitle()
-    
-    h_new = ROOT.TH2D("new_h","",nx,xmin,xmax,ny,ymin,ymax)
-
-    h_new.GetXaxis().SetTitle(xtitle)
-    h_new.GetYaxis().SetTitle(ytitle)
-    
-    
-    for i in range(1,nx+1):
-        for j in range(1,ny+1):
-            BinContent= h_original.GetBinContent(i,j)
-            BinError = h_original.GetBinError(i,j)
-            h_new.SetBinContent(i,j,BinContent)
-            h_new.SetBinError(i,j,BinError)
-    h_new.GetXaxis().SetLabelOffset(999)
-    h_new.GetYaxis().SetLabelOffset(999)
-
-#    h_new.Draw('COLZ TEXT E')
-
-
-    label = ROOT.TText()
-    label.SetTextFont(42)
-    label.SetTextSize(0.04)
-    label.SetTextAlign(22)
-    ylabel = h_new.GetYaxis().GetBinLowEdge(1) - 0.15*h_new.GetYaxis().GetBinWidth(1)
-    xlabel = h_new.GetXaxis().GetBinLowEdge(1) - 0.25*h_new.GetXaxis().GetBinWidth(1)
-    h_new.SetEntries(h_original.GetEntries())
-
-    h_new.Draw('COLZ TEXT E')
-    for i in range(nx+1):
-        xlow = h_original.GetXaxis().GetBinUpEdge(i)
-        xnew = h_new.GetXaxis().GetBinLowEdge(i+1)
-        label.DrawText(xnew,ylabel,f"{int(xlow)}")
-    for i in range(ny+1):
-        ylow = h_original.GetYaxis().GetBinUpEdge(i)
-        ynew = h_new.GetYaxis().GetBinLowEdge(i+1)
-        label.DrawText(xlabel,ynew,f"{ylow:.1f}")
-
-    #mypalette.colorPalette()
-    return h_new
 
 def Plot(func,**user_settings):
     def decorator(tag):
@@ -141,7 +91,7 @@ def plot_eff2d(tag:str,**settings):
         pad = ROOT.TPad()
         pad.Draw()
         pad.cd()
-        
+                
         hist2D = FileIn[Type].Get(tag)
         hist2D = Hist2D_to_Binx_Equal(hist2D)
 
@@ -331,155 +281,6 @@ def CriteriaDiff_Err_Calc(**args) -> np.ndarray:
     SF_Uncertainty['nominal'] =np.sqrt(SF_Uncertainty['jet']**2 + SF_Uncertainty['pv']**2)
     
     return SF_Uncertainty['nominal']
-
-
-
-def GenPaths_HLTTrigger_File(year:str):
-    '''
-    
-    Build JSON file to record trigger conditions for Each particular channels.
-    
-    '''
-    trigger = dict()
-    if year=='2017' or year=='2018':
-    
-        trigger['DoubleElectron'] = ["HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL", "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ", "HLT_passEle32WPTight", "HLT_Ele35_WPTight_Gsf"]
-        trigger['DoubleMuon'] = ["HLT_IsoMu27", "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8"]
-        trigger["ElectronMuon"] = ["HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ", "HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ", "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ", "HLT_IsoMu27", "HLT_passEle32WPTight", "HLT_passEle32WPTight"]
-        trigger['MET'] = ["HLT_PFMET120_PFMHT120_IDTight", "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight", "HLT_PFHT500_PFMET100_PFMHT100_IDTight", "HLT_PFHT700_PFMET85_PFMHT85_IDTight", "HLT_PFHT800_PFMET75_PFMHT75_IDTight"]
-
-    else:
-        raise ValueError("year{year} HLT Path has not been specified yet!")
-    with open(f'./data/year{year}/TriggerSF/configuration/HLTTrigger.json','w')  as f:
-        json.dump(trigger,f,indent=4)
-
-
-
-def GenTrigEffInput_File(year:str):
-    '''
-    
-    Build JSON file to record Input path for TriggerEfficiency Calculation Stage.
-    
-    '''
-    if year=='2017' :
-        path = {
-                "Data":['/eos/cms/store/group/phys_top/ExtraYukawa/TTC_version9/METB.root'
-                    ,'/eos/cms/store/group/phys_top/ExtraYukawa/TTC_version9/METC.root'
-                    ,'/eos/cms/store/group/phys_top/ExtraYukawa/TTC_version9/METD.root'
-                    ,'/eos/cms/store/group/phys_top/ExtraYukawa/TTC_version9/METE.root'
-                    ,'/eos/cms/store/group/phys_top/ExtraYukawa/TTC_version9/METF.root'],
-                "MC":['/eos/cms/store/group/phys_top/ExtraYukawa/TTC_version9/TTTo2L.root']
-                }
-    elif year=='2018':
-        path = {
-                "Data":['/eos/cms/store/group/phys_top/ExtraYukawa/2018/MET_A.root',
-                    '/eos/cms/store/group/phys_top/ExtraYukawa/2018/MET_B.root',
-                    '/eos/cms/store/group/phys_top/ExtraYukawa/2018/MET_C.root',
-                    '/eos/cms/store/group/phys_top/ExtraYukawa/2018/MET_D_0.root',
-                    '/eos/cms/store/group/phys_top/ExtraYukawa/2018/MET_D_1.root'
-                    ],
-                "MC":['/eos/cms/store/group/phys_top/ExtraYukawa/2018/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8.root']
-                
-                }
-    
-    else:
-        raise ValueError("year{year} HLT Path has not been specified yet!")
-    with open(f'./data/year{year}/TriggerSF/path/filein.json','w') as f:
-        json.dump(path,f,indent=4)
-
-def GenMCWeightsName_File(year:str):
-    if year == '2017':
-        weights={
-                'Data':'1.',
-                'MC':['puWeight','PrefireWeight']
-                }
-    elif year =='2018':
-        weights={
-                'Data':'1.',
-                'MC':['puWeight']
-                }
-    else:
-        raise ValueError("year{year} HLT Path has not been specified yet!")
-    with open(f'./data/year{year}/TriggerSF/configuration/weights.json','w') as f:
-        json.dump(weights,f,indent=4)
-
-
-def GenLeptonIDSF_File(year:str):
-    if year=='2017' or year == '2018':
-        path = {
-                'DoubleElectron':{ 
-                    'path':f'/afs/cern.ch/user/m/melu/public/eleIDSF_{year}.root',
-                        'name':'EleIDDataEff'},
-                'DoubleMuon':{
-                    'path':f'/eos/user/t/tihsu/share/muonID_SF/{year}UL/muonIdSF_{year}UL.root',
-                    'name':'muIdSF'
-                    },
-                'ElectronMuon':{
-                    'path':{
-                        'Muon':f'/eos/user/t/tihsu/share/muonID_SF/{year}UL/muonIdSF_{year}UL.root',
-                        'Electron':f'/afs/cern.ch/user/m/melu/public/eleIDSF_{year}.root'
-                    },
-                    'name':{
-                        'Muon':'muIdSF',
-                        'Electron':'EleIDDataEff'
-                        }
-
-                    }
-        }
-    else:
-        raise ValueError("year{year} HLT Path has not been specified yet!")
-    with open(f'./data/year{year}/TriggerSF/path/LeptonsID_SF.json','w') as f:
-        json.dump(path,f,indent=4)
-
-
-def GenVariableNames_File(year:str):
-    '''
-    
-    Build JSON file to record Variable names.
-    
-    '''
-    channels = ['DoubleElectron','DoubleMuon','ElectronMuon']
-
-    property_name = dict()
-    if year=='2017' or year =='2018':
-
-        for channel in channels:
-            property_name[channel] = dict()
-
-        property_name['DoubleElectron']['region']=3
-        property_name['DoubleElectron']['weight'] = {'l1':'Electron_RECO_SF','l2':'Electron_RECO_SF'}
-
-        property_name['DoubleElectron']['OPS_p4'] = {'l1':['OPS_l1_pt','OPS_l1_eta','OPS_l1_phi','OPS_l1_mass'],'l2':['OPS_l2_pt','OPS_l2_eta','OPS_l2_phi','OPS_l2_mass']}
-
-        property_name['DoubleMuon']['region']=1
-        property_name['DoubleMuon']['weight'] = {'l1':None,'l2':None}
-        property_name['DoubleMuon']['OPS_p4'] = {'l1':['OPS_l1_pt','OPS_l1_eta','OPS_l1_phi','OPS_l1_mass'],'l2':['OPS_l2_pt','OPS_l2_eta','OPS_l2_phi','OPS_l2_mass']}
-
-
-        property_name['ElectronMuon']['region']=2
-        property_name['ElectronMuon']['weight'] = {'l1':None,'l2':['Electron_RECO_SF']}
-        property_name['ElectronMuon']['OPS_p4'] = {'l1':['Muon_corrected_pt','Muon_eta','Muon_phi','Muon_mass'],'l2':['Electron_pt','Electron_eta','Electron_phi','Electron_mass']}
-
-
-        for channel in channels:
-            property_name[channel]['ttc_p4'] = {'l1':['ttc_l1_pt','ttc_l1_eta','ttc_l1_phi','ttc_l1_mass'],'l2':['ttc_l2_pt','ttc_l2_eta','ttc_l2_phi','ttc_l2_mass']}
-
-    else:
-        raise ValueError("year{year} HLT Path has not been specified yet!")
-    with open(f'./data/year{year}/TriggerSF/configuration/name.json','wt') as f:
-        json.dump(property_name, f,indent=4)
-
-def GenGoodFlag_File(year:str):
-    '''
-    Build Json file which contents Flag Name.
-    '''
-    if year=='2017' or year == '2018':
-
-        Flags = ['Flag_goodVertices','Flag_globalSuperTightHalo2016Filter', 'Flag_HBHENoiseFilter', 'Flag_HBHENoiseIsoFilter', 'Flag_EcalDeadCellTriggerPrimitiveFilter', 'Flag_BadPFMuonFilter', 'Flag_eeBadScFilter', 'Flag_ecalBadCalibFilter']
-    else:
-        raise ValueError("year{year} HLT Path has not been specified yet!")
-    with open(f'./data/year{year}/TriggerSF/configuration/flag.json','wt') as f :
-        json.dump(Flags,f,indent=4)
 
 
 
