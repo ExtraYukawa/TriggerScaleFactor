@@ -1,10 +1,6 @@
 #include <stdexcept>
 #include "IDScaleFactor.h"
 
-
-
-
-
 float IDScaleFact(const char *channel="", TH2D*h1=NULL,TH2D*h2=NULL,float l1pt=0,float l2pt=0, float l1eta=0, float l2eta=0){
     
     if(strcmp(channel,"DoubleElectron") ==0 ||strcmp(channel,"DoubleMuon")==0 ){
