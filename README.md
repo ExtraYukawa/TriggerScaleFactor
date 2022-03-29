@@ -23,7 +23,6 @@ git clone https://github.com/ZhengGang85129/TriggerScaleFactor.git
 
 - Build necessary paths to Data and MC directory.
 ```
-sh ./script/script.sh
 python3 WorkFlow/main.py --mode Init  --year 2017 -t TriggerSF
 ```
 ### step3: Build Directory
