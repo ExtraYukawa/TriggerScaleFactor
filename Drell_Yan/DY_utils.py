@@ -10,7 +10,6 @@ import numpy as np
 import math
 from math import sqrt
 from multiprocessing import Queue, Manager
-from Utils.General_Tool import get_NumberOfEvent
 from Utils.Header import *
 
 
@@ -59,6 +58,8 @@ class MyDataFrame(object):
         
         File_Paths = settings.get('File_Paths')
         self.__File_Paths = ROOT.std.vector('string')()
+        self.__weights = '*'.join(settings.get('weights'))
+        
         if self.__Data == True:
             for path in File_Paths:
                 self.__File_Paths.push_back(path)
@@ -105,7 +106,9 @@ class MyDataFrame(object):
     @property
     def w_trig_SF(self)->bool:
         return self.__trig_SF_on
-
+    @property
+    def p_weight(self)->str:
+        return self.__weights
 def Filtering(df:MyDataFrame,HistsSettings:dict):
     
     if df.nevents ==-1:
@@ -119,7 +122,7 @@ def Filtering(df:MyDataFrame,HistsSettings:dict):
         elif not df.w_trig_SF:
             print('Without Trigger_SF on MC Sample')
             Tree = Tree.Define('trigger_SF','1.')
-        Tree = Tree.Define('genweight',f'puWeight*PrefireWeight*{df.lepton_weights}*trigger_SF*genWeight/abs(genWeight)')
+        Tree = Tree.Define('genweight',f'{df.p_weight}*{df.lepton_weights}*trigger_SF*genWeight/abs(genWeight)')
 
     Tree = Tree.Filter(df.offline_trig)
     df.Tree =Tree.Filter(df.Trigger_Condition)
@@ -337,157 +340,4 @@ def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:int,trig_SF_on:bool,channe
     del c
     del hData
     del hMC
-
-def GenTriggerSF_Path(year:str):
-    with open(f'./data/year{year}/TriggerSF/User.json','r') as f:
-        UserName = json.load(f)['UserName']
-
-    path = dict()
-    path['file'] =dict()
-    path['file']['DoubleElectron']  =dict()
-    path['file']['DoubleMuon'] = dict()
-    path['file']['ElectronMuon'] = dict()
-    
-    path['branchname'] = dict()
-    
-    path['file']['DoubleElectron']['l1'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/DoubleElectron/files/SF_l1pteta.root'
-    path['file']['DoubleElectron']['l2'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/DoubleElectron/files/SF_l2pteta.root'
-
-    path['file']['DoubleMuon']['l1'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/DoubleMuon/files/SF_l1pteta.root'
-    path['file']['DoubleMuon']['l2'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/DoubleMuon/files/SF_l2pteta.root'
-    
-    path['file']['ElectronMuon']['l1'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/ElectronMuon/files/SF_l1pteta.root'
-    path['file']['ElectronMuon']['l2'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/ElectronMuon/files/SF_l2pteta.root'
-    
-    path['branchname']['l1'] = 'l1pteta'
-    path['branchname']['l2'] = 'l2pteta'
-
-
-    with open(f'./data/year{year}/DrellYan/path/triggerSF.json','wt') as f:
-        json.dump(path,f,indent=4)
-
-def GenDataPath_File(year:str):
-    '''
-    
-    Build JSON file to record MC/Data paths.
-    
-    '''
-    if year=='2017':
-        data_dir = '/eos/cms/store/group/phys_top/ExtraYukawa/TTC_version9/'
-
-        Dileptons_types = ['DoubleMuon','SingleMuon','DoubleElectron','SingleElectron','ElectronMuon']
-
-
-        data_path = dict()
-        data_path['Data'] = dict()
-        data_path['MC'] = dict()
-
-        for Dileptons_type in  Dileptons_types:
-            data_path['Data'][Dileptons_type] =dict()
-
-        data_path['Data']['DoubleMuon'] = [os.path.join(data_dir,'DoubleMuon' + postfix + '.root') for postfix in ['B','C','D','E','F']]
-        data_path['Data']['SingleMuon'] = [os.path.join(data_dir,'SingleMuon' + postfix + '.root') for postfix in ['B','C','D','E','F']]
-        data_path['Data']['DoubleElectron'] = [os.path.join(data_dir,'DoubleEG' + postfix + '.root') for postfix in ['B','C','D','E','F'] ]
-        data_path['Data']['SingleElectron'] = [os.path.join(data_dir,'SingleEG' + postfix + '.root') for postfix in ['B','C','D','E','F']]
-        data_path['Data']['ElectronMuon'] = [os.path.join(data_dir,'MuonEG' + postfix + '.root' ) for postfix in ['B','C','D','E','F'] ]
-
-
-        MCname_list = ['DYnlo','WJets','osWW','ssWW','WWdps','WZ_ew','WZ_qcd','ZZ','ZG_ew','WWW','WWZ','WZZ','ZZZ','tsch','t_tch','tbar_tch','tW','tbarW','ttWtoLNu','ttWtoQQ','ttZ','ttZtoQQ','ttH','ttWW','ttWZ','ttWH','ttZZ','ttZH','tttJ','tttW','tttt','tzq','TTTo2L','TTTo1L']
-
-        for MCname in MCname_list:
-            data_path['MC'][MCname] = os.path.join(data_dir,MCname+'.root')
-
-    else:
-        raise ValueError("year{year} HLT Path has not been specified yet!")
-    with open(f'./data/year{year}/DrellYan/path/datapath.json','wt') as f:
-        json.dump(data_path,f,indent=4)
-
-
-def GenXsValue_File(year:str):
-    '''
-    
-    Build JSON file to record xs values for associated physics process.
-    
-    '''
-    if year=='2017':
-        Event =dict()
-        Event['xs'] = dict()
-        Event['NumberOfEvents'] = dict()
-        Event['xs']['lumi'] = 41480.
-        Event['xs']['DYnlo'] = 6077.22
-        Event['xs']['WJets'] = 61526.7
-        Event['xs']['osWW'] = 11.09
-        Event['xs']['ssWW'] = 0.04932
-        Event['xs']['WWdps'] = 1.62
-        Event['xs']['WZ_ew'] = 0.0163
-        Event['xs']['WZ_qcd'] = 5.213
-        Event['xs']['ZZ'] = 0.0086
-        Event['xs']['ZG_ew'] = 0.1097
-        Event['xs']['WWW'] = 0.2086
-        Event['xs']['WWZ'] = 0.1707
-        Event['xs']['WZZ'] = 0.05709
-        Event['xs']['ZZZ'] = 0.01476
-        Event['xs']['TTTo2L'] = 88.3419
-        Event['xs']['TTTo1L'] = 365.4574
-        Event['xs']['ttH'] = 0.5269
-        Event['xs']['ttWtoLNu']  = 0.1792
-        Event['xs']['ttWtoQQ'] = 0.3708
-        Event['xs']['ttZ'] = 0.2589
-        Event['xs']['ttZtoQQ'] = 0.6012
-        Event['xs']['ttWW'] = 0.007003
-        Event['xs']['ttWZ'] = 0.002453
-        Event['xs']['ttZZ'] = 0.001386
-        Event['xs']['tzq'] = 0.07561
-        Event['xs']['tW'] = 35.85
-        Event['xs']['tbarW'] = 35.85
-        Event['xs']['tsch'] = 3.36
-        Event['xs']['t_tch'] = 136.02
-        Event['xs']['tbar_tch'] = 80.95
-        Event['xs']['ttWH'] = 0.00114
-        Event['xs']['ttZH'] = 0.00113
-        Event['xs']['tttJ'] = 0.0004
-        Event['xs']['tttW'] = 0.00073
-        Event['xs']['tttt'] = 0.0082
-
-        
-        with open(f'./data/year{year}/DrellYan/path/datapath.json' , 'rb') as f:
-            MC_Paths = json.load(f)['MC']
-
-        for MC in MC_Paths.keys():
-            Event['NumberOfEvents'][MC] = get_NumberOfEvent(MC_Paths[MC])
-
-    else:
-        raise ValueError("year{year} HLT Path has not been specified yet!")
-    with open(f'./data/year{year}/DrellYan/configuration/data_xs.json','wt') as f:
-        json.dump(Event,f,indent=4)
-def GenPaths_HLTTriggerCondition_ForAnalyzer_File(year:str):
-    '''
-    
-    Build JSON file to record trigger conditions for Each particular channels used in Analyzer condition.
-    
-    '''
-
-    trigger =dict()
-
-    if year=='2017' or year=='2018':
-        trigger['All'] = 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ || HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ || HLT_IsoMu27 || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf'
-
-        trigger['DoubleElectron'] =dict()
-
-        trigger['DoubleElectron']['DoubleElectron'] = 'HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ'
-        trigger['DoubleElectron']['SingleElectron'] = '!(HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL) && !(HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ) && (HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf)'
-
-        trigger['DoubleMuon'] = dict()
-        trigger['DoubleMuon']['DoubleMuon'] = '(HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8)'
-        trigger['DoubleMuon']['SingleMuon'] = '!(HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8) && HLT_IsoMu27'
-
-        trigger['ElectronMuon'] = dict()
-        trigger['ElectronMuon']['SingleElectron'] = '!(HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ) && !(HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ) && !(HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ) && (HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf)'
-        trigger['ElectronMuon']['SingleMuon'] = '!(HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ || HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ) && HLT_IsoMu27'
-        trigger['ElectronMuon']['ElectronMuon'] = '(HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ || HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ)'
-    
-    else:
-        raise ValueError("year{year} HLT Path has not been specified yet!")
-    with open(f'./data/year{year}/DrellYan/configuration/HLTTriggerCondition.json','wt')  as f:
-        json.dump(trigger,f,indent=4)
 

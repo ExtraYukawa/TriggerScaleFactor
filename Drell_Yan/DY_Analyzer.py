@@ -26,7 +26,8 @@ class DrellYanRDataFrame():
         self.__lumi = self.__Cross_Section['lumi']
         self.__NumberOfEvents = settings['NumberOfEvents']# # of events for Data
         self.__FilesIn = settings['FilesIn']
-
+        self.__Process = settings['Process']  # Sorts of Process, please see ./data/year{year}/DrellYan/path/datapath.json
+        
         self.__TriggerSF= settings['TriggerSF']
         
         self.__histos = OrderedDict()
@@ -37,6 +38,7 @@ class DrellYanRDataFrame():
         self.__dfs['MC'] = OrderedDict()
         self.__dfs['Data'] = OrderedDict()
         self.__trig_SF_on = settings['trig_SF_on'] # trig_SF is applied or not
+        self.__weights = settings['Weights'] 
     
     def Run(self):
 
@@ -45,32 +47,36 @@ class DrellYanRDataFrame():
         ROOT.gSystem.Load('./myLib/myLib.so')
         print('./myLib/myLib.so is Loaded.')
         print(f"Start to Analyze Drell-Yan Process For Channel: {self.__channel} ...")
-        for MC in self.__FilesIn['MC'].keys():
-            settings ={
-                    'channel': self.__channel,
-                    'Data' : False,
-                    'Trigger_Condition': self.__HLT_Path['All'],
-                    'File_Paths' : self.__FilesIn['MC'][MC],
-                    'TriggerSF': self.__TriggerSF,
-                    'nevents' : self.__nevents,
-                    'trig_SF_on':self.__trig_SF_on
-                    }
-            self.__dfs['MC'][MC]= MyDataFrame(settings)
+        
+        for p in self.__Process:
+            for MC in self.__FilesIn['MC'][p].keys():
+                settings ={
+                        'channel': self.__channel,
+                        'Data' : False,
+                        'Trigger_Condition': self.__HLT_Path['All'],
+                        'weights' : self.__weights['MC'],
+                        'File_Paths' : self.__FilesIn['MC'][p][MC],
+                        'TriggerSF': self.__TriggerSF,
+                        'nevents' : self.__nevents,
+                        'trig_SF_on':self.__trig_SF_on
+                        }
+                self.__dfs['MC'][MC]= MyDataFrame(settings)
         
         
         for dilepton_type in self.__HLT_Path[self.__channel].keys():
             settings = {
                     'channel': self.__channel,
+                    'weights' : self.__weights['Data'],
                     'Trigger_Condition' :  self.__HLT_Path[self.__channel][dilepton_type],
-                    'weight' : None,
                     'Data': True,
                     'File_Paths' : self.__FilesIn['Data'][dilepton_type],
                     'nevents' : self.__nevents
                     }
             self.__dfs['Data'][dilepton_type]= MyDataFrame(settings)
 
-        for MC in self.__FilesIn['MC'].keys():
-            Filtering(self.__dfs['MC'][MC],HistSettings)
+        for p in self.__Process:
+            for MC in self.__FilesIn['MC'][p].keys():
+                Filtering(self.__dfs['MC'][MC],HistSettings)
         
         for dilepton_type in self.__HLT_Path[self.__channel].keys():
             Filtering(self.__dfs['Data'][ dilepton_type] , HistSettings)
@@ -82,10 +88,11 @@ class DrellYanRDataFrame():
             Temps = OrderedDict()
             Temps['Data'] = OrderedDict()
             Temps['MC'] = OrderedDict()
-            for MC in self.__dfs['MC'].keys():
-                h = self.__dfs['MC'][MC].Hists[histname].GetValue()
-                h.Scale(self.__Cross_Section[MC]/float(self.__NumberOfEvents[MC]))
-                Temps['MC'][MC] = overunder_flowbin(h)
+            for p in self.__Process:
+                for MC in self.__FilesIn['MC'][p].keys():
+                    h = self.__dfs['MC'][MC].Hists[histname].GetValue()
+                    h.Scale(self.__Cross_Section[p][MC]/float(self.__NumberOfEvents[p][MC]))
+                    Temps['MC'][MC] = overunder_flowbin(h)
             for idx ,Data in enumerate(self.__dfs['Data'].keys()):
                 h= self.__dfs['Data'][Data].Hists[histname].GetValue()
                 h = overunder_flowbin(h)
@@ -102,8 +109,13 @@ class DrellYanRDataFrame():
             HistoGrams['MC']['VV'] = Temps['MC']['osWW']
             HistoGrams['MC']['VV'] = Temps['MC']['ssWW']
             HistoGrams['MC']['VV'] = Temps['MC']['WWdps']
-            HistoGrams['MC']['VV'].Add(Temps['MC']['WZ_ew'])
-            HistoGrams['MC']['VV'].Add(Temps['MC']['WZ_qcd'])
+            if self.__year =='2017':
+                HistoGrams['MC']['VV'].Add(Temps['MC']['WZ_ew'])
+                HistoGrams['MC']['VV'].Add(Temps['MC']['WZ_qcd'])
+            elif self.__year =='2018':
+                HistoGrams['MC']['VV'].Add(Temps['MC']['WZ'])
+
+            
             HistoGrams['MC']['VV'].Add(Temps['MC']['ZZ'])
             HistoGrams['MC']['VV'].Add(Temps['MC']['ZG_ew'])
             
