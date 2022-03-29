@@ -1,214 +1,188 @@
 import json
+import os 
+import ROOT
+from ROOT import *
+class  MyDataFrame(object):
+    def __init__(self,**settings)->None:
+        self.__IsData = settings.get('IsData',None)
+        if self.__IsData == None:
+            raise ValueError('You need to Specifiy whether the files is Data or MC by Bool [IsData]')
+        
+        self.__FilesIn = settings.get('FilesIn',None)
+        if self.__FilesIn == None:
+            raise ValueError('You need to Specifiy Input Files Path!')
 
-def FakeRateConfiguration(year:str):
+        self.__Files_Containter = ROOT.std.vector('string')()
+        if self.__IsData:
+            for File in self.__FilesIn:
+                self.__Files_Containter.push_back(File)
+        else:
+            self.__Files_Containter.push_back(self.__FilesIn)
+        
+        nevents = settings.get('nevents',None)
+        if nevents == -1:
+            self.__DataFrame = ROOT.RDataFrame('Events',self.__Files_Containter)
+        else:
+            self.__DataFrame = ROOT.RDataFrame('Events',self.__Files_Containter).Range(0,nevents)
 
-    filters = dict()
-    filters['Electron'] = dict()
-    filters['Muon'] = dict()
+
+        self.__general_filters = settings.get('General_Filters',None)
+        if self.__general_filters != None:
+            self.__DataFrame.Filter(self.__general_filters) 
+        self.__Histo2D = None
+    def Filter(self,condition:str):
+        self.__DataFrame = self.__DataFrame.Filter(condition)
+    def Define(self,name:str,definition:str):
+        self.__DataFrame = self.__DataFrame.Define(name,definition)
+    @property
+    def DataFrame(self):
+        return self.__DataFrame
     
-    if year == '2017':
+    @property
+    def Histo2D(self):
+        return self.__Histo2D
+    
+    def SetHisto2D(self,Model,x:str,y:str,genweight=None):
+
+        if genweight != None:
+            self.__Histo2D = self.__DataFrame.Histo2D(Model,x,y,genweight)
+        else:
+            self.__Histo2D = self.__DataFrame.Histo2D(Model,x,y)
+
+
+
+def FakeRate_Histo(df:MyDataFrame,Model:ROOT.RDF.TH2DModel,channel:str,Filters:dict,trigSF_on:bool,IsData:bool,IsNume:bool,weight_set=[])->MyDataFrame.Histo2D:
+
+    df.Define(name="abs_l1eta",definition="abs(l1_eta)")
+    df.Filter(Filters['All'])
+    if IsData == None:
+        raise ValueError("You need to specifiy 'IsData' For [FakeRate_Histo] function")
+    elif not IsData:
+        df.Define(name="eff_lumi",definition=f'MC_eff_lumi(l1_pt,"{channel}")')
         
-        filters['Electron']['All'] = '(HLT_Ele17_CaloIdM_TrackIdM_PFJet30 && l1_pt<35) || (HLT_Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30 && l1_pt>35)'
-        filters['Electron']['numerator'] ='n_tight_ele==1 &&met<30 &&mt<30 && Flag_goodVertices && Flag_globalSuperTightHalo2016Filter && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter && Flag_eeBadScFilter && Flag_ecalBadCalibFilter && jet_selection_30_dr07'
-        filters['Electron']['denominator'] = '(n_tight_ele==1 ||n_fakeable_ele==1)&&met<30 && mt<30 && Flag_goodVertices && Flag_globalSuperTightHalo2016Filter && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter && Flag_eeBadScFilter && Flag_ecalBadCalibFilter && jet_selection_30_dr07'
-        filters['Electron']['numeratorQCD'] = 'n_tight_ele==1 &&mt<30 && met<30 && Flag_goodVertices && Flag_globalSuperTightHalo2016Filter && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter && Flag_eeBadScFilter && Flag_ecalBadCalibFilter && jet_selection_30'
-        filters['Electron']['denominatorQCD'] = '(n_tight_ele==1 ||n_fakeable_ele==1)&&mt<30 && met<30&& Flag_goodVertices && Flag_globalSuperTightHalo2016Filter && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter && Flag_eeBadScFilter && Flag_ecalBadCalibFilter && jet_selection_30'
+        if trigSF_on == None:
+            raise ValueError("You need to specifiy 'trigSF_on' For [FakeRate_Histo] function")
         
-
+        elif trigSF_on:
+            trigSF = "Trigger_sf(h1,l1_pt,l1_eta)"
+        else:
+            trigSF = "1."
         
-        filters['Muon']['All'] = '(HLT_Mu8 && l1_pt<30) || (HLT_Mu17 && l1_pt>30)'
-        filters['Muon']['numerator'] = 'n_tight_muon==1 && mt<30 &&met<30 && Flag_goodVertices && Flag_globalSuperTightHalo2016Filter && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter && Flag_eeBadScFilter && Flag_ecalBadCalibFilter && jet_selection_30_dr07'
-        filters['Muon']['denominator'] ='(n_tight_muon==1 ||n_fakeable_muon==1)&& mt<30 && met<30 && Flag_goodVertices && Flag_globalSuperTightHalo2016Filter && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter && Flag_eeBadScFilter && Flag_ecalBadCalibFilter && jet_selection_30_dr07'
+        df.Define(name='triggerSF',definition=trigSF)
+        df.Define(name='genweight',definition=f'{weight_set}*eff_lumi*triggerSF*genWeight/abs(genWeight)')
         
-        filters['Muon']['numeratorQCD'] = 'n_tight_muon==1 && mt<30 &&met<30 && Flag_goodVertices && Flag_globalSuperTightHalo2016Filter && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter && Flag_eeBadScFilter && Flag_ecalBadCalibFilter && jet_selection_30_dr07'
-
-        filters['Muon']['denominatorQCD'] ='(n_tight_muon==1 ||n_fakeable_muon==1)&&met<30&&mt<30 && Flag_goodVertices && Flag_globalSuperTightHalo2016Filter && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter && Flag_eeBadScFilter && Flag_ecalBadCalibFilter && jet_selection_30'
-
-        with open(f'./data/year{year}/FakeRate/configuration/filters.json','wt') as f:
-            json.dump(filters,f,indent=4)
-import os
-from Utils.General_Tool import get_NumberOfEvent
-def FakeRageFilesIn(year:str):
-    FilesIn = dict()
-    FilesIn['Data'] = dict()
-    FilesIn['Data']['Electron'] = list()
-    FilesIn['Data']['Muon'] = list()
-
-    FilesIn['MC'] = dict()
-    FilesIn['MC']['Lepton'] = dict()
-    FilesIn['MC']['Lepton']['DY'] = dict()
-    FilesIn['MC']['Lepton']['WJets'] = dict()
-    FilesIn['MC']['Lepton']['TTTo1L'] = dict()
-    FilesIn['MC']['Lepton']['TTTo2L'] = dict()
-
-    FilesIn['MC']['ElectronQCD'] = dict()
-    FilesIn['MC']['MuonQCD'] = dict()
-    if year == '2017':
-        path='/eos/user/m/melu/TTC_fakerate_newLepID_1129/'
-        FilesIn['Data']['Electron'] = [os.path.join(path,'SingleEG'+postfix+'.root') for postfix in ['C','D','E','F']]
-        FilesIn['Data']['Muon'] = [os.path.join(path,'DoubleMuon'+postfix+'.root') for postfix in ['B','C','D','E','F']]
-        FilesIn['MC']['Lepton']['DY']['path'] = os.path.join(path,'DY.root')
-        FilesIn['MC']['Lepton']['WJets']['path'] = os.path.join(path,'WJets.root')
-        FilesIn['MC']['Lepton']['TTTo1L']['path'] = os.path.join(path,'TTTo1L.root')
-        FilesIn['MC']['Lepton']['TTTo2L']['path'] = os.path.join(path,'TTTo2L.root')
+        if IsNume == None:
+            raise ValueError("You need to specifiy 'IsNume' For [FakeRate_Histo] function")
         
-        FilesIn['MC']['Lepton']['DY']['xs'] = 6077.22 
-        FilesIn['MC']['Lepton']['DY']['nevents'] =get_NumberOfEvent(FilesIn['MC']['Lepton']['DY']['path'])
-        FilesIn['MC']['Lepton']['WJets']['xs'] = 61526.7
-        FilesIn['MC']['Lepton']['WJets']['nevents'] =get_NumberOfEvent(FilesIn['MC']['Lepton']['WJets']['path'])
-        FilesIn['MC']['Lepton']['TTTo1L']['xs'] = 365.4574
-        FilesIn['MC']['Lepton']['TTTo1L']['nevents'] =get_NumberOfEvent(FilesIn['MC']['Lepton']['TTTo1L']['path'])
-        FilesIn['MC']['Lepton']['TTTo2L']['xs'] = 88.3419
-        FilesIn['MC']['Lepton']['TTTo2L']['nevents'] =get_NumberOfEvent(FilesIn['MC']['Lepton']['TTTo2L']['path'])
+        elif IsNume:
 
-        FilesIn['MC']['ElectronQCD']['QCDEM15to20'] = dict()
-        FilesIn['MC']['ElectronQCD']['QCDEM15to20']['path'] = os.path.join(path,'QCDEM15to20'+'.root')
-        FilesIn['MC']['ElectronQCD']['QCDEM15to20']['xs'] =  1327000. 
-        FilesIn['MC']['ElectronQCD']['QCDEM15to20']['nevents'] = get_NumberOfEvent(FilesIn['MC']['ElectronQCD']['QCDEM15to20']['path'])
-
-        FilesIn['MC']['ElectronQCD']['QCDEM20to30'] = dict()
-        FilesIn['MC']['ElectronQCD']['QCDEM20to30']['path'] = os.path.join(path,'QCDEM20to30'+'.root')
-        FilesIn['MC']['ElectronQCD']['QCDEM20to30']['xs'] = 4908000.
-        FilesIn['MC']['ElectronQCD']['QCDEM20to30']['nevents'] = get_NumberOfEvent(FilesIn['MC']['ElectronQCD']['QCDEM20to30']['path'])
-
-
-        FilesIn['MC']['ElectronQCD']['QCDEM30to50'] = dict()
-        FilesIn['MC']['ElectronQCD']['QCDEM30to50']['path'] = os.path.join(path,'QCDEM30to50'+'.root')
-        FilesIn['MC']['ElectronQCD']['QCDEM30to50']['xs'] = 6396000.
-        FilesIn['MC']['ElectronQCD']['QCDEM30to50']['nevents'] = get_NumberOfEvent(FilesIn['MC']['ElectronQCD']['QCDEM30to50']['path'])
-
-
-        FilesIn['MC']['ElectronQCD']['QCDEM50to80'] = dict()
-        FilesIn['MC']['ElectronQCD']['QCDEM50to80']['path'] = os.path.join(path,'QCDEM50to80'+'.root')
-        FilesIn['MC']['ElectronQCD']['QCDEM50to80']['xs'] = 1989000.
-        FilesIn['MC']['ElectronQCD']['QCDEM50to80']['nevents'] = get_NumberOfEvent(FilesIn['MC']['ElectronQCD']['QCDEM50to80']['path'])
-
-
-        FilesIn['MC']['ElectronQCD']['QCDEM80to120'] = dict()
-        FilesIn['MC']['ElectronQCD']['QCDEM80to120']['path'] = os.path.join(path,'QCDEM80to120'+'.root')
-        FilesIn['MC']['ElectronQCD']['QCDEM80to120']['xs'] = 366500.
-        FilesIn['MC']['ElectronQCD']['QCDEM80to120']['nevents'] = get_NumberOfEvent(FilesIn['MC']['ElectronQCD']['QCDEM80to120']['path'])
-
-
-        FilesIn['MC']['ElectronQCD']['QCDEM120to170'] = dict()
-        FilesIn['MC']['ElectronQCD']['QCDEM120to170']['path'] = os.path.join(path,'QCDEM120to170'+'.root')
-        FilesIn['MC']['ElectronQCD']['QCDEM120to170']['xs'] = 66490.
-        FilesIn['MC']['ElectronQCD']['QCDEM120to170']['nevents'] = get_NumberOfEvent(FilesIn['MC']['ElectronQCD']['QCDEM120to170']['path'])
-
-        FilesIn['MC']['ElectronQCD']['QCDEM170to300'] = dict()
-        FilesIn['MC']['ElectronQCD']['QCDEM170to300']['path'] = os.path.join(path,'QCDEM170to300'+'.root')
-        FilesIn['MC']['ElectronQCD']['QCDEM170to300']['xs'] = 16480.
-        FilesIn['MC']['ElectronQCD']['QCDEM170to300']['nevents'] = get_NumberOfEvent(FilesIn['MC']['ElectronQCD']['QCDEM170to300']['path'])
-
-        FilesIn['MC']['ElectronQCD']['QCDEM300toInf'] = dict()
-        FilesIn['MC']['ElectronQCD']['QCDEM300toInf']['path'] = os.path.join(path,'QCDEM300toInf'+'.root')
-        FilesIn['MC']['ElectronQCD']['QCDEM300toInf']['xs'] = 1099.
-        FilesIn['MC']['ElectronQCD']['QCDEM300toInf']['nevents'] = get_NumberOfEvent(FilesIn['MC']['ElectronQCD']['QCDEM300toInf']['path'])
-
-
-        FilesIn['MC']['ElectronQCD']['QCD_bctoE_15to20'] = dict()
-        FilesIn['MC']['ElectronQCD']['QCD_bctoE_15to20']['path'] = os.path.join(path,'QCD_bctoE_15to20'+'.root')
-        FilesIn['MC']['ElectronQCD']['QCD_bctoE_15to20']['xs'] = 186200.0
-        FilesIn['MC']['ElectronQCD']['QCD_bctoE_15to20']['nevents'] = get_NumberOfEvent(FilesIn['MC']['ElectronQCD']['QCD_bctoE_15to20']['path'])
-
-
-        FilesIn['MC']['ElectronQCD']['QCD_bctoE_20to30'] = dict()
-        FilesIn['MC']['ElectronQCD']['QCD_bctoE_20to30']['path'] = os.path.join(path,'QCD_bctoE_20to30'+'.root')
-        FilesIn['MC']['ElectronQCD']['QCD_bctoE_20to30']['xs'] = 303800.
-        FilesIn['MC']['ElectronQCD']['QCD_bctoE_20to30']['nevents'] = get_NumberOfEvent(FilesIn['MC']['ElectronQCD']['QCD_bctoE_20to30']['path'])
-
-
-        FilesIn['MC']['ElectronQCD']['QCD_bctoE_30to80'] = dict()
-        FilesIn['MC']['ElectronQCD']['QCD_bctoE_30to80']['path'] = os.path.join(path,'QCD_bctoE_30to80'+'.root')
-        FilesIn['MC']['ElectronQCD']['QCD_bctoE_30to80']['xs'] = 362300.
-        FilesIn['MC']['ElectronQCD']['QCD_bctoE_30to80']['nevents'] = get_NumberOfEvent(FilesIn['MC']['ElectronQCD']['QCD_bctoE_30to80']['path'])
-
-
-        FilesIn['MC']['ElectronQCD']['QCD_bctoE_80to170'] = dict()
-        FilesIn['MC']['ElectronQCD']['QCD_bctoE_80to170']['path'] = os.path.join(path,'QCD_bctoE_80to170'+'.root')
-        FilesIn['MC']['ElectronQCD']['QCD_bctoE_80to170']['xs'] = 33700.
-        FilesIn['MC']['ElectronQCD']['QCD_bctoE_80to170']['nevents'] = get_NumberOfEvent(FilesIn['MC']['ElectronQCD']['QCD_bctoE_80to170']['path'])
-
-
-        FilesIn['MC']['ElectronQCD']['QCD_bctoE_170to250'] = dict()
-        FilesIn['MC']['ElectronQCD']['QCD_bctoE_170to250']['path'] = os.path.join(path,'QCD_bctoE_170to250'+'.root')
-        FilesIn['MC']['ElectronQCD']['QCD_bctoE_170to250']['xs'] = 2125.
-        FilesIn['MC']['ElectronQCD']['QCD_bctoE_170to250']['nevents'] = get_NumberOfEvent(FilesIn['MC']['ElectronQCD']['QCD_bctoE_170to250']['path'])
-
-
-        FilesIn['MC']['ElectronQCD']['QCD_bctoE_250toInf'] = dict()
-        FilesIn['MC']['ElectronQCD']['QCD_bctoE_250toInf']['path'] = os.path.join(path,'QCD_bctoE_250toInf'+'.root')
-        FilesIn['MC']['ElectronQCD']['QCD_bctoE_250toInf']['xs'] = 562.5
-        FilesIn['MC']['ElectronQCD']['QCD_bctoE_250toInf']['nevents'] = get_NumberOfEvent(FilesIn['MC']['ElectronQCD']['QCD_bctoE_250toInf']['path'])
-
+            df.Filter(Filters['numerator'])
+        else:
+            
+            df.Filter(Filters['denominator'])
         
-        FilesIn['MC']['MuonQCD']['QCD15to20'] = dict()
-        FilesIn['MC']['MuonQCD']['QCD15to20']['path'] = os.path.join(path,'QCD15to20'+'.root')
-        FilesIn['MC']['MuonQCD']['QCD15to20']['xs'] = 2799000.
-        FilesIn['MC']['MuonQCD']['QCD15to20']['nevents'] = get_NumberOfEvent(FilesIn['MC']['MuonQCD']['QCD15to20']['path'])
+        df.SetHisto2D(Model=Model, x ="abs_l1eta",y = "l1_pt",genweight='genweight' )
+    else:
+        if IsNume == None:
+            raise ValueError("You need to specifiy 'IsNume' For [FakeRate_Histo] function")
+        elif IsNume:
+            df.Filter(Filters['numerator'])
+        else:
+            df.Filter(Filters['denominator'])
+        df.SetHisto2D(Model=Model, x ="abs_l1eta",y = "l1_pt")
+    return df.Histo2D
 
-        FilesIn['MC']['MuonQCD']['QCD20to30'] = dict()
-        FilesIn['MC']['MuonQCD']['QCD20to30']['path'] = os.path.join(path,'QCD20to30'+'.root')
-        FilesIn['MC']['MuonQCD']['QCD20to30']['xs'] =  2526000.
-        FilesIn['MC']['MuonQCD']['QCD20to30']['nevents'] = get_NumberOfEvent(FilesIn['MC']['MuonQCD']['QCD20to30']['path'])
-
-
-        FilesIn['MC']['MuonQCD']['QCD30to50'] = dict()
-        FilesIn['MC']['MuonQCD']['QCD30to50']['path'] = os.path.join(path,'QCD30to50'+'.root')
-        FilesIn['MC']['MuonQCD']['QCD30to50']['xs'] = 1362000.
-        FilesIn['MC']['MuonQCD']['QCD30to50']['nevents'] = get_NumberOfEvent(FilesIn['MC']['MuonQCD']['QCD30to50']['path'])
+import ROOT
+import numpy as np
 
 
-        FilesIn['MC']['MuonQCD']['QCD50to80']=dict()
-        FilesIn['MC']['MuonQCD']['QCD50to80']['path'] = os.path.join(path,'QCD50to80'+'.root')
-        FilesIn['MC']['MuonQCD']['QCD50to80']['xs'] = 376600.
-        FilesIn['MC']['MuonQCD']['QCD50to80']['nevents'] = get_NumberOfEvent(FilesIn['MC']['MuonQCD']['QCD50to80']['path'])
+from array import array
+from  Utils.CMSTDRStyle import setTDRStyle
+import Utils.CMSstyle as CMSstyle
+from Utils.General_Tool import Hist2D_to_Binx_Equal
+def Plot(Histogram:dict, IsLepton:bool,year:str , channel:str,trigSF_on:bool):
+    
+    with open(f'./data/year{year}/FakeRate/User.json','rb') as f:
+        DirOut = json.load(f)['DirOut'][channel]
+
+    
+    if IsLepton:
+        pre_fix = 'Lepton'
+    else:
+        pre_fix = 'QCD'
+    if trigSF_on:
+        pre_fix += '_trigSF'
 
 
-        FilesIn['MC']['MuonQCD']['QCD80to120']=dict()
-        FilesIn['MC']['MuonQCD']['QCD80to120']['path'] = os.path.join(path,'QCD80to120'+'.root')
-        FilesIn['MC']['MuonQCD']['QCD80to120']['xs'] = 88930.
-        FilesIn['MC']['MuonQCD']['QCD80to120']['nevents'] = get_NumberOfEvent(FilesIn['MC']['MuonQCD']['QCD80to120']['path'])
+    Hist_File = ROOT.TFile(os.path.join(DirOut['files'],pre_fix+'_Histo.root'),'RECREATE')
+
+    Hist_File.cd()
+    
+    Out_Histo= dict()
+    
+    if IsLepton:
+        Out_Histo['nume'] = Histogram['Data']['nume'].Clone()
+        Out_Histo['deno'] = Histogram['Data']['deno'].Clone()
+    else:
+        if channel == 'Electron':
+            Out_Histo['nume'] = Histogram['QCDEM15to20']['nume'].Clone()
+            Out_Histo['deno'] = Histogram['QCDEM15to20']['deno'].Clone()
+        else:
+            Out_Histo['nume'] = Histogram['QCD15to20']['nume'].Clone()
+            Out_Histo['deno'] = Histogram['QCD15to20']['deno'].Clone()
+
+    for i in Histogram.keys():
+        for j in Histogram[i].keys():
+            Histogram[i][j].SetName(i+'_'+j)
+            Histogram[i][j].Write()
+            if i == 'Data' or i == 'QCDEM15to20' or i == 'QCD15to20':
+                pass
+            else:
+                Out_Histo[j].Add(Histogram[i][j])
+    
+    Out_Histo['nume'].Divide(Out_Histo['deno'])
+    Out_Histo['nume'].SetName('FakeRate')
+    Out_Histo['nume'].GetXaxis().SetTitle("#||{#eta}")
+    Out_Histo['nume'].GetYaxis().SetTitle("cone-P_{T} [GeV]")
+    Out_Histo['nume'].GetXaxis().SetTitleSize(0.05)
+    Out_Histo['nume'].GetYaxis().SetTitleSize(0.05)
+    
+
+    TS = setTDRStyle()
+    TS.cd()
+    c = ROOT.TCanvas('','',800,600)
+    c.cd()
+    pad = ROOT.TPad()
+    pad.Draw()
+    
+    Out_Histo['nume'] = Hist2D_to_Binx_Equal(Out_Histo['nume'],True) 
+
+    CMSstyle.SetStyle(gPad=pad,year=year)
+    pad.SetRightMargin(0.15)
+    c.SetGridx(False);
+    c.SetGridy(False);
+    c.Update()
+    
+    
+    c.SaveAs(os.path.join(DirOut['plots'],f'{pre_fix}_fakerate_data.pdf'))
+    c.SaveAs(os.path.join(DirOut['plots'],f'{pre_fix}_fakerate_data.png'))
+    FakeRate_File = ROOT.TFile(os.path.join(DirOut['files'],pre_fix+'_FakeRate.root'),'RECREATE')
+    FakeRate_File.cd()
+    Out_Histo['nume'].Write()
+    FakeRate_File.Close()
+    Hist_File.Close()
+    return c
+    pad.Close()
+
+    
 
 
-        FilesIn['MC']['MuonQCD']['QCD120to170'] = dict()
-        FilesIn['MC']['MuonQCD']['QCD120to170']['path'] = os.path.join(path,'QCD120to170'+'.root')
-        FilesIn['MC']['MuonQCD']['QCD120to170']['xs'] = 21230.
-        FilesIn['MC']['MuonQCD']['QCD120to170']['nevents'] = get_NumberOfEvent(FilesIn['MC']['MuonQCD']['QCD120to170']['path'])
 
 
-        FilesIn['MC']['MuonQCD']['QCD170to300']=dict()
-        FilesIn['MC']['MuonQCD']['QCD170to300']['path'] = os.path.join(path,'QCD170to300'+'.root')
-        FilesIn['MC']['MuonQCD']['QCD170to300']['xs'] = 7055.
-        FilesIn['MC']['MuonQCD']['QCD170to300']['nevents'] = get_NumberOfEvent(FilesIn['MC']['MuonQCD']['QCD170to300']['path'])
 
 
-        FilesIn['MC']['MuonQCD']['QCD300to470']=dict()
-        FilesIn['MC']['MuonQCD']['QCD300to470']['path'] = os.path.join(path,'QCD300to470'+'.root')
-        FilesIn['MC']['MuonQCD']['QCD300to470']['xs'] = 619.3
-        FilesIn['MC']['MuonQCD']['QCD300to470']['nevents'] = get_NumberOfEvent(FilesIn['MC']['MuonQCD']['QCD300to470']['path'])
-        
-        FilesIn['MC']['MuonQCD']['QCD470to600']=dict()
-        FilesIn['MC']['MuonQCD']['QCD470to600']['path'] = os.path.join(path,'QCD470to600'+'.root')
-        FilesIn['MC']['MuonQCD']['QCD470to600']['xs'] = 59.24
-        FilesIn['MC']['MuonQCD']['QCD470to600']['nevents'] = get_NumberOfEvent(FilesIn['MC']['MuonQCD']['QCD470to600']['path'])
 
 
-        FilesIn['MC']['MuonQCD']['QCD600to800']=dict()
-        FilesIn['MC']['MuonQCD']['QCD600to800']['path'] = os.path.join(path,'QCD600to800'+'.root')
-        FilesIn['MC']['MuonQCD']['QCD600to800']['xs'] = 18.21
-        FilesIn['MC']['MuonQCD']['QCD600to800']['nevents'] = get_NumberOfEvent(FilesIn['MC']['MuonQCD']['QCD600to800']['path'])
 
 
-        FilesIn['MC']['MuonQCD']['QCD800to1000']=dict()
-        FilesIn['MC']['MuonQCD']['QCD800to1000']['path'] = os.path.join(path,'QCD800to1000'+'.root')
-        FilesIn['MC']['MuonQCD']['QCD800to1000']['xs'] = 3.275
-        FilesIn['MC']['MuonQCD']['QCD800to1000']['nevents'] = get_NumberOfEvent(FilesIn['MC']['MuonQCD']['QCD800to1000']['path'])
 
-
-        FilesIn['MC']['MuonQCD']['QCD1000toInf'] =dict()
-        FilesIn['MC']['MuonQCD']['QCD1000toInf']['path'] = os.path.join(path,'QCD1000toInf'+'.root')
-        FilesIn['MC']['MuonQCD']['QCD1000toInf']['xs'] = 1.078
-        FilesIn['MC']['MuonQCD']['QCD1000toInf']['nevents'] = get_NumberOfEvent(FilesIn['MC']['MuonQCD']['QCD1000toInf']['path'])
-        with open(f'./data/year{year}/FakeRate/path/FilesIn.json','wt') as f:
-            json.dump(FilesIn,f,indent=4)
