@@ -36,11 +36,12 @@ python3 WorkFlow/main.py --mode BuildDir --year 2018 --task TriggerSF --DirOut /
 At the moment, the analysis code haven't include multi-thread calculation, thus you need to calculate channel by channel, type by type(MC/Data).
 ex: Channel: DoubleElectron and Type: MC.
 ```
-python3 WorkFlow/main.py --mode TrigEff_Calc --year 2018 --channel DoubleElectron --Type MC
+python3 WorkFlow/main.py --mode TrigEff_Calc --year 2018 --channel DoubleElectron --Type MC --veto
 ```
 After the program is done, you can see your /eos/user/y/yourname/ExtraYukawa/TriggerSF/files/DoubleElectron directory, see what's the change.
 By the way, the cost time of this phase is roughly half of a day. Thus for **impatient people**, you could simply add the argument **[-n/--nevents]**
  to limit the number of events. If you want to collect efficiency results for DoubleElectron, take it for example, that means you should type the command twice (MC and Data) at least.
+ - [-v/--veto]: To get rid of HEM region issue, if this is speicified, then veto this region. Only valid for UL2018 Data.
 
 ### step5: Trigger Efficiency Plot
 
@@ -111,9 +112,5 @@ Note:
 argument [ -a/--trigSF_on] determine whether the trigSF should be applied or not.
 
 ### To-Do List:
-- [x] Rewrite the script in MakeFile.
-- [ ] Multi-Thread Implementation in Trigger Efficiency Calculation.
-- [ ] Further divide Efficiency Calculation into two sub-programs. 
-   - Saving Cut-Flow dataframe into root files. 
-   - Read corresponding root files, and plot them.
+- []FakeRate 
 
