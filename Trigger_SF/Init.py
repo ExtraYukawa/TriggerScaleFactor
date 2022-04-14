@@ -8,13 +8,12 @@ def GenPaths_HLTTrigger_File(year:str):
     
     '''
     trigger = dict()
-    if year=='2017' or year=='2018':
+    if year=='2017' or year=='2018' or year=='2016apv' or year=='2016postapv':
     
         trigger['DoubleElectron'] = ["HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL", "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ", "HLT_passEle32WPTight", "HLT_Ele35_WPTight_Gsf"]
         trigger['DoubleMuon'] = ["HLT_IsoMu27", "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8"]
         trigger["ElectronMuon"] = ["HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ", "HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ", "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ", "HLT_IsoMu27", "HLT_passEle32WPTight", "HLT_passEle32WPTight"]
         trigger['MET'] = ["HLT_PFMET120_PFMHT120_IDTight", "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight", "HLT_PFHT500_PFMET100_PFMHT100_IDTight", "HLT_PFHT700_PFMET85_PFMHT85_IDTight", "HLT_PFHT800_PFMET75_PFMHT75_IDTight"]
-
     else:
         raise ValueError("year{year} HLT Path has not been specified yet!")
     with open(f'./data/year{year}/TriggerSF/configuration/HLTTrigger.json','w')  as f:
@@ -39,30 +38,48 @@ def GenTrigEffInput_File(year:str):
                 }
     elif year=='2018':
         path = {
-                "Data":['/eos/cms/store/group/phys_top/ExtraYukawa/2018/MET_A.root',
-                    '/eos/cms/store/group/phys_top/ExtraYukawa/2018/MET_B.root',
-                    '/eos/cms/store/group/phys_top/ExtraYukawa/2018/MET_C.root',
-                    '/eos/cms/store/group/phys_top/ExtraYukawa/2018/MET_D_0.root',
-                    '/eos/cms/store/group/phys_top/ExtraYukawa/2018/MET_D_1.root'
+                "Data":['/eos/cms/store/group/phys_top/ExtraYukawa/2018/META.root',
+                    '/eos/cms/store/group/phys_top/ExtraYukawa/2018/METB.root',
+                    '/eos/cms/store/group/phys_top/ExtraYukawa/2018/METC.root',
+                    '/eos/cms/store/group/phys_top/ExtraYukawa/2018/METD_0.root',
+                    '/eos/cms/store/group/phys_top/ExtraYukawa/2018/METD_1.root'
                     ],
-                "MC":['/eos/cms/store/group/phys_top/ExtraYukawa/2018/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8.root']
+                "MC":['/eos/cms/store/group/phys_top/ExtraYukawa/2018/TTTo2L.root']
                 
                 }
-    
+    elif year == '2016apv':
+        path = {
+                'Data':['/eos/cms/store/group/phys_top/ExtraYukawa/2016apvMerged/MET_B2.root',
+                    '/eos/cms/store/group/phys_top/ExtraYukawa/2016apvMerged/MET_C.root',
+                    '/eos/cms/store/group/phys_top/ExtraYukawa/2016apvMerged/MET_D.root',
+                    '/eos/cms/store/group/phys_top/ExtraYukawa/2016apvMerged/MET_E.root',
+                    '/eos/cms/store/group/phys_top/ExtraYukawa/2016apvMerged/MET_F.root',
+                    ],
+                'MC':['/eos/cms/store/group/phys_top/ExtraYukawa/2016apvMerged/TTTo2L2Nu.root']
+                }
+    elif year == '2016postapv': 
+        path = {
+                
+                'Data':['/eos/cms/store/group/phys_top/ExtraYukawa/2016postapvMerged/MET_F.root',
+                    '/eos/cms/store/group/phys_top/ExtraYukawa/2016postapvMerged/MET_G.root',
+                    '/eos/cms/store/group/phys_top/ExtraYukawa/2016postapvMerged/MET_H.root',
+                    ],
+                'MC':['/eos/cms/store/group/phys_top/ExtraYukawa/2016postapvMerged/TTTo2L2Nu.root']
+                }
     else:
         raise ValueError("year{year} HLT Path has not been specified yet!")
     with open(f'./data/year{year}/TriggerSF/path/filein.json','w') as f:
         json.dump(path,f,indent=4)
 
 def GenMCWeightsName_File(year:str):
-    if year == '2017':
+    if year == '2017' or year == '2016apv' or year =='2016postapv':
         weights={
-                'Data':'1.',
+                'Data':'1',
                 'MC':['puWeight','PrefireWeight']
                 }
     elif year =='2018':
         weights={
-                'Data':'1.',
+                'Data':'1',
                 'MC':['puWeight']
                 }
     else:
@@ -72,7 +89,7 @@ def GenMCWeightsName_File(year:str):
 
 
 def GenLeptonIDSF_File(year:str):
-    if year=='2017' or year == '2018':
+    if year=='2017' or year == '2018' or year =='2016apv' or year=='2016postapv':
         path = {
                 'DoubleElectron':{ 
                     'path':f'/afs/cern.ch/user/m/melu/public/eleIDSF_{year}.root',
@@ -108,7 +125,7 @@ def GenVariableNames_File(year:str):
     channels = ['DoubleElectron','DoubleMuon','ElectronMuon']
 
     property_name = dict()
-    if year=='2017' or year =='2018':
+    if year=='2017' or year =='2018' or year=='2016apv' or year =='2016postapv':
 
         for channel in channels:
             property_name[channel] = dict()
@@ -140,7 +157,7 @@ def GenGoodFlag_File(year:str):
     '''
     Build Json file which contents Flag Name.
     '''
-    if year=='2017' or year == '2018':
+    if year=='2017' or year == '2018' or year =='2016apv' or year=='2016postapv':
 
         Flags = ['Flag_goodVertices','Flag_globalSuperTightHalo2016Filter', 'Flag_HBHENoiseFilter', 'Flag_HBHENoiseIsoFilter', 'Flag_EcalDeadCellTriggerPrimitiveFilter', 'Flag_BadPFMuonFilter', 'Flag_eeBadScFilter', 'Flag_ecalBadCalibFilter']
     else:

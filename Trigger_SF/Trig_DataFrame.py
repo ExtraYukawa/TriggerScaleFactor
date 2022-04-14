@@ -1,6 +1,7 @@
 import ROOT
 import sys
-import os 
+import os
+import json
 CURRENT_WORKDIR = os.getcwd()
 sys.path.append(CURRENT_WORKDIR)
 from ROOT import TH2D,TFile,TEfficiency
@@ -26,11 +27,17 @@ class TrigRDataFrame(MyDataFrame):
         self.__Year = settings.get('Year',None)
         self.__channel = settings.get('channel',None)
         self.__channel = settings.get('channel',None)
-        self.__FileOutName = self.__DirOut+'/EfficiencyFor'+self.__Type+'.root'
         self.__FileIn = settings.get('FileIn',None)
         self.__nEvents = settings.get('nevents',None)
-        
+        self.__veto = settings.get('veto',None)
         self.__weights = '*'.join(settings.get('Weights',None))
+        
+        if self.__veto and self.__Year =='year2018':
+            self.__FileOutName = os.path.join(self.__DirOut,'EfficiencyFor'+self.__Type + '_vetohemregion.root')
+            self.__EventsInfo_FileName = os.path.join(self.__DirOut,'Info_vetohemregion.json')
+        else:
+            self.__FileOutName = os.path.join(self.__DirOut,'EfficiencyFor'+self.__Type +'.root')
+            self.__EventsInfo_FileName = os.path.join(self.__DirOut,'Info.json')
 
 
         self.__FileIn_vecstr= ROOT.std.vector('string')()
@@ -163,12 +170,20 @@ class TrigRDataFrame(MyDataFrame):
         #df = ROOT.RDataFrame("Events",self.__FileIn_vecstr).Range(0,10000)
         #ROOT.gInterpreter.ProcessLine(f'#include "./include/{self.__Year}/Header{self.__channel}.h"')
         #ROOT.gInterpreter.AddIncludePath('include')
+        if self.__Year == 'year2018' and self.__veto:
+            ROOT.gInterpreter.ProcessLine('#include "./include/HEM_veto.h"')
+            ROOT.gSystem.Load('./myLib/HEM_veto_cpp.so')
+            veto='veto_hemregion(run,Jet_phi,Jet_eta)'
+        else:
+            veto = 'true'
         ROOT.gInterpreter.ProcessLine('#include "./include/IDScaleFactor.h"')
         print('./include/IDScaleFactor.h is Loaded.')
-        ROOT.gSystem.Load('./myLib/myLib.so')
-        print('./myLib/myLib.so is Loaded.')
+        ROOT.gSystem.Load('./myLib/IDScaleFactor_cpp.so')
         print(f"Start to Analyze Trigger Efficiency For {self.__channel} ...")
         #print(f'Header File: "./include/{self.__Year}/Header{self.__channel}.h" is loaded')
+        
+        df = df.Filter(veto,"veto cut").Define('count','1')#This could be ignored for UL2017/UL2016 case
+        
         df_flag_trig = df.Filter(Trig_Cond(flag = self.__flag,joint = " || " ),"Flag Cut")
         
         
@@ -200,7 +215,6 @@ class TrigRDataFrame(MyDataFrame):
         
         df_region_trig = df_flag_trig\
                 .Filter('OPS_region == {0} || ttc_region == {0}'.format(self.__Var_Name["region"]))\
-                .Define("isData","bool tag ; if ({0} == 1) tag = true; else tag = false;std::cout<<'1'<<std::endl;return tag".format(self.__isData))\
                 .Define("ttc_flag","bool flag=false ; if (ttc_region =={0}) flag = true; return flag".format(self.__Var_Name["region"]))\
                 .Define("dy_flag","bool flag=false ; if (OPS_region =={0}) flag = true; return flag".format(self.__Var_Name["region"]))\
                 .Define("l1p4","TLorentzVector p4; if(ttc_region == {0}) p4.SetPtEtaPhiM({1},{2},{3},{4}) ;else p4.SetPtEtaPhiM({5},{6},{7},{8});return p4"\
@@ -223,6 +237,7 @@ class TrigRDataFrame(MyDataFrame):
                 .Filter('(l1p4+l2p4).M() >20 && l1p4.Pt() > 30 && l2p4.Pt() && l1p4.DeltaR(l2p4) > 0.3 && met >100','LeptonCut')\
                 .Define('no_HLT','0.5')\
                 .Define("weight",self.__weights)
+
         else:
             MET = 'MET_T1Smear_pt'
             df_Offline_DileptonsCut = df_region_trig\
@@ -271,29 +286,9 @@ class TrigRDataFrame(MyDataFrame):
         df_HLT_LEPMET_lowmet = df_HLT_LEPMET\
                 .Filter('met <150','low_met')
         
-        weight_all = df_Offline_DileptonsCut.Sum("weight")
-        weight_lep = df_HLT_LEP.Sum("weight")
-        weight_met = df_HLT_MET.Sum("weight")
-        weight_lepmet = df_HLT_LEPMET.Sum("weight")
-        print(f'weight_all:{weight_all.GetValue()}')
-        print(f'weight_lep:{weight_lep.GetValue()}')
-        print(f'weight_met:{weight_met.GetValue()}')
-        print(f'weight_lepmet:{weight_lepmet.GetValue()}')
-        #print(f'IDSF:{df_Offline_DileptonsCut.Sum("IDsf").GetValue()}')
-        eff_lep =weight_lep.GetValue()/weight_all.GetValue()
-        eff_met = weight_met.GetValue()/weight_all.GetValue()
-        eff_lepmet= weight_lepmet.GetValue()/weight_all.GetValue()
-        print("Total Events: {0}".format(df.Count().GetValue()))
-        print("#Events Pass Region Cut: {0}".format(df_region_trig.Count().GetValue()))
-        print("#Events Pass Offline DiLeptons Cut: {0}".format(df_Offline_DileptonsCut.Count().GetValue()))
-        print("#Events Pass HLT_LEP Cut: {0}".format(df_HLT_LEP.Count().GetValue()))
-        print("#Events Pass HLT_MET Cut: {0}".format(df_HLT_MET.Count().GetValue()))
-        print("#Events Pass HLT_LEPMET Cut: {0}".format(df_HLT_LEPMET.Count().GetValue()))
-        
-        print(f"Efficiency for HLT_LEP: {eff_lep}")
-        print(f"Efficiency for HLT_MET: {eff_met}")
-        print(f"Efficiency for HLT_LEPMET: {eff_lepmet}")
-        print(f"Correlation: {eff_lep*eff_met/eff_lepmet}")
+
+
+
         self.__Histogram['1D']['HLT']['No_HLT'] = df_Offline_DileptonsCut.Histo1D(("No_HLT","No_HLT",1,0,1),"no_HLT","weight").GetValue()
         self.__Histogram['1D']['HLT']['HLT_LEP'] = df_HLT_LEP.Histo1D(("HLT_LEP_pass","HLT_LEP_pass",1,0,1),"HLT_LEP_pass","weight").GetValue()
         self.__Histogram['1D']['HLT']['HLT_MET'] = df_HLT_MET.Histo1D(("HLT_MET_pass","HLT_MET_pass",1,0,1),"HLT_MET_pass","weight").GetValue()
@@ -459,7 +454,7 @@ class TrigRDataFrame(MyDataFrame):
         self.Init_Histogram(name='l2pteta_lowmet',df=df_HLT_LEPMET_lowmet,dim='2D',xtitle='Subleading lepton P_{T} [GeV]',ytitle='Subleading lepton #eta',tag = 'pteta',content=['l2pt','l2_abseta'])
         self.Init_Histogram(name='l2pteta_highmet',df=df_HLT_LEPMET_highmet,dim='2D',xtitle='Subleading lepton P_{T} [GeV]',ytitle='Subleading lepton #eta',tag = 'pteta',content=['l2pt','l2_abseta'])
 
-        print(self.__FileOutName +' is created.')
+        
         self.__FileOut = TFile.Open(self.__FileOutName,"RECREATE")
 
         self.__FileOut.cd()
@@ -484,6 +479,55 @@ class TrigRDataFrame(MyDataFrame):
         #    for tag in self.__Histogram[dim].keys():
         #        for name in self.__Histogram[dim][tag].keys():
         #            self.Save_Histogram(name=name,tag=tag,dim=dim)
-        
-        
         self.__FileOut.Close()
+        
+        
+        weight_all = df_Offline_DileptonsCut.Sum("weight")
+        weight_lep = df_HLT_LEP.Sum("weight")
+        weight_met = df_HLT_MET.Sum("weight")
+        weight_lepmet = df_HLT_LEPMET.Sum("weight")
+        
+        
+        
+        #print(f'weight_all:{weight_all.GetValue()}')
+        #print(f'weight_lep:{weight_lep.GetValue()}')
+        #print(f'weight_met:{weight_met.GetValue()}')
+        #print(f'weight_lepmet:{weight_lepmet.GetValue()}')
+        #print(f'IDSF:{df_Offline_DileptonsCut.Sum("IDsf").GetValue()}')
+        eff_lep =weight_lep.GetValue()/weight_all.GetValue()
+        eff_met = weight_met.GetValue()/weight_all.GetValue()
+        eff_lepmet= weight_lepmet.GetValue()/weight_all.GetValue()
+        
+        
+        
+        #print("Total Events: {0}".format(df.Count().GetValue()))
+        #print("#Events Pass Region Cut: {0}".format(df_region_trig.Count().GetValue()))
+        #print("#Events Pass Offline DiLeptons Cut: {0}".format(df_Offline_DileptonsCut.Count().GetValue()))
+        #print("#Events Pass HLT_LEP Cut: {0}".format(df_HLT_LEP.Count().GetValue()))
+        #print("#Events Pass HLT_MET Cut: {0}".format(df_HLT_MET.Count().GetValue()))
+        #print("#Events Pass HLT_LEPMET Cut: {0}".format(df_HLT_LEPMET.Count().GetValue()))
+        
+        #print(f"Efficiency for HLT_LEP: {eff_lep}")
+        #print(f"Efficiency for HLT_MET: {eff_met}")
+        #print(f"Efficiency for HLT_LEPMET: {eff_lepmet}")
+        #print(f"Correlation: {eff_lep*eff_met/eff_lepmet}")
+        if not os.path.isfile(self.__EventsInfo_FileName):
+            Info = dict()
+            Info['Efficiency'] = dict()
+            Info['Efficiency'][self.__Type] = dict()
+            Info['Correlation'] = dict()
+            
+        else:
+            with open(self.__EventsInfo_FileName,'r') as f :
+                Info = json.load(f)
+        Info['Efficiency'][self.__Type] = dict()
+        Info['Efficiency'][self.__Type]['LEP_Trig']  =  eff_lep
+        Info['Efficiency'][self.__Type]['MET_Trig'] = eff_met
+        Info['Efficiency'][self.__Type]['LEPMET_Trig'] = eff_lepmet
+        Info['Correlation'][self.__Type] = eff_lep*eff_met/eff_lepmet
+
+        if self.__Type =='Data':
+            Info['Data:NumberOfEvents'] = df.Sum('count').GetValue()
+        with open(self.__EventsInfo_FileName,'w') as f :
+            json.dump(Info,f,indent=4)
+        print(f'You can browse the file: {self.__EventsInfo_FileName} to see the information for this calculation.')
