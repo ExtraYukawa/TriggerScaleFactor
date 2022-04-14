@@ -38,30 +38,43 @@ def GenDataPath_File(year:str):
     Build JSON file to record MC/Data paths.
     
     '''
+    
+    data_path = dict()
+    data_path['Data'] = dict()
+    data_path['MC'] = dict()
+    
+    data_path['Data']['DoubleElectron'] = dict()
+    data_path['Data']['DoubleMuon'] = dict()
+    data_path['Data']['ElectronMuon'] = dict()
     Dileptons_types = ['DoubleMuon','SingleMuon','DoubleElectron','SingleElectron','ElectronMuon']
     
     if year=='2017':
         data_dir = '/eos/cms/store/group/phys_top/ExtraYukawa/TTC_version9/'
-        post_fixs = ['B','C','D','E','F'] 
+        post_fixs = ['B','C','D','E','F']
     elif year=='2018':
         data_dir ='/eos/cms/store/group/phys_top/ExtraYukawa/2018/'
         post_fixs = ['A','B','C','D_0','D_1'] 
     else:
         raise ValueError("year{year} HLT Path has not been specified yet!")
         
-
-    data_path = dict()
-    data_path['Data'] = dict()
-    data_path['MC'] = dict()
-
-    for Dileptons_type in  Dileptons_types:
-        data_path['Data'][Dileptons_type] =dict()
-
-    data_path['Data']['DoubleMuon'] = [os.path.join(data_dir,'DoubleMuon' + postfix + '.root') for postfix in post_fixs]
+    if year == '2017':
+        data_path['Data']['DoubleElectron']['SingleEG'] = [os.path.join(data_dir,'SingleEG'+ postfix + '.root') for postfix in post_fixs]
+        data_path['Data']['DoubleElectron']['DoubleEG'] = [os.path.join(data_dir,'DoubleEG'+ postfix + '.root') for postfix in post_fixs]
+        data_path['Data']['DoubleMuon']['DoubleMuon'] = [os.path.join(data_dir,'DoubleMuon'+ postfix + '.root') for postfix in post_fixs]
+        data_path['Data']['DoubleMuon']['SingleMuon'] = [os.path.join(data_dir, 'SingleMuon' + postfix + '.root') for postfix in post_fixs]
+        data_path['Data']['ElectronMuon']['SingleMuon'] = [os.path.join(data_dir, 'SingleMuon'+ postfix + '.root') for postfix in post_fixs]
+        data_path['Data']['ElectronMuon']['SingleEG'] = [os.path.join(data_dir,'SingleEG'+ postfix + '.root') for postfix in post_fixs]
+        data_path['Data']['ElectronMuon']['MuonEG'] = [os.path.join(data_dir,'MuonEG'+ postfix + '.root') for postfix in post_fixs]
     
-    data_path['Data']['SingleMuon'] = [os.path.join(data_dir,'SingleMuon' + postfix + '.root') for postfix in post_fixs]
+    elif year == '2018':
 
-    data_path['Data']['ElectronMuon'] = [os.path.join(data_dir,'MuonEG' + postfix + '.root' ) for postfix in post_fixs ]
+        data_path['Data']['DoubleElectron']['EGamma'] = [os.path.join(data_dir,'EGamma'+ postfix + '.root') for postfix in post_fixs]
+        data_path['Data']['DoubleMuon']['DoubleMuon'] = [os.path.join(data_dir,'DoubleMuon'+ postfix + '.root') for postfix in post_fixs]
+        data_path['Data']['DoubleMuon']['SingleMuon'] = [os.path.join(data_dir, 'SingleMuon' + postfix + '.root') for postfix in post_fixs]
+        data_path['Data']['ElectronMuon']['SingleMuon'] = [os.path.join(data_dir, 'SingleMuon'+ postfix + '.root') for postfix in post_fixs]
+        data_path['Data']['ElectronMuon']['EGamma'] = [os.path.join(data_dir,'EGamma'+ postfix + '.root') for postfix in post_fixs]
+        data_path['Data']['ElectronMuon']['MuonEG'] = [os.path.join(data_dir,'MuonEG'+ postfix + '.root') for postfix in post_fixs]
+    
 
     data_path['Process'] = ['DY','WJets','VV','VVV','SingleTop','ttXorXX','tzq','TT']
     for p in data_path['Process']:
@@ -205,23 +218,40 @@ def GenPaths_HLTTriggerCondition_ForAnalyzer_File(year:str):
 
     trigger =dict()
 
-    if year=='2017' or year=='2018':
+    if year=='2017':
         trigger['All'] = 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ || HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ || HLT_IsoMu27 || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf'
 
         trigger['DoubleElectron'] =dict()
 
-        trigger['DoubleElectron']['DoubleElectron'] = 'HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ'
-        trigger['DoubleElectron']['SingleElectron'] = '!(HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL) && !(HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ) && (HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf)'
+        trigger['DoubleElectron']['DoubleEG'] = 'HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ'
+        trigger['DoubleElectron']['SingleEG'] = '!(HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL) && !(HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ) && (HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf)'
 
         trigger['DoubleMuon'] = dict()
         trigger['DoubleMuon']['DoubleMuon'] = '(HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8)'
         trigger['DoubleMuon']['SingleMuon'] = '!(HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8) && HLT_IsoMu27'
 
         trigger['ElectronMuon'] = dict()
-        trigger['ElectronMuon']['SingleElectron'] = '!(HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ) && !(HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ) && !(HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ) && (HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf)'
+        trigger['ElectronMuon']['SingleEG'] = '!(HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ) && !(HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ) && !(HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ) && (HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf)'
         trigger['ElectronMuon']['SingleMuon'] = '!(HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ || HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ) && HLT_IsoMu27'
-        trigger['ElectronMuon']['ElectronMuon'] = '(HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ || HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ)'
+        trigger['ElectronMuon']['MuonEG'] = '(HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ || HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ)'
     
+    elif year =='2018':
+
+        trigger['All'] = 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ || HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ || HLT_IsoMu27 || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf'
+
+        trigger['DoubleElectron'] =dict()
+
+        trigger['DoubleElectron']['EGamma'] = '(HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ)||(!(HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL) && !(HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ) && (HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf)) '
+
+        trigger['DoubleMuon'] = dict()
+        trigger['DoubleMuon']['DoubleMuon'] = '(HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8)'
+        trigger['DoubleMuon']['SingleMuon'] = '!(HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8) && HLT_IsoMu27'
+
+        trigger['ElectronMuon'] = dict()
+        trigger['ElectronMuon']['EGamma'] = '!(HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ) && !(HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ) && !(HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ) && (HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf)'
+        trigger['ElectronMuon']['SingleMuon'] = '!(HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ || HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ) && HLT_IsoMu27'
+        trigger['ElectronMuon']['MuonEG'] = '(HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ || HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ)'
+
     else:
         raise ValueError("year{year} HLT Path has not been specified yet!")
     with open(f'./data/year{year}/DrellYan/configuration/HLTTriggerCondition.json','wt')  as f:

@@ -24,25 +24,25 @@ class MyDataFrame(object):
         self._File_Paths -> Paths for input Files
         '''
         self.__Data = settings.get('Data')
-        self.__trig_SF_on = settings.get('trig_SF_on')
+        self.__SF_mode = settings.get('SF_mode')
         self.__channel = settings.get('channel')
         
         if not self.__Data:
             self.__TriggerSF_File = settings.get('TriggerSF')['file'][self.__channel]
             self.__TriggerSF_Branch = settings.get('TriggerSF')['branchname']
-            ROOT.gInterpreter.ProcessLine(Histogram_Definition['Diff_Type'].format(self.__TriggerSF_File['l1'],self.__TriggerSF_File['l2'],self.__TriggerSF_Branch['l1'],self.__TriggerSF_Branch['l2']))
+            #ROOT.gInterpreter.ProcessLine(Histogram_Definition['Diff_Type'].format(self.__TriggerSF_File['l1'],self.__TriggerSF_File['l2'],self.__TriggerSF_Branch['l1'],self.__TriggerSF_Branch['l2']))
 
         
         if self.__channel == 'ElectronMuon':
             DY_region = 2 
-            self.__lepton_weights = 'Electron_RECO_SF[OPS_l2_id]'
+            self.__lepton_RECO_SF = 'Electron_RECO_SF[OPS_l2_id]'
         elif self.__channel != None:
             if self.__channel == 'DoubleElectron':
                 DY_region = 3
-                self.__lepton_weights = 'Electron_RECO_SF[OPS_l1_id]*Electron_RECO_SF[OPS_l2_id]'
+                self.__lepton_RECO_SF = 'Electron_RECO_SF[OPS_l1_id]*Electron_RECO_SF[OPS_l2_id]'
             elif self.__channel == 'DoubleMuon':
                 DY_region = 1
-                self.__lepton_weights = '1'
+                self.__lepton_RECO_SF = '1'
         
         else:
             raise ValueError(f'No such channel{self.__channel}')
@@ -81,8 +81,8 @@ class MyDataFrame(object):
     def Trigger_Condition(self)->str:
         return self.__Trigger_Condition
     @property
-    def lepton_weights(self) -> dict:
-        return self.__lepton_weights
+    def lepton_RECO_SF(self) -> str:
+        return self.__lepton_RECO_SF
     @property
     def File_Paths(self) ->ROOT.std.vector('string')():
         return self.__File_Paths
@@ -104,8 +104,8 @@ class MyDataFrame(object):
         return self.__nevents
     
     @property
-    def w_trig_SF(self)->bool:
-        return self.__trig_SF_on
+    def SF_mode(self)->bool:
+        return self.__SF_mode
     @property
     def p_weight(self)->str:
         return self.__weights
@@ -116,13 +116,16 @@ def Filtering(df:MyDataFrame,HistsSettings:dict):
     else:
         Tree = ROOT.RDataFrame('Events',df.File_Paths).Range(0,df.nevents)
     if not df.IsData:
-        if df.w_trig_SF:
-            print('Apply Trigger_SF on MC Sample')
-            Tree = Tree.Define('trigger_SF','Trigger_sf(h1,OPS_l1_pt,OPS_l1_eta)*Trigger_sf(h2,OPS_l2_pt,OPS_l2_eta)')
-        elif not df.w_trig_SF:
-            print('Without Trigger_SF on MC Sample')
+        if df.SF_mode == 0:
             Tree = Tree.Define('trigger_SF','1.')
-        Tree = Tree.Define('genweight',f'{df.p_weight}*{df.lepton_weights}*trigger_SF*genWeight/abs(genWeight)')
+            Tree = Tree.Define('Id_SF','1.')
+        elif df.SF_mode ==1:
+            Tree = Tree.Define('trigger_SF','1.')
+            Tree = Tree.Define('Id_SF',f'IDScaleFact("{df.channel}",h1,h2,OPS_l1_pt,OPS_l2_pt,abs(OPS_l1_eta),abs(OPS_l2_eta))')
+        else:
+            Tree = Tree.Define('Id_SF',f'IDScaleFact("{df.channel}",h1,h2,OPS_l1_pt,OPS_l2_pt,abs(OPS_l1_eta),abs(OPS_l2_eta))')
+            Tree = Tree.Define('trigger_SF','Trigger_sf(h1,OPS_l1_pt,OPS_l1_eta)*Trigger_sf(h2,OPS_l2_pt,OPS_l2_eta)')
+        Tree = Tree.Define('genweight',f'{df.p_weight}*{df.lepton_RECO_SF}*trigger_SF*Id_SF*genWeight/abs(genWeight)')
 
     Tree = Tree.Filter(df.offline_trig)
     df.Tree =Tree.Filter(df.Trigger_Condition)
@@ -167,7 +170,7 @@ def set_axis(histo,coordinate:str,title:str,is_energy:bool):
         axis.SetTitle(title)
 
 from collections import OrderedDict
-def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:int,trig_SF_on:bool,channel='DoubleElectron'):
+def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:int,SF_mode:int,channel='DoubleElectron'):
 
     Histo['MC']['DY'].SetFillColor(ROOT.kRed)
     Histo['MC']['WJets'].SetFillColor(ROOT.kBlue - 7)
@@ -277,7 +280,7 @@ def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:int,trig_SF_on:bool,channe
     
     leg3.AddEntry(Histo['MC']['DY'],'DY ['+str(Yield['MC']['DY'])+']','f')
     leg3.AddEntry(gr,'Stat. unc','f')
-    leg3.AddEntry(Histo['Data'],'DY ['+str(Yield['Data'])+']','pe')
+    leg3.AddEntry(Histo['Data'],'Data ['+str(Yield['Data'])+']','pe')
 
     leg2.AddEntry(Histo['MC']['TT'],'TT ['+str(Yield['MC']['TT'])+']','f')
     leg2.AddEntry(Histo['MC']['WJets'],'WJets ['+str(Yield['MC']['WJets'])+']','f')
@@ -324,12 +327,16 @@ def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:int,trig_SF_on:bool,channe
         UserName = json.load(f)['UserName']
 
     Dir = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/DrellYan/year{year}/{channel}/plots'
-    if trig_SF_on:
-        c.SaveAs(os.path.join(Dir,x_name+'.pdf'))
-        c.SaveAs(os.path.join(Dir,x_name+'.png'))
-    elif not trig_SF_on:
-        c.SaveAs(os.path.join(Dir,'no_trigSF_'+x_name+'.pdf'))
-        c.SaveAs(os.path.join(Dir,'no_trigSF_'+x_name+'.png'))
+    if SF_mode == 0:
+        c.SaveAs(os.path.join(Dir,x_name+'_noSF.pdf'))
+        c.SaveAs(os.path.join(Dir,x_name+'_noSF.png'))
+    elif SF_mode ==1:
+        c.SaveAs(os.path.join(Dir,x_name+'_only_IDSF'+'.pdf'))
+        c.SaveAs(os.path.join(Dir,x_name+'_only_IDSF'+'.png'))
+    elif SF_mode ==2:
+        c.SaveAs(os.path.join(Dir,x_name+'_ID_Trig_SF'+'.pdf'))
+        c.SaveAs(os.path.join(Dir,x_name+'_ID_Trig_SF'+'.png'))
+    
     else:
         raise ValueError('weired.')
     c.Close()

@@ -10,6 +10,7 @@ import Drell_Yan.DY_utils as DY_utils
 from Drell_Yan.DY_HistogramSetting import HistSettings
 from collections import OrderedDict
 from Utils.General_Tool import overunder_flowbin
+from Utils.Header import Histogram_Definition
 
 #import multiprocessing
 #from multiprocessing import Queue, Process, Manager, Pool
@@ -29,6 +30,7 @@ class DrellYanRDataFrame():
         self.__Process = settings['Process']  # Sorts of Process, please see ./data/year{year}/DrellYan/path/datapath.json
         
         self.__TriggerSF= settings['TriggerSF']
+        self.__LepSF_File = settings['LepSF_File']
         
         self.__histos = OrderedDict()
         self.__histos['MC'] = OrderedDict()
@@ -37,17 +39,44 @@ class DrellYanRDataFrame():
         self.__dfs = OrderedDict()
         self.__dfs['MC'] = OrderedDict()
         self.__dfs['Data'] = OrderedDict()
-        self.__trig_SF_on = settings['trig_SF_on'] # trig_SF is applied or not
+        self.__SF_mode = settings['SF_mode'] # trig_SF is applied or not
         self.__weights = settings['Weights'] 
     
     def Run(self):
 
         ROOT.gInterpreter.ProcessLine('#include "./include/IDScaleFactor.h"')
         print('./include/IDScaleFactor.h is Loaded.')
-        ROOT.gSystem.Load('./myLib/myLib.so')
+        ROOT.gSystem.Load('./myLib/IDScaleFactor_cpp.so')
         print('./myLib/myLib.so is Loaded.')
         print(f"Start to Analyze Drell-Yan Process For Channel: {self.__channel} ...")
         
+
+        if self.__channel == 'ElectronMuon': 
+            RECOWeight_Mul_TTC = 'Electron_RECO_SF[ttc_l2_id]'
+            RECOWeight_Mul_OPS = 'Electron_RECO_SF[OPS_l2_id]'
+            l1_IDSF_type = self.__LepSF_File['name']['Muon']
+            l1_IDSF_File = self.__LepSF_File['path']['Muon']
+            
+            l2_IDSF_type = self.__LepSF_File['name']['Electron']
+            l2_IDSF_File = self.__LepSF_File['path']['Electron']
+            ROOT.gInterpreter.ProcessLine(Histogram_Definition['Diff_Type'].format(l1_IDSF_File,l2_IDSF_File,l1_IDSF_type,l2_IDSF_type))
+        else:
+            l1_IDSF_type = self.__LepSF_File['name']
+            l1_IDSF_File = self.__LepSF_File['path']
+            
+            l2_IDSF_type = l1_IDSF_type 
+            l2_IDSF_File = ""
+            ROOT.gInterpreter.ProcessLine(Histogram_Definition['Same_Type'].format(l1_IDSF_File,l1_IDSF_type))
+            if self.__channel == 'DoubleElectron'  :
+                RECOWeight_Mul_TTC = 'Electron_RECO_SF[ttc_l1_id]*Electron_RECO_SF[ttc_l2_id]'
+                RECOWeight_Mul_OPS = 'Electron_RECO_SF[OPS_l1_id]*Electron_RECO_SF[OPS_l2_id]'
+            elif self.__channel == 'DoubleMuon':
+                RECOWeight_Mul_TTC = '1.'
+                RECOWeight_Mul_OPS = '1.'
+
+        ROOT.gInterpreter.ProcessLine(Histogram_Definition['Same_Type'].format(l1_IDSF_File,l1_IDSF_type))
+        #To Load IDSF function
+
         for p in self.__Process:
             for MC in self.__FilesIn['MC'][p].keys():
                 settings ={
@@ -58,28 +87,29 @@ class DrellYanRDataFrame():
                         'File_Paths' : self.__FilesIn['MC'][p][MC],
                         'TriggerSF': self.__TriggerSF,
                         'nevents' : self.__nevents,
-                        'trig_SF_on':self.__trig_SF_on
+                        'SF_mode':self.__SF_mode
                         }
                 self.__dfs['MC'][MC]= MyDataFrame(settings)
         
         
-        for dilepton_type in self.__HLT_Path[self.__channel].keys():
+        for Sample_Name in self.__HLT_Path[self.__channel].keys():
             settings = {
                     'channel': self.__channel,
                     'weights' : self.__weights['Data'],
-                    'Trigger_Condition' :  self.__HLT_Path[self.__channel][dilepton_type],
+                    'Trigger_Condition' :  self.__HLT_Path[self.__channel][Sample_Name],
                     'Data': True,
-                    'File_Paths' : self.__FilesIn['Data'][dilepton_type],
+                    'File_Paths' : self.__FilesIn['Data'][self.__channel][Sample_Name],
                     'nevents' : self.__nevents
                     }
-            self.__dfs['Data'][dilepton_type]= MyDataFrame(settings)
+            self.__dfs['Data'][Sample_Name]= MyDataFrame(settings)
+
 
         for p in self.__Process:
             for MC in self.__FilesIn['MC'][p].keys():
                 Filtering(self.__dfs['MC'][MC],HistSettings)
         
-        for dilepton_type in self.__HLT_Path[self.__channel].keys():
-            Filtering(self.__dfs['Data'][ dilepton_type] , HistSettings)
+        for Sample_Name in self.__HLT_Path[self.__channel].keys():
+            Filtering(self.__dfs['Data'][Sample_Name] , HistSettings)
 
 
         for histname in HistSettings.keys():
@@ -149,7 +179,7 @@ class DrellYanRDataFrame():
             HistoGrams['MC']['TT'] = Temps['MC']['TTTo1L']
             HistoGrams['MC']['TT'].Add(Temps['MC']['TTTo2L'])
 
-            Plot(HistoGrams,x_name=histname ,lumi=self.__lumi,channel=self.__channel,year=self.__year,trig_SF_on=self.__trig_SF_on )
+            Plot(HistoGrams,x_name=histname ,lumi=self.__lumi,channel=self.__channel,year=self.__year,SF_mode=self.__SF_mode )
         
 
 
