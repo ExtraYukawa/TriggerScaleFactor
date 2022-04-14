@@ -36,11 +36,12 @@ python3 WorkFlow/main.py --mode BuildDir --year 2018 --task TriggerSF --DirOut /
 At the moment, the analysis code haven't include multi-thread calculation, thus you need to calculate channel by channel, type by type(MC/Data).
 ex: Channel: DoubleElectron and Type: MC.
 ```
-python3 WorkFlow/main.py --mode TrigEff_Calc --year 2018 --channel DoubleElectron --Type MC
+python3 WorkFlow/main.py --mode TrigEff_Calc --year 2018 --channel DoubleElectron --Type MC --veto
 ```
 After the program is done, you can see your /eos/user/y/yourname/ExtraYukawa/TriggerSF/files/DoubleElectron directory, see what's the change.
 By the way, the cost time of this phase is roughly half of a day. Thus for **impatient people**, you could simply add the argument **[-n/--nevents]**
  to limit the number of events. If you want to collect efficiency results for DoubleElectron, take it for example, that means you should type the command twice (MC and Data) at least.
+ - [-v/--veto]: To get rid of HEM region issue, if this is speicified, then veto this region. Only valid for UL2018 Data.
 
 ### step5: Trigger Efficiency Plot
 
@@ -85,12 +86,12 @@ python3 ./WorkFlow/main.py -m BuildDir -t DrellYan --year 2017 --channels Double
 ### step3: Drell_Yan Process Reconstruction
 
 ```
-python3 ./WorkFlow/main.py -m DrellYanRECO -y 2017 -i DoubleElectron -n -1 --trigSF_on
+python3 ./WorkFlow/main.py -m DrellYanRECO -y 2017 -i DoubleElectron -n -1 --trigSF_on --SF_mode 0
 ```
  arguments: 
  - [-n]: number of events, if specified to be -1, all the events will be loaded.
  - [-a/--trigSF_on]: Apply triggerSF on MC sample or not. If specified, triggerSF will be applied otherwise, the default is no triggerSF.
-
+ - [-a/--SF_mode]: 0: Without any ScaleFactors|1:ID Scale Factor|2: (ID +Trigger) Scale Factor
 
 ## Steps to do Lepton Fake Rate calculation
 ### step1 : Initialization and Building Ourput directory
@@ -111,9 +112,5 @@ Note:
 argument [ -a/--trigSF_on] determine whether the trigSF should be applied or not.
 
 ### To-Do List:
-- [x] Rewrite the script in MakeFile.
-- [ ] Multi-Thread Implementation in Trigger Efficiency Calculation.
-- [ ] Further divide Efficiency Calculation into two sub-programs. 
-   - Saving Cut-Flow dataframe into root files. 
-   - Read corresponding root files, and plot them.
+- []FakeRate 
 
