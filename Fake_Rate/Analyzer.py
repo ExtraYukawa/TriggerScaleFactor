@@ -90,7 +90,7 @@ def FakeRateAnalyzer(settings:dict):
     
     
     Plot(Histogram = H['Lepton'],IsLepton= True, year = settings['year'], channel = settings['channel'],trigSF_on=settings['trigSF_on'])
-    Plot(Histogram = H['background'],IsLepton= False, year = settings['year'], channel = settings['channel'],trigSF_on=settings['trigSF_on'])
+    #Plot(Histogram = H['background'],IsLepton= False, year = settings['year'], channel = settings['channel'],trigSF_on=settings['trigSF_on'])
 
 
 

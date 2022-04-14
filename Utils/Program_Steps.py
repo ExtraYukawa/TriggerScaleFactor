@@ -41,7 +41,7 @@ def FakeRateCalculation(args):
     settings['channel'] = args.channel
     settings['nevents'] = args.nevents
     
-    settings['trigSF_on']  = args.trigSF_on
+    settings['SF_mode']  = args.SF_mode
 
 
     with open(f'./data/year{args.year}/FakeRate/configuration/filters.json', 'rb') as f:
@@ -82,7 +82,7 @@ def Drell_Yan_Reconstruction(args):
     settings['year'] = args.year
     settings['channel'] = args.channel
     settings['nevents'] = args.nevents
-    settings['trig_SF_on']  = args.trig_SF_on
+    settings['SF_mode']  = args.SF_mode
     
     with open(f'./data/year{args.year}/DrellYan/configuration/HLTTriggerCondition.json','rb') as f:
         settings['HLT_Path'] = json.load(f)
@@ -98,6 +98,8 @@ def Drell_Yan_Reconstruction(args):
         settings['TriggerSF'] = json.load(f)
     with open(f'./data/year{args.year}/TriggerSF/configuration/weights.json','rb') as f:
         settings['Weights'] = json.load(f)
+    with open(f'./data/year{args.year}/TriggerSF/path/LeptonsID_SF.json','rb') as f:
+        settings['LepSF_File'] = json.load(f)[args.channel]
 
 
     Analyzer = DrellYanRDataFrame(settings)
@@ -120,6 +122,8 @@ def Trig_Calc(args):
         raise ValueError("Channel should be specified or The Specified Channel is Not in the list. ex:[-i/--channel DoubleElectron]")
     if args.Type == None:
         raise ValueError("Should Specify the type of input file(s) ex:[-f/--Type MC]")
+    if args.veto == True:
+        print('Veto HEM region.\nRemind: The option[-v/--veto] is only valid for UL2018 Data.')
     
     with open(f'./data/year{args.year}/TriggerSF/configuration/HLTTrigger.json','rb') as f:
         HLT_Path = json.load(f)
@@ -135,24 +139,26 @@ def Trig_Calc(args):
         User = json.load(f)
     
     with open(f'./data/year{args.year}/TriggerSF/path/LeptonsID_SF.json','rb') as f:
-        LepSF_File = json.load(f)[channel]
+        LepSF_File = json.load(f)[args.channel]
 
     with open(f'./data/year{args.year}/TriggerSF/configuration/weights.json','rb') as f:
-        Weights = json.load(f)[Type]
+        Weights = json.load(f)[args.Type]
 
+    
     setting={
         'HLT_MET': HLT_Path['MET'],
         'HLT_LEP': HLT_Path[args.channel],
         'Var_Name' : Var_Name[args.channel],
         'channel' : args.channel,
         'DirOut' : User['DirOut'][args.channel]['files'],
-        'FileIn' : FileIn[Type],
+        'FileIn' : FileIn[args.Type],
         'Flag':Flag,
         'Type':args.Type,
         'LepSF_File':LepSF_File,
         'Year':'year'+args.year,
         'nevents':args.nevents,
-        'Weights':Weights
+        'Weights':Weights,
+        'veto':args.veto
     }
     A = TrigRDataFrame(setting)
     A.Run()
@@ -166,6 +172,8 @@ def Plot_efficiency(args):
         raise ValueError("Channel should be specified or The Specified Channel is Not in the list. ex:[-i/--channel DoubleElectron]")
     if args.year == 'None':
         raise ValueError('You need to specify ex:[-y/--year 2017]')
+    if args.veto == True:
+        print('Veto HEM region.\n')
     
     with open(f'./data/year{year}/TriggerSF/User.json','rb') as f:
         User = json.load(f)
@@ -222,6 +230,8 @@ def SF_Calc(args):
         raise ValueError("Channel should be specified or The Specified Channel is Not in the list. ex:[-i/--channel DoubleElectron]")
     if args.year == 'None':
         raise ValueError('You need to specify ex:[-y/--year 2017]')
+    if args.veto == True:
+        print('Veto HEM region.\n')
     
     with open(f'./data/year{args.year}/TriggerSF/User.json','rb') as f:
         User = json.load(f)

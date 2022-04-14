@@ -124,3 +124,34 @@ def Hist2D_to_Binx_Equal(h_original:ROOT.TH2D,IsFakeRate=False)->ROOT.TH2D:
     #mypalette.colorPalette()
     return h_new
 
+
+def OpenAndWrite(path:str,Key:str,Value:float):
+
+    if not os.path.isfile(path):
+        Content = dict()
+    else:
+        with open(path,'r') as f:
+            Content = json.load(f)
+
+    Content[Key] = Value
+
+    with open(path,'w') as f:
+        json.dump(Content,f,indent=4)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

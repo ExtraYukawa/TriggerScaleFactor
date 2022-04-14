@@ -12,8 +12,9 @@ path = {
 
 
 
-with open('./data/year2018/ForEfficiency/filein.json','w') as f:
-    json.dump(path,f)
+#with open('./data/year2018/ForEfficiency/filein.json','w') as f:
+
+#    json.dump(path,f)
 #print(data['DoubleElectron'])
 
 
@@ -26,3 +27,16 @@ with open('./data/year2018/ForEfficiency/filein.json','w') as f:
 #df = {a: a for a in [1,2,3,]}
 
 #print(df)
+
+import os 
+if not os.path.isfile('./123.json'):
+    data = dict()
+else:
+    with open('./123.json','r') as f :
+        data = json.load(f)
+
+#data['MC'] = '123'
+data['Data'] = '789'
+
+with open('./123.json',mode='w') as f :
+    json.dump(data,f,indent=4)
