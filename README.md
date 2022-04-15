@@ -86,7 +86,7 @@ python3 ./WorkFlow/main.py -m BuildDir -t DrellYan --year 2017 --channels Double
 ### step3: Drell_Yan Process Reconstruction
 
 ```
-python3 ./WorkFlow/main.py -m DrellYanRECO -y 2017 -i DoubleElectron -n -1 --trigSF_on --SF_mode 0
+python3 ./WorkFlow/main.py -m DrellYanRECO -y 2017 -i DoubleElectron -n -1 --SF_mode 0
 ```
  arguments: 
  - [-n]: number of events, if specified to be -1, all the events will be loaded.
