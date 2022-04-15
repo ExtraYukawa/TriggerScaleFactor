@@ -91,7 +91,7 @@ python3 ./WorkFlow/main.py -m DrellYanRECO -y 2017 -i DoubleElectron -n -1 --SF_
  arguments: 
  - [-n]: number of events, if specified to be -1, all the events will be loaded.
  - [-a/--trigSF_on]: Apply triggerSF on MC sample or not. If specified, triggerSF will be applied otherwise, the default is no triggerSF.
- - [-a/--SF_mode]: 0: Without any ScaleFactors|1:ID Scale Factor|2: (ID +Trigger) Scale Factor
+ - [-a/--SF_mode]: 0: Without any ScaleFactors|1:Only ID Scale Factor|2: Only Trigger Scale Factor | 3: (ID +Trigger) Scale Factor
 
 ## Steps to do Lepton Fake Rate calculation
 ### step1 : Initialization and Building Ourput directory
