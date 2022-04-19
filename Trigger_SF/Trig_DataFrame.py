@@ -236,7 +236,7 @@ class TrigRDataFrame(MyDataFrame):
                 .Define("met",f"{MET}")\
                 .Filter('(l1p4+l2p4).M() >20 && l1p4.Pt() > 30 && l2p4.Pt() && l1p4.DeltaR(l2p4) > 0.3 && met >100','LeptonCut')\
                 .Define('no_HLT','0.5')\
-                .Define("weight",self.__weights)
+                .Define("weight",'1.')
 
         else:
             MET = 'MET_T1Smear_pt'

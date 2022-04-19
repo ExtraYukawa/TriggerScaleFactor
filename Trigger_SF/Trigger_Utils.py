@@ -26,11 +26,21 @@ def Plot(func,**user_settings):
 
 def plot_eff1d(tag:str,**settings):
     
-    FileIn = {
-            'Data':ROOT.TFile.Open(os.path.join(settings['DirIn'],'EfficiencyForData.root'),"READ"),
-                'MC':ROOT.TFile.Open(os.path.join(settings['DirIn'],'EfficiencyForMC.root'),"READ"),
-            }
     
+    if settings['year'] == '2018' and settings['veto']:
+
+        FileIn = {
+                'Data':ROOT.TFile.Open(os.path.join(settings['DirIn'],'EfficiencyForData_vetohemregion.root'),"READ"),
+                    'MC':ROOT.TFile.Open(os.path.join(settings['DirIn'],'EfficiencyForMC_vetohemregion.root'),"READ"),
+                }
+    
+    else:
+        FileIn = {
+                'Data':ROOT.TFile.Open(os.path.join(settings['DirIn'],'EfficiencyForData.root'),"READ"),
+                    'MC':ROOT.TFile.Open(os.path.join(settings['DirIn'],'EfficiencyForMC.root'),"READ"),
+                }
+        
+        
     TS = CMSTDRStyle.setTDRStyle()
     TS.cd()
     c = ROOT.TCanvas()
@@ -57,7 +67,10 @@ def plot_eff1d(tag:str,**settings):
     leg.SetFillStyle(0)
     leg.Draw('SAME') 
     c.Update()
-    c.SaveAs(os.path.join(settings['DirOut'],'Efficiency_1D_'+tag+'.png'))
+    if settings['veto']:
+        c.SaveAs(os.path.join(settings['DirOut'],'Efficiency_1D_'+tag+'_vetohemregion.png'))
+    else:
+        c.SaveAs(os.path.join(settings['DirOut'],'Efficiency_1D_'+tag+'.png'))
     c.Close()
     pad.Close()
     del c
@@ -77,10 +90,19 @@ def create_hist(infile:ROOT.TFile,tag:str):
     return histoname ,histotemp
 
 def plot_eff2d(tag:str,**settings):
-    FileIn = {
-            'Data':ROOT.TFile.Open(os.path.join(settings['DirIn'],'EfficiencyForData.root'),"READ"),
-                'MC':ROOT.TFile.Open(os.path.join(settings['DirIn'],'EfficiencyForMC.root'),"READ")
-            }
+    if settings['year'] == '2018' and settings['veto']:
+        FileIn = {
+                'Data':ROOT.TFile.Open(os.path.join(settings['DirIn'],'EfficiencyForData_vetohemregion.root'),"READ"),
+                    'MC':ROOT.TFile.Open(os.path.join(settings['DirIn'],'EfficiencyForMC_vetohemregion.root'),"READ")
+                }
+    
+    else:
+        FileIn = {
+                'Data':ROOT.TFile.Open(os.path.join(settings['DirIn'],'EfficiencyForData.root'),"READ"),
+                    'MC':ROOT.TFile.Open(os.path.join(settings['DirIn'],'EfficiencyForMC.root'),"READ")
+                }
+
+
     for Type in ['MC','Data']: 
         TS = CMSTDRStyle.setTDRStyle()
         TS.cd()
@@ -101,7 +123,10 @@ def plot_eff2d(tag:str,**settings):
         c.SetGridx(False)
         c.SetGridy(False)
         c.Update()
-        c.SaveAs(os.path.join(settings['DirOut'],'Efficiency_2D_'+Type+'_'+tag+'.png'))
+        if settings['year'] == '2018' and settings['veto']:
+            c.SaveAs(os.path.join(settings['DirOut'],'Efficiency_2D_'+Type+'_'+tag+'_vetohemregion.png'))
+        else:
+            c.SaveAs(os.path.join(settings['DirOut'],'Efficiency_2D_'+Type+'_'+tag+'.png'))
         pad.Close()
         c.Close()
         del c 
@@ -119,9 +144,17 @@ def ScaleFactors(nominal_name:str,**settings):
     Calculate ScaleFactor for a single certain nominal variable.
     '''
     
-    FileIn = dict()
-    FileIn['Data'] = ROOT.TFile.Open(os.path.join(settings['DirIn'],"EfficiencyForData.root"),"READ")
-    FileIn['MC'] = ROOT.TFile.Open(os.path.join(settings['DirIn'],"EfficiencyForMC.root"),"READ")
+    if settings['year'] == '2018' and settings['veto']:
+        FileIn = {
+                'Data':ROOT.TFile.Open(os.path.join(settings['DirIn'],'EfficiencyForData_vetohemregion.root'),"READ"),
+                    'MC':ROOT.TFile.Open(os.path.join(settings['DirIn'],'EfficiencyForMC_vetohemregion.root'),"READ")
+                }
+    
+    else:
+        FileIn = {
+                'Data':ROOT.TFile.Open(os.path.join(settings['DirIn'],'EfficiencyForData.root'),"READ"),
+                    'MC':ROOT.TFile.Open(os.path.join(settings['DirIn'],'EfficiencyForMC.root'),"READ")
+                }
     
     data_types = ['MC','Data']
 
@@ -155,7 +188,11 @@ def ScaleFactors(nominal_name:str,**settings):
             SF_hist.SetBinError(i+1,j+1,SF_SystematicUncertainty[i][j])
 
     
-    f = ROOT.TFile.Open(os.path.join(settings['DirIn'],'SF'+'_'+nominal_name+'.root'),'RECREATE')
+    
+    if settings['year'] == '2018' and settings['veto']:  
+        f = ROOT.TFile.Open(os.path.join(settings['DirIn'],'SF'+'_'+nominal_name+'_vetohemregion.root'),'RECREATE')
+    else:
+        f = ROOT.TFile.Open(os.path.join(settings['DirIn'],'SF'+'_'+nominal_name+'.root'),'RECREATE')
     f.cd()
     
     SF_hist.Write()
@@ -181,8 +218,11 @@ def ScaleFactors(nominal_name:str,**settings):
     c.SetGridx(False)
     c.SetGridy(False)
     c.Update()
-    c.SaveAs(os.path.join(settings['DirOut'],'SF'+'_'+nominal_name+'.png'))
-    
+    if settings['year'] == '2018' and settings['veto']:  
+        c.SaveAs(os.path.join(settings['DirOut'],'SF'+'_'+nominal_name+'_vetohemregion.png'))
+    else:
+        c.SaveAs(os.path.join(settings['DirOut'],'SF'+'_'+nominal_name+'.png'))
+
     pad.Close()
     c.Close()
     del c 
