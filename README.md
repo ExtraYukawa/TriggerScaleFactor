@@ -112,5 +112,5 @@ Note:
 argument [ -a/--trigSF_on] determine whether the trigSF should be applied or not.
 
 ### To-Do List:
-- [ ]FakeRate 
+-[ ]FakeRate 
 
