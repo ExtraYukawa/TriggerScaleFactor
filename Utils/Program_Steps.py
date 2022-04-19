@@ -75,14 +75,13 @@ def Drell_Yan_Reconstruction(args):
         raise ValueError('Arguments [year] must be speicified.')
     if args.channel == 'None':
         raise ValueError("Channel should be specified or The Specified Channel is Not in the list. ex:[-i/--channel DoubleElectron]")
-    if args.year == 'None':
-        raise ValueError('You need to specify ex:[-y/--year 2017]')
     
     settings = dict()
     settings['year'] = args.year
     settings['channel'] = args.channel
     settings['nevents'] = args.nevents
     settings['SF_mode']  = args.SF_mode
+    settings['veto'] = args.veto
     
     with open(f'./data/year{args.year}/DrellYan/configuration/HLTTriggerCondition.json','rb') as f:
         settings['HLT_Path'] = json.load(f)
@@ -96,10 +95,11 @@ def Drell_Yan_Reconstruction(args):
     
     with open(f'./data/year{args.year}/DrellYan/path/triggerSF.json','rb') as f:
         settings['TriggerSF'] = json.load(f)
+
     with open(f'./data/year{args.year}/TriggerSF/configuration/weights.json','rb') as f:
         settings['Weights'] = json.load(f)
     with open(f'./data/year{args.year}/TriggerSF/path/LeptonsID_SF.json','rb') as f:
-        settings['LepSF_File'] = json.load(f)[args.channel]
+        settings['LepIDSF_File'] = json.load(f)[args.channel]
 
 
     Analyzer = DrellYanRDataFrame(settings)
@@ -175,14 +175,15 @@ def Plot_efficiency(args):
     if args.veto == True:
         print('Veto HEM region.\n')
     
-    with open(f'./data/year{year}/TriggerSF/User.json','rb') as f:
+    with open(f'./data/year{args.year}/TriggerSF/User.json','rb') as f:
         User = json.load(f)
     user_settings={
             'channel':args.channel,
             'DirIn':User['DirOut'][args.channel]['files'],
             'DirOut':User['DirOut'][args.channel]['plots'],
             'colors' : {'Data':1,'MC':4},
-            'year':args.year
+            'year':args.year,
+            'veto':args.veto
             }
     tags = {
             'l1':{
@@ -197,7 +198,7 @@ def Plot_efficiency(args):
             },
         }
 
-    print('Plotting 1D histograms for channel :{}'.format(channel))
+    print(f'Plotting 1D histograms for channel :{args.channel}')
     
     user_settings['Type'] = 'Trigger Efficiency 1D Histogram'
     for tag in  tags['l1']['pt']:
@@ -209,7 +210,7 @@ def Plot_efficiency(args):
     for tag in  tags['l2']['eta']:
         TrigUtils.Plot(TrigUtils.plot_eff1d,**user_settings)(tag=tag)
     
-    print('Plotting 2D histograms for channel :{}'.format(channel))
+    print(f'Plotting 2D histograms for channel :{args.channel}')
     user_settings['Type'] = 'Trigger Efficiency 2D Histogram'
     for tag in  tags['l1']['pteta']:
         TrigUtils.Plot(TrigUtils.plot_eff2d,**user_settings)(tag=tag)
@@ -239,7 +240,8 @@ def SF_Calc(args):
             'channel':args.channel,
             'DirIn':User['DirOut'][args.channel]['files'],
             'DirOut':User['DirOut'][args.channel]['plots'],
-            'year':args.year
+            'year':args.year,
+            'veto':args.veto
             }
     
     nominal_names =['l1pteta','l2pteta']

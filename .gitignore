@@ -7,5 +7,4 @@ test.py
 ./data/*
 ./EventContent.cpp
 *__init__.py
-./myLib/*
 ./Test/*
