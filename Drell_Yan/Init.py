@@ -10,21 +10,36 @@ def GenTriggerSF_Path(year:str):
 
     path = dict()
     path['file'] =dict()
-    path['file']['DoubleElectron']  =dict()
-    path['file']['DoubleMuon'] = dict()
-    path['file']['ElectronMuon'] = dict()
     
     path['branchname'] = dict()
     
-    path['file']['DoubleElectron']['l1'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/DoubleElectron/files/SF_l1pteta.root'
-    path['file']['DoubleElectron']['l2'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/DoubleElectron/files/SF_l2pteta.root'
+    if year != '2018':
+        path['file']['DoubleElectron']  =dict()
+        path['file']['DoubleMuon'] = dict()
+        path['file']['ElectronMuon'] = dict()
+    
+        path['file']['DoubleElectron']['l1'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/DoubleElectron/files/SF_l1pteta.root'
+        path['file']['DoubleElectron']['l2'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/DoubleElectron/files/SF_l2pteta.root'
 
-    path['file']['DoubleMuon']['l1'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/DoubleMuon/files/SF_l1pteta.root'
-    path['file']['DoubleMuon']['l2'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/DoubleMuon/files/SF_l2pteta.root'
-    
-    path['file']['ElectronMuon']['l1'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/ElectronMuon/files/SF_l1pteta.root'
-    path['file']['ElectronMuon']['l2'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/ElectronMuon/files/SF_l2pteta.root'
-    
+        path['file']['DoubleMuon']['l1'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/DoubleMuon/files/SF_l1pteta.root'
+        path['file']['DoubleMuon']['l2'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/DoubleMuon/files/SF_l2pteta.root'
+        
+        path['file']['ElectronMuon']['l1'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/ElectronMuon/files/SF_l1pteta.root'
+        path['file']['ElectronMuon']['l2'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/ElectronMuon/files/SF_l2pteta.root'
+    else:
+        path['file']['all'] = dict()
+        path['file']['veto'] = dict()
+        channels = ['DoubleElectron','DoubleMuon','ElectronMuon']
+
+        for c in ['all','veto']:
+            for channel in channels :
+                path['file'][c][channel] = dict()
+                for l in ['l1','l2']:
+                    if c =='all':
+                        path['file'][c][channel][l] =  f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/{channel}/files/SF_{l}pteta.root'
+                    else:
+                        path['file'][c][channel][l] =  f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/{channel}/files/SF_{l}pteta_vetohemregion.root'
+
     path['branchname']['l1'] = 'l1pteta'
     path['branchname']['l2'] = 'l2pteta'
 

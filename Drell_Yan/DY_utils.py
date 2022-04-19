@@ -26,9 +26,17 @@ class MyDataFrame(object):
         self.__Data = settings.get('Data')
         self.__SF_mode = settings.get('SF_mode')
         self.__channel = settings.get('channel')
+        self.__year = settings.get('year')
+        self.__veto = settings.get('veto')
         
         if not self.__Data:
-            self.__TriggerSF_File = settings.get('TriggerSF')['file'][self.__channel]
+            if self.__year == '2018':
+                if self.__veto:
+                    self.__TriggerSF_File = settings.get('TriggerSF')['file']['all'][self.__channel]
+                else:
+                    self.__TriggerSF_File = settings.get('TriggerSF')['file']['veto'][self.__channel]
+            else:
+                self.__TriggerSF_File = settings.get('TriggerSF')['file'][self.__channel]
             self.__TriggerSF_Branch = settings.get('TriggerSF')['branchname']
             #ROOT.gInterpreter.ProcessLine(Histogram_Definition['Diff_Type'].format(self.__TriggerSF_File['l1'],self.__TriggerSF_File['l2'],self.__TriggerSF_Branch['l1'],self.__TriggerSF_Branch['l2']))
 
@@ -47,7 +55,8 @@ class MyDataFrame(object):
         else:
             raise ValueError(f'No such channel{self.__channel}')
         
-        self.__filters = 'OPS_region=={0} && OPS_z_mass > 60 && OPS_z_mass<120 && (OPS_l1_pt>30 || OPS_l2_pt>30) && OPS_drll>0.3'.format(DY_region)    
+        self.__offline_selections = 'OPS_region=={0} && OPS_z_mass > 60 && OPS_z_mass<120 && (OPS_l1_pt>30 || OPS_l2_pt>30) && OPS_drll>0.3'.format(DY_region)
+        #self.__offline_selections = 'OPS_region=={0} && OPS_2P0F && OPS_z_mass > 60 && OPS_z_mass<120 && OPS_l1_pt>30 && OPS_l2_pt>20 && OPS_drll>0.3 && Flag_goodVertices && Flag_globalSuperTightHalo2016Filter && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter && Flag_eeBadScFilter && Flag_ecalBadCalibFilter && nHad_tau==0 && n_tight_jet>1'.format(DY_region)    
         self.__df_tree = ROOT.RDataFrame
         self.__Hists = Manager().dict()
         
@@ -87,8 +96,8 @@ class MyDataFrame(object):
     def File_Paths(self) ->ROOT.std.vector('string')():
         return self.__File_Paths
     @property
-    def offline_trig(self) -> str:
-        return self.__filters 
+    def offline_selections(self) -> str:
+        return self.__offline_selections
     @Tree.setter
     def Tree(self, Tree:ROOT.RDataFrame.Filter):
         self.__df_tree = Tree
@@ -109,25 +118,42 @@ class MyDataFrame(object):
     @property
     def p_weight(self)->str:
         return self.__weights
-def Filtering(df:MyDataFrame,HistsSettings:dict):
+    @property
+    def veto_events(self)->int:
+        return self.__veto_events 
+    @veto_events.setter
+    def veto_events(self,events:int) -> int :
+        return self.__veto_events 
+
+
+
+def Filtering(df:MyDataFrame,HistsSettings:dict,veto_condition:str):
     
     if df.nevents ==-1:
         Tree= ROOT.RDataFrame('Events',df.File_Paths)
     else:
         Tree = ROOT.RDataFrame('Events',df.File_Paths).Range(0,df.nevents)
+    
+    Tree=Tree.Filter(veto_condition)
+    #if df.IsData:
+    #    df.veto_events = Tree.Define('count','1.').Sum('count').GetValue()
+
     if not df.IsData:
         if df.SF_mode == 0:
             Tree = Tree.Define('trigger_SF','1.')
             Tree = Tree.Define('Id_SF','1.')
         elif df.SF_mode ==1:
             Tree = Tree.Define('trigger_SF','1.')
-            Tree = Tree.Define('Id_SF',f'IDScaleFact("{df.channel}",h1,h2,OPS_l1_pt,OPS_l2_pt,abs(OPS_l1_eta),abs(OPS_l2_eta))')
-        else:
-            Tree = Tree.Define('Id_SF',f'IDScaleFact("{df.channel}",h1,h2,OPS_l1_pt,OPS_l2_pt,abs(OPS_l1_eta),abs(OPS_l2_eta))')
-            Tree = Tree.Define('trigger_SF','Trigger_sf(h1,OPS_l1_pt,OPS_l1_eta)*Trigger_sf(h2,OPS_l2_pt,OPS_l2_eta)')
+            Tree = Tree.Define('Id_SF','ID_sf_singlelepton(h1_IDSF,OPS_l1_pt,OPS_l1_eta)*ID_sf_singlelepton(h2_IDSF,OPS_l2_pt,OPS_l2_eta)')
+        elif df.SF_mode == 2:
+            Tree = Tree.Define('trigger_SF','Trigger_sf(h1_TrigSF,OPS_l1_pt,OPS_l1_eta)*Trigger_sf(h2_TrigSF,OPS_l2_pt,OPS_l2_eta)')
+            Tree = Tree.Define('Id_SF','1.')
+        elif df.SF_mode == 3:
+            Tree = Tree.Define('trigger_SF','Trigger_sf(h1_TrigSF,OPS_l1_pt,OPS_l1_eta)*Trigger_sf(h2_TrigSF,OPS_l2_pt,OPS_l2_eta)')
+            Tree = Tree.Define('Id_SF','ID_sf_singlelepton(h1_IDSF,OPS_l1_pt,OPS_l1_eta)*ID_sf_singlelepton(h2_IDSF,OPS_l2_pt,OPS_l2_eta)')
         Tree = Tree.Define('genweight',f'{df.p_weight}*{df.lepton_RECO_SF}*trigger_SF*Id_SF*genWeight/abs(genWeight)')
 
-    Tree = Tree.Filter(df.offline_trig)
+    Tree = Tree.Filter(df.offline_selections)
     df.Tree =Tree.Filter(df.Trigger_Condition)
 
     Hists =dict()
@@ -170,7 +196,7 @@ def set_axis(histo,coordinate:str,title:str,is_energy:bool):
         axis.SetTitle(title)
 
 from collections import OrderedDict
-def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:int,SF_mode:int,channel='DoubleElectron'):
+def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:float,SF_mode:int,channel='DoubleElectron'):
 
     Histo['MC']['DY'].SetFillColor(ROOT.kRed)
     Histo['MC']['WJets'].SetFillColor(ROOT.kBlue - 7)
@@ -334,6 +360,9 @@ def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:int,SF_mode:int,channel='D
         c.SaveAs(os.path.join(Dir,x_name+'_only_IDSF'+'.pdf'))
         c.SaveAs(os.path.join(Dir,x_name+'_only_IDSF'+'.png'))
     elif SF_mode ==2:
+        c.SaveAs(os.path.join(Dir,x_name+'_only_Trig_SF'+'.pdf'))
+        c.SaveAs(os.path.join(Dir,x_name+'_only_Trig_SF'+'.png'))
+    elif SF_mode ==3:
         c.SaveAs(os.path.join(Dir,x_name+'_ID_Trig_SF'+'.pdf'))
         c.SaveAs(os.path.join(Dir,x_name+'_ID_Trig_SF'+'.png'))
     
