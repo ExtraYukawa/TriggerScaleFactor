@@ -42,7 +42,7 @@ After the program is done, you can see your /eos/user/y/yourname/ExtraYukawa/Tri
 By the way, the cost time of this phase is roughly half of a day. Thus for **impatient people**, you could simply add the argument **[-n/--nevents]**
  to limit the number of events. If you want to collect efficiency results for DoubleElectron, take it for example, that means you should type the command twice (MC and Data) at least.
  - [-v/--veto]: To get rid of HEM region issue, if this is speicified, then veto this region. Only valid for UL2018 Data.
- - Running Time: about 1000 sec
+ - Running Time: about 1000 sec for Data. about 45000 sec for MC.
 ### step5: Trigger Efficiency Plot
 
 Before proceed into the further step, to collect DoubleElectron Channel TrigEfficiency Plots, **pleas make sure you have collected the trigger efficiency results for both types (MC/Data)** , otherwise you can't implement this step, and the compilier will throw a error message.
