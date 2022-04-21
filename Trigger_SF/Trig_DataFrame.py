@@ -16,21 +16,20 @@ from Utils.Header import Histogram_Definition
 class TrigRDataFrame(MyDataFrame):
     def __init__(self,settings:dict)->None:
         super().__init__(settings)
-        self.__Var_Name = settings.get('Var_Name',None)
+        self.__Leptons_Informations = settings.get('Leptons_Information',None)
         self.__HLT_LEP = settings.get('HLT_LEP',None)
         self.__HLT_MET = settings.get('HLT_MET',None)
-        self.__flag = settings.get('Flag',None)
+        self.__MET_Filters = settings.get('MET_Filters',None)
         self.__Year = settings.get('Year',None) 
         self.__LepSF_File = settings.get('LepSF_File',None)
         self.__DirOut = settings.get('DirOut',None)
         self.__Type = settings.get('Type',None)
         self.__Year = settings.get('Year',None)
         self.__channel = settings.get('channel',None)
-        self.__channel = settings.get('channel',None)
         self.__FileIn = settings.get('FileIn',None)
         self.__nEvents = settings.get('nevents',None)
         self.__veto = settings.get('veto',None)
-        self.__weights = '*'.join(settings.get('Weights',None))
+        self.__Condition_Weights = '*'.join(settings.get('Condition_Weights',None))
         
         if self.__veto and self.__Year =='year2018':
             self.__FileOutName = os.path.join(self.__DirOut,'EfficiencyFor'+self.__Type + '_vetohemregion.root')
@@ -64,8 +63,8 @@ class TrigRDataFrame(MyDataFrame):
         
         self.__Histogram['1D']['HLT'] = dict()
         #print(self.__HLT_LEP)
-        #print(self.__Var_Name)
-        #print(self.__flag)
+        #print(self.__Leptons_Informations)
+        #print(self.__MET_Filters)
     @property
     def FileOutName()->str:
         return self.__FileOutName
@@ -161,37 +160,47 @@ class TrigRDataFrame(MyDataFrame):
 
     def Run(self):
         #ROOT.ROOT.EnableImplicitMT()
+        ROOT.gInterpreter.ProcessLine('#include "./include/IDScaleFactor.h"')
+        ROOT.gSystem.Load('./myLib/IDScaleFactor_cpp.so')
+        print('./include/IDScaleFactor.h is Loaded.')
+        ROOT.gInterpreter.ProcessLine('#include "./include/Flag.h"')
+        ROOT.gSystem.Load('./myLib/Flag_cpp.so')
+        print('./include/Flag.h is Loaded.')
+        ROOT.gInterpreter.ProcessLine('#include "./include/Lepton_Info.h"')
+        ROOT.gSystem.Load('./myLib/Lepton_Info_cpp.so')
+        print('./include/Lepton_Info.h is Loaded.')
+        print(f"Start to Analyze Trigger Efficiency of {self.__Type} for {self.__channel} ...")
         if self.__nEvents == -1:
             df = ROOT.RDataFrame("Events",self.__FileIn_vecstr)
         else:
             print('Debug Mode')
             df = ROOT.RDataFrame("Events",self.__FileIn_vecstr).Range(0,self.__nEvents)
 
-        #df = ROOT.RDataFrame("Events",self.__FileIn_vecstr).Range(0,10000)
-        #ROOT.gInterpreter.ProcessLine(f'#include "./include/{self.__Year}/Header{self.__channel}.h"')
-        #ROOT.gInterpreter.AddIncludePath('include')
         if self.__Year == 'year2018' and self.__veto:
             ROOT.gInterpreter.ProcessLine('#include "./include/HEM_veto.h"')
             ROOT.gSystem.Load('./myLib/HEM_veto_cpp.so')
-            veto='veto_hemregion(run,Jet_phi,Jet_eta)'
+            print('Kind Warning: You start to veto HEM region.')
+            if self.__Type == 'Data':
+                veto = 'veto_hemregion(run,Jet_phi,Jet_eta)'
+            else:
+                ROOT.gInterpreter.Declare('#include <time.h>;srand(12345);')
+                with open('./data/year2018/TriggerSF/configuration/veto_prob.json','r') as f :
+                    veto_prob = json.load(f)['MET']
+                veto = f'veto_hemregion_sim(prob(),Jet_phi,Jet_eta,{veto_prob})' 
         else:
-            veto = 'true'
-        ROOT.gInterpreter.ProcessLine('#include "./include/IDScaleFactor.h"')
-        print('./include/IDScaleFactor.h is Loaded.')
-        ROOT.gSystem.Load('./myLib/IDScaleFactor_cpp.so')
-        print(f"Start to Analyze Trigger Efficiency For {self.__channel} ...")
-        #print(f'Header File: "./include/{self.__Year}/Header{self.__channel}.h" is loaded')
+            veto='true'
+        
+        
         
         df = df.Filter(veto,"veto cut").Define('count','1')#This could be ignored for UL2017/UL2016 case
         
-        df_flag_trig = df.Filter(Trig_Cond(flag = self.__flag,joint = " || " ),"Flag Cut")
-        
+        df_flag_trig = df.Filter(' && '.join(self.__MET_Filters),"Flag Cut")
         
         if self.__channel == 'ElectronMuon': 
             RECOWeight_Mul_TTC = 'Electron_RECO_SF[ttc_l2_id]'
             RECOWeight_Mul_OPS = 'Electron_RECO_SF[OPS_l2_id]'
-            self.__Var_Name["OPS_p4"]["l1"]  = self.Correct_VarName(name=self.__Var_Name["OPS_p4"]["l1"],process='OPS',tag='l1')
-            self.__Var_Name["OPS_p4"]["l2"]  = self.Correct_VarName(name=self.__Var_Name["OPS_p4"]["l2"],process='OPS',tag='l2')
+            self.__Leptons_Informations["OPS_p4"]["l1"]  = self.Correct_VarName(name=self.__Leptons_Informations["OPS_p4"]["l1"],process='OPS',tag='l1')
+            self.__Leptons_Informations["OPS_p4"]["l2"]  = self.Correct_VarName(name=self.__Leptons_Informations["OPS_p4"]["l2"],process='OPS',tag='l2')
             l1_IDSF_type = self.__LepSF_File['name']['Muon']
             l1_IDSF_File = self.__LepSF_File['path']['Muon']
             
@@ -206,21 +215,26 @@ class TrigRDataFrame(MyDataFrame):
             l2_IDSF_File = ""
             ROOT.gInterpreter.ProcessLine(Histogram_Definition['Same_Type'].format(l1_IDSF_File,l1_IDSF_type))
             if self.__channel == 'DoubleElectron'  :
-                RECOWeight_Mul_TTC = 'Electron_RECO_SF[ttc_l1_id]*Electron_RECO_SF[ttc_l2_id]'
-                RECOWeight_Mul_OPS = 'Electron_RECO_SF[OPS_l1_id]*Electron_RECO_SF[OPS_l2_id]'
+                RECOWeight_LEP_TTC = 'Electron_RECO_SF[ttc_l1_id]*Electron_RECO_SF[ttc_l2_id]'
+                RECOWeight_LEP_OPS = 'Electron_RECO_SF[OPS_l1_id]*Electron_RECO_SF[OPS_l2_id]'
             elif self.__channel == 'DoubleMuon':
-                RECOWeight_Mul_TTC = '1.'
-                RECOWeight_Mul_OPS = '1.'
+                RECOWeight_LEP_TTC = '1.'
+                RECOWeight_LEP_OPS = '1.'
          
-        
         df_region_trig = df_flag_trig\
-                .Filter('OPS_region == {0} || ttc_region == {0}'.format(self.__Var_Name["region"]))\
-                .Define("ttc_flag","bool flag=false ; if (ttc_region =={0}) flag = true; return flag".format(self.__Var_Name["region"]))\
-                .Define("dy_flag","bool flag=false ; if (OPS_region =={0}) flag = true; return flag".format(self.__Var_Name["region"]))\
-                .Define("l1p4","TLorentzVector p4; if(ttc_region == {0}) p4.SetPtEtaPhiM({1},{2},{3},{4}) ;else p4.SetPtEtaPhiM({5},{6},{7},{8});return p4"\
-                .format(self.__Var_Name["region"],*self.__Var_Name["ttc_p4"]["l1"],*self.__Var_Name["OPS_p4"]["l1"]))\
-                .Define("l2p4","TLorentzVector k4; if(ttc_region == {0}) k4.SetPtEtaPhiM({1},{2},{3},{4}) ;else k4.SetPtEtaPhiM({5},{6},{7},{8});return k4"\
-                .format(self.__Var_Name["region"],*self.__Var_Name["ttc_p4"]["l2"],*self.__Var_Name["OPS_p4"]["l2"]))\
+                .Filter(f'OPS_region == {self.__Leptons_Informations["region"]} || ttc_region == {self.__Leptons_Informations["region"]}')\
+                .Define("ttc_Flag",f'Region_FLAG(ttc_region,{self.__Leptons_Informations["region"]})')\
+                .Define("OPS_Flag",f'Region_FLAG(OPS_region,{self.__Leptons_Informations["region"]})')\
+                .Define("l1p4",f'LeptonP4(ttc_Flag,OPS_Flag,{self.__Leptons_Informations["ttc_p4"]["l1"][0]}\
+                ,{self.__Leptons_Informations["ttc_p4"]["l1"][1]},{self.__Leptons_Informations["ttc_p4"]["l1"][2]}\
+                ,{self.__Leptons_Informations["ttc_p4"]["l1"][3]},{self.__Leptons_Informations["OPS_p4"]["l1"][0]}\
+                ,{self.__Leptons_Informations["OPS_p4"]["l1"][1]},{self.__Leptons_Informations["OPS_p4"]["l1"][2]},\
+                {self.__Leptons_Informations["OPS_p4"]["l1"][3]})')\
+                .Define("l2p4",f'LeptonP4(ttc_Flag,OPS_Flag,{self.__Leptons_Informations["ttc_p4"]["l2"][0]}\
+                ,{self.__Leptons_Informations["ttc_p4"]["l2"][1]},{self.__Leptons_Informations["ttc_p4"]["l2"][2]}\
+                ,{self.__Leptons_Informations["ttc_p4"]["l2"][3]},{self.__Leptons_Informations["OPS_p4"]["l2"][0]}\
+                ,{self.__Leptons_Informations["OPS_p4"]["l2"][1]},{self.__Leptons_Informations["OPS_p4"]["l2"][2]},\
+                {self.__Leptons_Informations["OPS_p4"]["l2"][3]})')\
                 .Define("l1pt","l1p4.Pt()")\
                 .Define("l2pt","l2p4.Pt()")\
                 .Define("l1eta","l1p4.Eta()")\
@@ -228,32 +242,34 @@ class TrigRDataFrame(MyDataFrame):
                 .Define("l1_abseta","abs(l1p4.Eta())")\
                 .Define("l2_abseta","abs(l2p4.Eta())")\
                 .Define("IDsf",f'IDScaleFact("{self._channel}",h1,h2,l1pt,l2pt,l1eta,l2eta)')
-                #.Define("IDsf","ID_SF(l1p4.Pt(),l2p4.Pt(),l1p4.Eta(),l2p4.Eta())")
         
         if self.__Type=='Data':
             MET = 'MET_T1_pt'
-            df_Offline_DileptonsCut = df_region_trig\
-                .Define("met",f"{MET}")\
-                .Filter('(l1p4+l2p4).M() >20 && l1p4.Pt() > 30 && l2p4.Pt() && l1p4.DeltaR(l2p4) > 0.3 && met >100','LeptonCut')\
-                .Define('no_HLT','0.5')\
-                .Define("weight",'1.')
-
         else:
             MET = 'MET_T1Smear_pt'
-            df_Offline_DileptonsCut = df_region_trig\
-                .Define("met",f"{MET}")\
-                .Filter('(l1p4+l2p4).M() >20 && l1p4.Pt() > 30 && l2p4.Pt() && l1p4.DeltaR(l2p4) > 0.3 && met >100','LeptonCut')\
-                .Define('no_HLT','0.5')\
-                .Define("weight",'float w ; if (ttc_flag) w = '+self.__weights+f'*{RECOWeight_Mul_TTC}*IDsf;\
-                else w = '+self.__weights+f'*IDsf*{RECOWeight_Mul_OPS};return w ')
         
-        df_HLT_LEP = df_Offline_DileptonsCut\
-                .Filter(Trig_Cond(flag = self.__HLT_LEP,joint = " || " ),"HLT_LEP_Trig")\
+        df_Offline_Selection = df_region_trig\
+            .Define("met",f"{MET}")\
+            .Filter('(l1p4+l2p4).M() >=20 && (l1p4.Pt() >= 30 || l2p4.Pt() >= 30) && l1p4.DeltaR(l2p4) >= 0.3 && met >=100','LeptonCut')\
+            .Define('no_HLT','0.5')
+
+        if self.__Type == 'Data':
+            df_Offline_Selection = df_Offline_Selection.\
+                    Define("weight",'1.')
+        else:
+            df_Offline_Selection = df_Offline_Selection.\
+                    Define("weight",f'float w ; if(ttc_Flag && OPS_Flag) throw "Contraction Region!" ;\
+                    else if(ttc_Flag) w = {self.__Condition_Weights}*{RECOWeight_LEP_TTC}*IDsf;\
+                    else if(OPS_Flag) w = {self.__Condition_Weights}*IDsf*{RECOWeight_LEP_OPS};\
+                    return w')
+
+        
+        df_HLT_LEP = df_Offline_Selection\
+                .Filter(' || '.join(self.__HLT_LEP),"HLT_LEP_Trig")\
                 .Define('HLT_LEP_pass','0.5')
 
-
-        df_HLT_MET = df_Offline_DileptonsCut\
-                .Filter(Trig_Cond(flag = self.__HLT_MET,joint = " || " ),"HLT_MET_Trig")\
+        df_HLT_MET = df_Offline_Selection\
+                .Filter(" || ".join(self.__HLT_MET),"HLT_MET_Trig")\
                 .Define('HLT_MET_pass','0.5')
 
         df_HLT_MET_highjet = df_HLT_MET\
@@ -269,8 +285,8 @@ class TrigRDataFrame(MyDataFrame):
         df_HLT_MET_lowmet = df_HLT_MET\
                 .Filter('met <150','pre_low_met')
         
-        df_HLT_LEPMET = df_HLT_LEP\
-                .Filter(Trig_Cond(flag = self.__HLT_MET,joint = " || " ),"HLT_LEPMET_Trig")\
+        df_HLT_LEPMET = df_HLT_MET\
+                .Filter(" || ".join(self.__HLT_LEP),"HLT_LEPMET_Trig")\
                 .Define('HLT_LEPMET_pass','0.5')
         
         df_HLT_LEPMET_highjet = df_HLT_LEPMET\
@@ -289,7 +305,7 @@ class TrigRDataFrame(MyDataFrame):
 
 
 
-        self.__Histogram['1D']['HLT']['No_HLT'] = df_Offline_DileptonsCut.Histo1D(("No_HLT","No_HLT",1,0,1),"no_HLT","weight").GetValue()
+        self.__Histogram['1D']['HLT']['No_HLT'] = df_Offline_Selection.Histo1D(("No_HLT","No_HLT",1,0,1),"no_HLT","weight").GetValue()
         self.__Histogram['1D']['HLT']['HLT_LEP'] = df_HLT_LEP.Histo1D(("HLT_LEP_pass","HLT_LEP_pass",1,0,1),"HLT_LEP_pass","weight").GetValue()
         self.__Histogram['1D']['HLT']['HLT_MET'] = df_HLT_MET.Histo1D(("HLT_MET_pass","HLT_MET_pass",1,0,1),"HLT_MET_pass","weight").GetValue()
         self.__Histogram['1D']['HLT']['HLT_LEPMET'] = df_HLT_LEPMET.Histo1D(("HLT_LEPMET_pass","HLT_LEPMET_pass",1,0,1),"HLT_LEPMET_pass","weight").GetValue()
@@ -482,11 +498,10 @@ class TrigRDataFrame(MyDataFrame):
         self.__FileOut.Close()
         
         
-        weight_all = df_Offline_DileptonsCut.Sum("weight")
+        weight_all = df_Offline_Selection.Sum("weight")
         weight_lep = df_HLT_LEP.Sum("weight")
         weight_met = df_HLT_MET.Sum("weight")
         weight_lepmet = df_HLT_LEPMET.Sum("weight")
-        
         
         
         #print(f'weight_all:{weight_all.GetValue()}')
