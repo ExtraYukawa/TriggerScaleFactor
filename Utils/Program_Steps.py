@@ -160,7 +160,7 @@ def Trig_Calc(args):
         raise ValueError("Should Specify the type of input file(s) ex:[-f/--Type MC]")
     if args.veto == True:
         print('Veto HEM region.\nRemind: The option[-v/--veto] is only valid for UL2018 Data.')
-    
+     
     with open(f'./data/year{args.year}/TriggerSF/configuration/HLTTrigger.json','rb') as f:
         HLT_Path = json.load(f)
     with open(f'./data/year{args.year}/TriggerSF/configuration/name.json','rb') as f :
@@ -194,7 +194,8 @@ def Trig_Calc(args):
         'Year':'year'+args.year,
         'nevents':args.nevents,
         'Condition_Weights':Condition_Weights,
-        'veto':args.veto
+        'veto':args.veto,
+        'debug':args.debug
     }
     A = TrigRDataFrame(setting)
     A.Run()
