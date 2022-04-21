@@ -9,6 +9,14 @@ def get_NumberOfEvent(filename:str) -> int:
     ftemp = ROOT.TFile.Open(filename)
     htemp = ftemp.Get('nEventsGenWeighted')
     return  htemp.GetBinContent(1)
+def getNumberofEventsInDataSet(DataSet:list,FilterSet:list):
+
+    for filename in DataSet:
+        ftemp = ROOT.TFile.Open(filename)
+        Events = ftemp.Get('Events')
+        print(Events.GetEntries())
+
+
 
 def MakeDir(Root:str,ChildName:str):
 

@@ -19,6 +19,7 @@ parser.add_argument('-f','--Type',help="MC/Data",type=str,choices=["MC","Data"])
 parser.add_argument('-n','--nevents',help="Number of Events. Only used in mode[TrigEff_Calc] at this moment. Default is set to -1.",type=int,default=-1)
 parser.add_argument('-a','--SF_mode',choices=[0,1,2,3],help="This option is to determine whether to apply TriggerSF on MC Sample",type=int,default=3)
 parser.add_argument('-v','--veto',action = "store_true",help="In 2018 Issue, veto the HEM region if specified.")
+parser.add_argument('-d','--debug',action="store_true",help="Debug mode")
 args = parser.parse_args()
 
 

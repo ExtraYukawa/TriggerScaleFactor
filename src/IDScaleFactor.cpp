@@ -18,8 +18,8 @@ float IDScaleFact(const char *channel="", TH2D*h1=NULL,TH2D*h2=NULL,float l1pt=0
 
 float ID_sf_singlelepton(TH2D *h, float pt, float eta){
 
-    if( pt > 200)
-        pt = 199;       
+    if( pt > 500)
+        pt = 499;       
     if(eta < 0)
         eta = -eta;
     return h->GetBinContent(h->FindBin(pt,eta));

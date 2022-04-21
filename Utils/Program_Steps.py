@@ -66,7 +66,7 @@ def FakeRateCalculation(args):
     
     FakeRateAnalyzer(settings)
 
-from Drell_Yan.DY_Analyzer import *
+from Drell_Yan.Analyzer import *
 
 
 
@@ -82,6 +82,7 @@ def Drell_Yan_Reconstruction(args):
     settings['nevents'] = args.nevents
     settings['SF_mode']  = args.SF_mode
     settings['veto'] = args.veto
+    settings['debug'] = args.debug
     
     with open(f'./data/year{args.year}/DrellYan/configuration/HLTTriggerCondition.json','rb') as f:
         settings['HLT_Path'] = json.load(f)
@@ -100,7 +101,9 @@ def Drell_Yan_Reconstruction(args):
         settings['Weights'] = json.load(f)
     with open(f'./data/year{args.year}/TriggerSF/path/LeptonsID_SF.json','rb') as f:
         settings['LepIDSF_File'] = json.load(f)[args.channel]
-
+    
+    with open(f'./data/year{args.year}/TriggerSF/configuration/flag.json','r') as f:
+        settings['FLAG'] = json.load(f)
 
     Analyzer = DrellYanRDataFrame(settings)
     Analyzer.Run()
@@ -116,6 +119,39 @@ from Utils.General_Tool import *
 import Utils.plot_settings as plt_set
 
 def Trig_Calc(args):
+    '''
+    *args.year
+        - 2016apv/2016postapv/2017/2018   
+    *args.channel
+        - DoubleElectron/DoubleMuon/ElectronMuon
+    *args.veto
+        - to veto HEM region or not
+        - only valid for UL2018
+    *Condition_Weights
+        -MC:
+            - PrefireWeight(UL2017),puWeight
+        -Data:
+            - 1.
+    *HLT_Path
+        - High-Level Trigger 
+    *Leptons_Information
+        - Leptons_Information
+            - region: 1 for mumu, 2 for emu, 3 for ee
+            - OPS_p4: p4 names for l1/l2 if in OPS_region
+            - ttc_p4: p4 names for l1/l1 if in ttc_region
+            - weight: RECO Scale factors name for l1/l2(Currently, this is deprecated)
+    *Flag
+        - HLT_MET Filters.
+    *FileIn
+        -Data: MET.root path
+        -MC: TTTo2L.root path
+    *LepSF_File
+        -ID scale factors path and branch name
+    *User
+        -Path to eos space and your name
+    *args.Type
+        - Data / MC
+    '''
     if args.year is None:
         raise ValueError('Arguments [year] must be speicified.')
     if args.channel == None:
@@ -128,7 +164,7 @@ def Trig_Calc(args):
     with open(f'./data/year{args.year}/TriggerSF/configuration/HLTTrigger.json','rb') as f:
         HLT_Path = json.load(f)
     with open(f'./data/year{args.year}/TriggerSF/configuration/name.json','rb') as f :
-        Var_Name = json.load(f)
+        Leptons_Information = json.load(f)
     with open(f'./data/year{args.year}/TriggerSF/configuration/flag.json','rb') as f :
         Flag = json.load(f)
 
@@ -142,22 +178,22 @@ def Trig_Calc(args):
         LepSF_File = json.load(f)[args.channel]
 
     with open(f'./data/year{args.year}/TriggerSF/configuration/weights.json','rb') as f:
-        Weights = json.load(f)[args.Type]
+        Condition_Weights = json.load(f)[args.Type]
 
     
     setting={
         'HLT_MET': HLT_Path['MET'],
         'HLT_LEP': HLT_Path[args.channel],
-        'Var_Name' : Var_Name[args.channel],
+        'Leptons_Information' : Leptons_Information[args.channel],
         'channel' : args.channel,
         'DirOut' : User['DirOut'][args.channel]['files'],
         'FileIn' : FileIn[args.Type],
-        'Flag':Flag,
+        'MET_Filters':Flag,
         'Type':args.Type,
         'LepSF_File':LepSF_File,
         'Year':'year'+args.year,
         'nevents':args.nevents,
-        'Weights':Weights,
+        'Condition_Weights':Condition_Weights,
         'veto':args.veto
     }
     A = TrigRDataFrame(setting)
