@@ -1,0 +1,42 @@
+{
+    "Data": {
+        "Electron": [
+            "/eos/user/m/melu/TTC_fakerate_v9_2018/EGammaA.root",
+            "/eos/user/m/melu/TTC_fakerate_v9_2018/EGammaB.root",
+            "/eos/user/m/melu/TTC_fakerate_v9_2018/EGammaC.root",
+            "/eos/user/m/melu/TTC_fakerate_v9_2018/EGammaD.root"
+        ],
+        "Muon": [
+            "/eos/user/m/melu/TTC_fakerate_v9_2018/DoubleMuA.root",
+            "/eos/user/m/melu/TTC_fakerate_v9_2018/DoubleMuB.root",
+            "/eos/user/m/melu/TTC_fakerate_v9_2018/DoubleMuC.root",
+            "/eos/user/m/melu/TTC_fakerate_v9_2018/DoubleMuD.root"
+        ]
+    },
+    "MC": {
+        "Lepton": {
+            "DY": {
+                "path": "/eos/user/m/melu/TTC_fakerate_v9_2018/DYnlo.root",
+                "xs": 6077.22,
+                "nevents": 36889545.0
+            },
+            "WJets": {
+                "path": "/eos/user/m/melu/TTC_fakerate_v9_2018/WJets.root",
+                "xs": 61526.7,
+                "nevents": 70942428.0
+            },
+            "TTTo1L": {
+                "path": "/eos/user/m/melu/TTC_fakerate_v9_2018/TTTo1L.root",
+                "xs": 365.4574,
+                "nevents": 13037148.0
+            },
+            "TTTo2L": {
+                "path": "/eos/user/m/melu/TTC_fakerate_v9_2018/TTTo2L.root",
+                "xs": 88.3419,
+                "nevents": 46073660.0
+            }
+        },
+        "ElectronQCD": {},
+        "MuonQCD": {}
+    }
+}

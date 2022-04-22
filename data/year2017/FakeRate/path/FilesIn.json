@@ -1,0 +1,175 @@
+{
+    "Data": {
+        "Electron": [
+            "/eos/user/m/melu/TTC_fakerate_newLepID_1129/SingleEGC.root",
+            "/eos/user/m/melu/TTC_fakerate_newLepID_1129/SingleEGD.root",
+            "/eos/user/m/melu/TTC_fakerate_newLepID_1129/SingleEGE.root",
+            "/eos/user/m/melu/TTC_fakerate_newLepID_1129/SingleEGF.root"
+        ],
+        "Muon": [
+            "/eos/user/m/melu/TTC_fakerate_newLepID_1129/DoubleMuonB.root",
+            "/eos/user/m/melu/TTC_fakerate_newLepID_1129/DoubleMuonC.root",
+            "/eos/user/m/melu/TTC_fakerate_newLepID_1129/DoubleMuonD.root",
+            "/eos/user/m/melu/TTC_fakerate_newLepID_1129/DoubleMuonE.root",
+            "/eos/user/m/melu/TTC_fakerate_newLepID_1129/DoubleMuonF.root"
+        ]
+    },
+    "MC": {
+        "Lepton": {
+            "DY": {
+                "path": "/eos/user/m/melu/TTC_fakerate_newLepID_1129/DY.root",
+                "xs": 6077.22,
+                "nevents": 102486448.0
+            },
+            "WJets": {
+                "path": "/eos/user/m/melu/TTC_fakerate_newLepID_1129/WJets.root",
+                "xs": 61526.7,
+                "nevents": 81254459.0
+            },
+            "TTTo1L": {
+                "path": "/eos/user/m/melu/TTC_fakerate_newLepID_1129/TTTo1L.root",
+                "xs": 365.4574,
+                "nevents": 39232238.0
+            },
+            "TTTo2L": {
+                "path": "/eos/user/m/melu/TTC_fakerate_newLepID_1129/TTTo2L.root",
+                "xs": 88.3419,
+                "nevents": 55074538.0
+            }
+        },
+        "ElectronQCD": {
+            "QCDEM15to20": {
+                "path": "/eos/user/m/melu/TTC_fakerate_newLepID_1129/QCDEM15to20.root",
+                "xs": 1327000.0,
+                "nevents": 14027917.0
+            },
+            "QCDEM20to30": {
+                "path": "/eos/user/m/melu/TTC_fakerate_newLepID_1129/QCDEM20to30.root",
+                "xs": 4908000.0,
+                "nevents": 14660675.0
+            },
+            "QCDEM30to50": {
+                "path": "/eos/user/m/melu/TTC_fakerate_newLepID_1129/QCDEM30to50.root",
+                "xs": 6396000.0,
+                "nevents": 14971725.0
+            },
+            "QCDEM50to80": {
+                "path": "/eos/user/m/melu/TTC_fakerate_newLepID_1129/QCDEM50to80.root",
+                "xs": 1989000.0,
+                "nevents": 10900663.0
+            },
+            "QCDEM80to120": {
+                "path": "/eos/user/m/melu/TTC_fakerate_newLepID_1129/QCDEM80to120.root",
+                "xs": 366500.0,
+                "nevents": 9536384.0
+            },
+            "QCDEM120to170": {
+                "path": "/eos/user/m/melu/TTC_fakerate_newLepID_1129/QCDEM120to170.root",
+                "xs": 66490.0,
+                "nevents": 9875695.0
+            },
+            "QCDEM170to300": {
+                "path": "/eos/user/m/melu/TTC_fakerate_newLepID_1129/QCDEM170to300.root",
+                "xs": 16480.0,
+                "nevents": 3728180.0
+            },
+            "QCDEM300toInf": {
+                "path": "/eos/user/m/melu/TTC_fakerate_newLepID_1129/QCDEM300toInf.root",
+                "xs": 1099.0,
+                "nevents": 2840010.0
+            },
+            "QCD_bctoE_15to20": {
+                "path": "/eos/user/m/melu/TTC_fakerate_newLepID_1129/QCD_bctoE_15to20.root",
+                "xs": 186200.0,
+                "nevents": 4316068.0
+            },
+            "QCD_bctoE_20to30": {
+                "path": "/eos/user/m/melu/TTC_fakerate_newLepID_1129/QCD_bctoE_20to30.root",
+                "xs": 303800.0,
+                "nevents": 5690210.0
+            },
+            "QCD_bctoE_30to80": {
+                "path": "/eos/user/m/melu/TTC_fakerate_newLepID_1129/QCD_bctoE_30to80.root",
+                "xs": 362300.0,
+                "nevents": 16073047.0
+            },
+            "QCD_bctoE_80to170": {
+                "path": "/eos/user/m/melu/TTC_fakerate_newLepID_1129/QCD_bctoE_80to170.root",
+                "xs": 33700.0,
+                "nevents": 15575394.0
+            },
+            "QCD_bctoE_170to250": {
+                "path": "/eos/user/m/melu/TTC_fakerate_newLepID_1129/QCD_bctoE_170to250.root",
+                "xs": 2125.0,
+                "nevents": 9790173.0
+            },
+            "QCD_bctoE_250toInf": {
+                "path": "/eos/user/m/melu/TTC_fakerate_newLepID_1129/QCD_bctoE_250toInf.root",
+                "xs": 562.5,
+                "nevents": 9996886.0
+            }
+        },
+        "MuonQCD": {
+            "QCD15to20": {
+                "path": "/eos/user/m/melu/TTC_fakerate_newLepID_1129/QCD15to20.root",
+                "xs": 2799000.0,
+                "nevents": 26332765.0
+            },
+            "QCD20to30": {
+                "path": "/eos/user/m/melu/TTC_fakerate_newLepID_1129/QCD20to30.root",
+                "xs": 2526000.0,
+                "nevents": 28251498.0
+            },
+            "QCD30to50": {
+                "path": "/eos/user/m/melu/TTC_fakerate_newLepID_1129/QCD30to50.root",
+                "xs": 1362000.0,
+                "nevents": 30992451.0
+            },
+            "QCD50to80": {
+                "path": "/eos/user/m/melu/TTC_fakerate_newLepID_1129/QCD50to80.root",
+                "xs": 376600.0,
+                "nevents": 20937742.0
+            },
+            "QCD80to120": {
+                "path": "/eos/user/m/melu/TTC_fakerate_newLepID_1129/QCD80to120.root",
+                "xs": 88930.0,
+                "nevents": 613257.0
+            },
+            "QCD120to170": {
+                "path": "/eos/user/m/melu/TTC_fakerate_newLepID_1129/QCD120to170.root",
+                "xs": 21230.0,
+                "nevents": 648944.0
+            },
+            "QCD170to300": {
+                "path": "/eos/user/m/melu/TTC_fakerate_newLepID_1129/QCD170to300.root",
+                "xs": 7055.0,
+                "nevents": 36918785.0
+            },
+            "QCD300to470": {
+                "path": "/eos/user/m/melu/TTC_fakerate_newLepID_1129/QCD300to470.root",
+                "xs": 619.3,
+                "nevents": 494796.0
+            },
+            "QCD470to600": {
+                "path": "/eos/user/m/melu/TTC_fakerate_newLepID_1129/QCD470to600.root",
+                "xs": 59.24,
+                "nevents": 517382.0
+            },
+            "QCD600to800": {
+                "path": "/eos/user/m/melu/TTC_fakerate_newLepID_1129/QCD600to800.root",
+                "xs": 18.21,
+                "nevents": 15911437.0
+            },
+            "QCD800to1000": {
+                "path": "/eos/user/m/melu/TTC_fakerate_newLepID_1129/QCD800to1000.root",
+                "xs": 3.275,
+                "nevents": 16995944.0
+            },
+            "QCD1000toInf": {
+                "path": "/eos/user/m/melu/TTC_fakerate_newLepID_1129/QCD1000toInf.root",
+                "xs": 1.078,
+                "nevents": 12596548.0
+            }
+        }
+    }
+}

@@ -1,0 +1,14 @@
+{
+    "DirOut": {
+        "DoubleElectron": {
+            "plots": "/eos/user/z/zhenggan/ExtraYukawa/DrellYan/year2018/DoubleElectron/plots"
+        },
+        "DoubleMuon": {
+            "plots": "/eos/user/z/zhenggan/ExtraYukawa/DrellYan/year2018/DoubleMuon/plots"
+        },
+        "ElectronMuon": {
+            "plots": "/eos/user/z/zhenggan/ExtraYukawa/DrellYan/year2018/ElectronMuon/plots"
+        }
+    },
+    "UserName": "zhenggan"
+}

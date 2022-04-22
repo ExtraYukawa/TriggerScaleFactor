@@ -1,0 +1,10 @@
+{
+    "Data": [
+        "/eos/cms/store/group/phys_top/ExtraYukawa/2016postapvMerged/MET_F.root",
+        "/eos/cms/store/group/phys_top/ExtraYukawa/2016postapvMerged/MET_G.root",
+        "/eos/cms/store/group/phys_top/ExtraYukawa/2016postapvMerged/MET_H.root"
+    ],
+    "MC": [
+        "/eos/cms/store/group/phys_top/ExtraYukawa/2016postapvMerged/TTTo2L2Nu.root"
+    ]
+}

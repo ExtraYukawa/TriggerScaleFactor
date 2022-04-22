@@ -1,0 +1,13 @@
+{
+    "DirOut": {
+        "Electron": {
+            "plots": "/eos/user/z/zhenggan/ExtraYukawa/FakeRate/year2017/Electron/plots",
+            "files": "/eos/user/z/zhenggan/ExtraYukawa/FakeRate/year2017/Electron/files"
+        },
+        "Muon": {
+            "plots": "/eos/user/z/zhenggan/ExtraYukawa/FakeRate/year2017/Muon/plots",
+            "files": "/eos/user/z/zhenggan/ExtraYukawa/FakeRate/year2017/Muon/files"
+        }
+    },
+    "UserName": "zhenggan"
+}

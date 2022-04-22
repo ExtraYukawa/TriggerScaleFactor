@@ -1,0 +1,12 @@
+{
+    "Data": [
+        "/eos/cms/store/group/phys_top/ExtraYukawa/2018/META.root",
+        "/eos/cms/store/group/phys_top/ExtraYukawa/2018/METB.root",
+        "/eos/cms/store/group/phys_top/ExtraYukawa/2018/METC.root",
+        "/eos/cms/store/group/phys_top/ExtraYukawa/2018/METD_0.root",
+        "/eos/cms/store/group/phys_top/ExtraYukawa/2018/METD_1.root"
+    ],
+    "MC": [
+        "/eos/cms/store/group/phys_top/ExtraYukawa/2018/TTTo2L.root"
+    ]
+}

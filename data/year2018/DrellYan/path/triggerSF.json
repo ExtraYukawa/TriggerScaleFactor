@@ -1,0 +1,36 @@
+{
+    "file": {
+        "all": {
+            "DoubleElectron": {
+                "l1": "/eos/user/z/zhenggan/ExtraYukawa/TriggerSF/year2018/DoubleElectron/files/SF_l1pteta.root",
+                "l2": "/eos/user/z/zhenggan/ExtraYukawa/TriggerSF/year2018/DoubleElectron/files/SF_l2pteta.root"
+            },
+            "DoubleMuon": {
+                "l1": "/eos/user/z/zhenggan/ExtraYukawa/TriggerSF/year2018/DoubleMuon/files/SF_l1pteta.root",
+                "l2": "/eos/user/z/zhenggan/ExtraYukawa/TriggerSF/year2018/DoubleMuon/files/SF_l2pteta.root"
+            },
+            "ElectronMuon": {
+                "l1": "/eos/user/z/zhenggan/ExtraYukawa/TriggerSF/year2018/ElectronMuon/files/SF_l1pteta.root",
+                "l2": "/eos/user/z/zhenggan/ExtraYukawa/TriggerSF/year2018/ElectronMuon/files/SF_l2pteta.root"
+            }
+        },
+        "veto": {
+            "DoubleElectron": {
+                "l1": "/eos/user/z/zhenggan/ExtraYukawa/TriggerSF/year2018/DoubleElectron/files/SF_l1pteta_vetohemregion.root",
+                "l2": "/eos/user/z/zhenggan/ExtraYukawa/TriggerSF/year2018/DoubleElectron/files/SF_l2pteta_vetohemregion.root"
+            },
+            "DoubleMuon": {
+                "l1": "/eos/user/z/zhenggan/ExtraYukawa/TriggerSF/year2018/DoubleMuon/files/SF_l1pteta_vetohemregion.root",
+                "l2": "/eos/user/z/zhenggan/ExtraYukawa/TriggerSF/year2018/DoubleMuon/files/SF_l2pteta_vetohemregion.root"
+            },
+            "ElectronMuon": {
+                "l1": "/eos/user/z/zhenggan/ExtraYukawa/TriggerSF/year2018/ElectronMuon/files/SF_l1pteta_vetohemregion.root",
+                "l2": "/eos/user/z/zhenggan/ExtraYukawa/TriggerSF/year2018/ElectronMuon/files/SF_l2pteta_vetohemregion.root"
+            }
+        }
+    },
+    "branchname": {
+        "l1": "l1pteta",
+        "l2": "l2pteta"
+    }
+}

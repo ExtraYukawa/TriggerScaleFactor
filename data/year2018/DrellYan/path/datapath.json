@@ -1,0 +1,113 @@
+{
+    "Data": {
+        "DoubleElectron": {
+            "EGamma": [
+                "/eos/cms/store/group/phys_top/ExtraYukawa/2018/EGammaA.root",
+                "/eos/cms/store/group/phys_top/ExtraYukawa/2018/EGammaB.root",
+                "/eos/cms/store/group/phys_top/ExtraYukawa/2018/EGammaC.root",
+                "/eos/cms/store/group/phys_top/ExtraYukawa/2018/EGammaD_0.root",
+                "/eos/cms/store/group/phys_top/ExtraYukawa/2018/EGammaD_1.root"
+            ]
+        },
+        "DoubleMuon": {
+            "DoubleMuon": [
+                "/eos/cms/store/group/phys_top/ExtraYukawa/2018/DoubleMuonA.root",
+                "/eos/cms/store/group/phys_top/ExtraYukawa/2018/DoubleMuonB.root",
+                "/eos/cms/store/group/phys_top/ExtraYukawa/2018/DoubleMuonC.root",
+                "/eos/cms/store/group/phys_top/ExtraYukawa/2018/DoubleMuonD_0.root",
+                "/eos/cms/store/group/phys_top/ExtraYukawa/2018/DoubleMuonD_1.root"
+            ],
+            "SingleMuon": [
+                "/eos/cms/store/group/phys_top/ExtraYukawa/2018/SingleMuonA.root",
+                "/eos/cms/store/group/phys_top/ExtraYukawa/2018/SingleMuonB.root",
+                "/eos/cms/store/group/phys_top/ExtraYukawa/2018/SingleMuonC.root",
+                "/eos/cms/store/group/phys_top/ExtraYukawa/2018/SingleMuonD_0.root",
+                "/eos/cms/store/group/phys_top/ExtraYukawa/2018/SingleMuonD_1.root"
+            ]
+        },
+        "ElectronMuon": {
+            "SingleMuon": [
+                "/eos/cms/store/group/phys_top/ExtraYukawa/2018/SingleMuonA.root",
+                "/eos/cms/store/group/phys_top/ExtraYukawa/2018/SingleMuonB.root",
+                "/eos/cms/store/group/phys_top/ExtraYukawa/2018/SingleMuonC.root",
+                "/eos/cms/store/group/phys_top/ExtraYukawa/2018/SingleMuonD_0.root",
+                "/eos/cms/store/group/phys_top/ExtraYukawa/2018/SingleMuonD_1.root"
+            ],
+            "EGamma": [
+                "/eos/cms/store/group/phys_top/ExtraYukawa/2018/EGammaA.root",
+                "/eos/cms/store/group/phys_top/ExtraYukawa/2018/EGammaB.root",
+                "/eos/cms/store/group/phys_top/ExtraYukawa/2018/EGammaC.root",
+                "/eos/cms/store/group/phys_top/ExtraYukawa/2018/EGammaD_0.root",
+                "/eos/cms/store/group/phys_top/ExtraYukawa/2018/EGammaD_1.root"
+            ],
+            "MuonEG": [
+                "/eos/cms/store/group/phys_top/ExtraYukawa/2018/MuonEGA.root",
+                "/eos/cms/store/group/phys_top/ExtraYukawa/2018/MuonEGB.root",
+                "/eos/cms/store/group/phys_top/ExtraYukawa/2018/MuonEGC.root",
+                "/eos/cms/store/group/phys_top/ExtraYukawa/2018/MuonEGD_0.root",
+                "/eos/cms/store/group/phys_top/ExtraYukawa/2018/MuonEGD_1.root"
+            ]
+        }
+    },
+    "MC": {
+        "DY": {
+            "DYnlo": "/eos/cms/store/group/phys_top/ExtraYukawa/2018/DYnlo.root"
+        },
+        "WJets": {
+            "WJets": "/eos/cms/store/group/phys_top/ExtraYukawa/2018/WJets.root"
+        },
+        "VV": {
+            "osWW": "/eos/cms/store/group/phys_top/ExtraYukawa/2018/osWW.root",
+            "ssWW": "/eos/cms/store/group/phys_top/ExtraYukawa/2018/ssWW.root",
+            "WWdps": "/eos/cms/store/group/phys_top/ExtraYukawa/2018/WWdps.root",
+            "ZZ": "/eos/cms/store/group/phys_top/ExtraYukawa/2018/ZZ.root",
+            "ZG_ew": "/eos/cms/store/group/phys_top/ExtraYukawa/2018/ZG_ew.root",
+            "WZ": "/eos/cms/store/group/phys_top/ExtraYukawa/2018/WZ.root"
+        },
+        "VVV": {
+            "WWW": "/eos/cms/store/group/phys_top/ExtraYukawa/2018/WWW.root",
+            "WWZ": "/eos/cms/store/group/phys_top/ExtraYukawa/2018/WWZ.root",
+            "WZZ": "/eos/cms/store/group/phys_top/ExtraYukawa/2018/WZZ.root",
+            "ZZZ": "/eos/cms/store/group/phys_top/ExtraYukawa/2018/ZZZ.root"
+        },
+        "SingleTop": {
+            "tsch": "/eos/cms/store/group/phys_top/ExtraYukawa/2018/tsch.root",
+            "t_tch": "/eos/cms/store/group/phys_top/ExtraYukawa/2018/t_tch.root",
+            "tbar_tch": "/eos/cms/store/group/phys_top/ExtraYukawa/2018/tbar_tch.root",
+            "tW": "/eos/cms/store/group/phys_top/ExtraYukawa/2018/tW.root",
+            "tbarW": "/eos/cms/store/group/phys_top/ExtraYukawa/2018/tbarW.root"
+        },
+        "ttXorXX": {
+            "ttWtoLNu": "/eos/cms/store/group/phys_top/ExtraYukawa/2018/ttWtoLNu.root",
+            "ttWtoQQ": "/eos/cms/store/group/phys_top/ExtraYukawa/2018/ttWtoQQ.root",
+            "ttZ": "/eos/cms/store/group/phys_top/ExtraYukawa/2018/ttZ.root",
+            "ttZtoQQ": "/eos/cms/store/group/phys_top/ExtraYukawa/2018/ttZtoQQ.root",
+            "ttH": "/eos/cms/store/group/phys_top/ExtraYukawa/2018/ttH.root",
+            "ttWW": "/eos/cms/store/group/phys_top/ExtraYukawa/2018/ttWW.root",
+            "ttWZ": "/eos/cms/store/group/phys_top/ExtraYukawa/2018/ttWZ.root",
+            "ttZZ": "/eos/cms/store/group/phys_top/ExtraYukawa/2018/ttZZ.root",
+            "ttWH": "/eos/cms/store/group/phys_top/ExtraYukawa/2018/ttWH.root",
+            "ttZH": "/eos/cms/store/group/phys_top/ExtraYukawa/2018/ttZH.root",
+            "tttJ": "/eos/cms/store/group/phys_top/ExtraYukawa/2018/tttJ.root",
+            "tttW": "/eos/cms/store/group/phys_top/ExtraYukawa/2018/tttW.root",
+            "tttt": "/eos/cms/store/group/phys_top/ExtraYukawa/2018/tttt.root"
+        },
+        "tzq": {
+            "tzq": "/eos/cms/store/group/phys_top/ExtraYukawa/2018/tzq.root"
+        },
+        "TT": {
+            "TTTo1L": "/eos/cms/store/group/phys_top/ExtraYukawa/2018/TTTo1L.root",
+            "TTTo2L": "/eos/cms/store/group/phys_top/ExtraYukawa/2018/TTTo2L.root"
+        }
+    },
+    "Process": [
+        "DY",
+        "WJets",
+        "VV",
+        "VVV",
+        "SingleTop",
+        "ttXorXX",
+        "tzq",
+        "TT"
+    ]
+}

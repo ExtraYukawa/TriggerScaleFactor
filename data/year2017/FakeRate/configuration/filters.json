@@ -1,0 +1,22 @@
+{
+    "Electron": {
+        "All": "(HLT_Ele17_CaloIdM_TrackIdM_PFJet30 && l1_pt<35) || (HLT_Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30 && l1_pt>35)",
+        "numerator": "n_tight_ele==1 &&met<30 &&mt<30 && Flag_goodVertices && Flag_globalSuperTightHalo2016Filter && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter && Flag_eeBadScFilter && Flag_ecalBadCalibFilter && jet_selection_30_dr07",
+        "denominator": "(n_tight_ele==1 ||n_fakeable_ele==1)&&met<30 && mt<30 && Flag_goodVertices && Flag_globalSuperTightHalo2016Filter && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter && Flag_eeBadScFilter && Flag_ecalBadCalibFilter && jet_selection_30_dr07"
+    },
+    "Muon": {
+        "All": "(HLT_Mu8 && l1_pt<30) || (HLT_Mu17 && l1_pt>30)",
+        "numerator": "n_tight_muon==1 && mt<30 &&met<30 && Flag_goodVertices && Flag_globalSuperTightHalo2016Filter && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter && Flag_eeBadScFilter && Flag_ecalBadCalibFilter && jet_selection_30_dr07",
+        "denominator": "(n_tight_muon==1 ||n_fakeable_muon==1)&& mt<30 && met<30 && Flag_goodVertices && Flag_globalSuperTightHalo2016Filter && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter && Flag_eeBadScFilter && Flag_ecalBadCalibFilter && jet_selection_30_dr07"
+    },
+    "ElectronQCD": {
+        "All": "(HLT_Ele17_CaloIdM_TrackIdM_PFJet30 && l1_pt<35) || (HLT_Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30 && l1_pt>35)",
+        "numerator": "n_tight_ele==1 &&mt<30 && met<30 && Flag_goodVertices && Flag_globalSuperTightHalo2016Filter && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter && Flag_eeBadScFilter && Flag_ecalBadCalibFilter && jet_selection_30",
+        "denominator": "(n_tight_ele==1 ||n_fakeable_ele==1)&&mt<30 && met<30&& Flag_goodVertices && Flag_globalSuperTightHalo2016Filter && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter && Flag_eeBadScFilter && Flag_ecalBadCalibFilter && jet_selection_30"
+    },
+    "MuonQCD": {
+        "All": "(HLT_Mu8 && l1_pt<30) || (HLT_Mu17 && l1_pt>30)",
+        "numerator": "n_tight_muon==1 &&met<30&&mt<30 && Flag_goodVertices && Flag_globalSuperTightHalo2016Filter && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter && Flag_eeBadScFilter && Flag_ecalBadCalibFilter && jet_selection_30",
+        "denominator": "(n_tight_muon==1 ||n_fakeable_muon==1)&&met<30&&mt<30 && Flag_goodVertices && Flag_globalSuperTightHalo2016Filter && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter && Flag_eeBadScFilter && Flag_ecalBadCalibFilter && jet_selection_30"
+    }
+}

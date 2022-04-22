@@ -1,0 +1,9 @@
+{
+    "DirOut": {
+        "DoubleMuon": {
+            "plots": "/eos/user/z/zhenggan/ExtraYukawa/TriggerSF/year2016apv/DoubleMuon/plots",
+            "files": "/eos/user/z/zhenggan/ExtraYukawa/TriggerSF/year2016apv/DoubleMuon/files"
+        }
+    },
+    "UserName": "zhenggan"
+}
