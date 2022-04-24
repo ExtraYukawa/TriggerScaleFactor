@@ -20,6 +20,7 @@ parser.add_argument('-n','--nevents',help="Number of Events. Only used in mode[T
 parser.add_argument('-a','--SF_mode',choices=[0,1,2,3],help="This option is to determine whether to apply TriggerSF on MC Sample",type=int,default=3)
 parser.add_argument('-v','--veto',action = "store_true",help="In 2018 Issue, veto the HEM region if specified.")
 parser.add_argument('-d','--debug',action="store_true",help="Debug mode")
+parser.add_argument('-s','--ylog',choices=[0,1],help="Set y scale to be log scale, only works for Control Region validation at this moment.",type=int,default = 0)
 args = parser.parse_args()
 
 
@@ -48,7 +49,8 @@ if args.mode == 'Init':
         GenLeptonIDSF_File(args.year)
         GenMCWeightsName_File(args.year)
         GenVariableNames_File(args.year)
-        GenGoodFlag_File(args.year) 
+        GenGoodFlag_File(args.year)
+        GenTotalLuminosity(args.year)
     
     elif args.task == 'DrellYan':
         from Drell_Yan.Init import *
