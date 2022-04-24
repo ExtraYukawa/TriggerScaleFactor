@@ -75,7 +75,9 @@ def Drell_Yan_Reconstruction(args):
         raise ValueError('Arguments [year] must be speicified.')
     if args.channel == 'None':
         raise ValueError("Channel should be specified or The Specified Channel is Not in the list. ex:[-i/--channel DoubleElectron]")
-    
+    if args.ylog == 1:
+        print('Setting y scale to be log scale...')
+
     settings = dict()
     settings['year'] = args.year
     settings['channel'] = args.channel
@@ -83,6 +85,7 @@ def Drell_Yan_Reconstruction(args):
     settings['SF_mode']  = args.SF_mode
     settings['veto'] = args.veto
     settings['debug'] = args.debug
+    settings['ylog'] = args.ylog
     
     with open(f'./data/year{args.year}/DrellYan/configuration/HLTTriggerCondition.json','rb') as f:
         settings['HLT_Path'] = json.load(f)

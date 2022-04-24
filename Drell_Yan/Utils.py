@@ -52,11 +52,11 @@ class MyDataFrame(object):
             if self.__channel == 'DoubleElectron':
                 DY_region = 3
                 self.__lepton_RECO_SF = 'Electron_RECO_SF[OPS_l1_id]*Electron_RECO_SF[OPS_l2_id]'
-                self.__offline_selections = f'OPS_region=={DY_region} && OPS_2P0F && OPS_z_mass > 60 && OPS_z_mass<120 && OPS_l1_pt>30 && OPS_l2_pt>20 && OPS_drll>0.3 && {self.__flag_Condition} && nHad_tau==0 '
+                self.__offline_selections = f'OPS_region=={DY_region} && OPS_2P0F && OPS_z_mass > 60 && OPS_z_mass<120 && OPS_l1_pt>30 && OPS_l2_pt>30 && OPS_drll>0.3 && {self.__flag_Condition} && nHad_tau==0 '
             elif self.__channel == 'DoubleMuon':
                 DY_region = 1
                 self.__lepton_RECO_SF = '1'
-                self.__offline_selections = f"OPS_region=={DY_region} && OPS_2P0F && OPS_z_mass>60 && OPS_z_mass<120 && OPS_l1_pt>30 && OPS_l2_pt>20 && OPS_drll>0.3 && {self.__flag_Condition} && nHad_tau==0"
+                self.__offline_selections = f"OPS_region=={DY_region} && OPS_2P0F && OPS_z_mass>60 && OPS_z_mass<120 && OPS_l1_pt>30 && OPS_l2_pt>30 && OPS_drll>0.3 && {self.__flag_Condition} && nHad_tau==0"
         else:
             raise ValueError(f'No such channel{self.__channel}')
         
@@ -115,7 +115,6 @@ class MyDataFrame(object):
     @property
     def nevents(self)->int:
         return self.__nevents
-    
     @property
     def SF_mode(self)->bool:
         return self.__SF_mode
@@ -209,8 +208,7 @@ def set_axis(histo,coordinate:str,title:str,is_energy:bool):
         axis.SetTitle(title)
 
 from collections import OrderedDict
-def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:float,SF_mode:int,channel='DoubleElectron',veto=False):
-
+def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:float,SF_mode:int,channel='DoubleElectron',veto=False,ylog=0):
     Histo['MC']['DY'].SetFillColor(ROOT.kRed)
     Histo['MC']['WJets'].SetFillColor(ROOT.kBlue - 7)
     Histo['MC']['VV'].SetFillColor(ROOT.kCyan - 9)
@@ -222,7 +220,6 @@ def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:float,SF_mode:int,channel=
 
     for MC in Histo['MC'].keys():
         Histo['MC'][MC].Scale(lumi)
-
     Histo['Data'].SetMarkerStyle(20)
     Histo['Data'].SetMarkerSize(0.85)
     Histo['Data'].SetMarkerColor(1)
@@ -236,10 +233,8 @@ def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:float,SF_mode:int,channel=
     Yield['Data'] = round(Histo['Data'].Integral())
 
     h_stack = ROOT.THStack()
-
     for MC in  Yield['MC'].keys():
         h_stack.Add(Histo['MC'][MC])
-    
     Nbins = h_stack.GetStack().Last().GetNbinsX()
     
     max_yields = 0
@@ -253,7 +248,12 @@ def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:float,SF_mode:int,channel=
         max_yields_data_temp = Histo['Data'].GetBinContent(i)
         if max_yields_data_temp>max_yields_data:max_yields_data=max_yields_data_temp
 
-    h_stack.SetMaximum(max(max_yields,max_yields_data)*1.8)
+    if ylog==0:
+        y_post_fix =''
+        h_stack.SetMaximum(max(max_yields,max_yields_data)*1.8)
+    else:
+        y_post_fix = '_ylog'
+        h_stack.SetMaximum(max(max_yields,max_yields_data)*100)
 
 
     h_error = h_stack.GetStack().Last()
@@ -298,7 +298,8 @@ def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:float,SF_mode:int,channel=
     gr.Draw("SAME 2")
     if 'DY_l1_pt' in x_name:set_axis(h_stack,'x', 'pt of leading lepton', True)
     if 'DY_l1_eta' in x_name:set_axis(h_stack,'x', '#eta of leading lepton', False)
-    if 'DY_l1_phi' in x_name:set_axis(h_stack,'x', 'phi of leading lepton', False)
+    if 'DY_l1_phi' in x_name:
+        set_axis(h_stack,'x', 'phi of leading lepton', False)
     if 'DY_l2_pt' in x_name:set_axis(h_stack,'x', 'pt of subleading lepton', True)
     if 'DY_l2_eta' in x_name:set_axis(h_stack,'x', '#eta of subleading lepton', False)
     if 'DY_l2_phi' in x_name:set_axis(h_stack,'x', 'phi of subleading lepton', False)
@@ -306,7 +307,7 @@ def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:float,SF_mode:int,channel=
     set_axis(h_stack,'y', 'Event/Bin', False)
     
     import Utils.CMSstyle as CMSstyle
-    CMSstyle.SetStyle(pad1,year)
+    CMSstyle.SetStyle(pad1,year,lumi=lumi,ylog=ylog)
 
    #legend
     leg1 = ROOT.TLegend(0.66, 0.75, 0.94, 0.88)
@@ -316,7 +317,6 @@ def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:float,SF_mode:int,channel=
     leg2.SetMargin(0.4)
     leg3.SetMargin(0.4)
 
-    
     leg3.AddEntry(Histo['MC']['DY'],'DY ['+str(Yield['MC']['DY'])+']','f')
     leg3.AddEntry(gr,'Stat. unc','f')
     leg3.AddEntry(Histo['Data'],'Data ['+str(Yield['Data'])+']','pe')
@@ -329,7 +329,6 @@ def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:float,SF_mode:int,channel=
     leg1.AddEntry(Histo['MC']['SingleTop'],'SingleTop ['+str(Yield['MC']['SingleTop'])+']','f')
     leg1.AddEntry(Histo['MC']['ttXorXX'],'ttXorXX ['+str(Yield['MC']['ttXorXX'])+']','f')
     leg1.AddEntry(Histo['MC']['tzq'],'tzq ['+str(Yield['MC']['tzq'])+']','f')
-
     leg1.SetFillColor(ROOT.kWhite)
     leg1.Draw('same')
     leg2.SetFillColor(ROOT.kWhite)
@@ -366,25 +365,25 @@ def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:float,SF_mode:int,channel=
         UserName = json.load(f)['UserName']
 
     Dir = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/DrellYan/year{year}/{channel}/plots'
-    veto_postfix =''
     
     if veto:
         veto_postfix = '_vetohemregion'
+    else :
+        veto_postfix =''
     if SF_mode == 0:
-        c.SaveAs(os.path.join(Dir,x_name+f'_noSF{veto_postfix}.pdf'))
-        c.SaveAs(os.path.join(Dir,x_name+f'_noSF{veto_postfix}.png'))
+        SF_postfix = '_noSF'
     elif SF_mode ==1:
-        c.SaveAs(os.path.join(Dir,x_name+'_only_IDSF'+veto_postfix+'.pdf'))
-        c.SaveAs(os.path.join(Dir,x_name+'_only_IDSF'+veto_postfix+'.png'))
+        SF_postfix = '_IDSF'
     elif SF_mode ==2:
-        c.SaveAs(os.path.join(Dir,x_name+'_only_Trig_SF'+veto_postfix+'.pdf'))
-        c.SaveAs(os.path.join(Dir,x_name+'_only_Trig_SF'+veto_postfix+'.png'))
+        SF_postfix = '_TrigSF'
     elif SF_mode ==3:
-        c.SaveAs(os.path.join(Dir,x_name+'_ID_Trig_SF'+veto_postfix+'.pdf'))
-        c.SaveAs(os.path.join(Dir,x_name+'_ID_Trig_SF'+veto_postfix+'.png'))
+        SF_postfix = '_ID_Trig_SF'
     
     else:
         raise ValueError('weired.')
+    c.SaveAs(os.path.join(Dir,x_name+SF_postfix+veto_postfix+y_post_fix+'.pdf'))
+    c.SaveAs(os.path.join(Dir,x_name+SF_postfix+veto_postfix+y_post_fix+'.png'))
+    
     c.Close()
     #pad1.Close()
     #pad2.Close()

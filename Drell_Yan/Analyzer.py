@@ -71,7 +71,8 @@ class DrellYanRDataFrame():
         self.__SF_mode = settings['SF_mode'] # trig_SF is applied or not
         self.__condition_weights = settings['Weights']
         self.__flag = settings['FLAG']
-        self.__debug = settings['debug'] 
+        self.__debug = settings['debug']
+        self.__ylog = settings['ylog']
     
     def Run(self):
 
@@ -89,14 +90,17 @@ class DrellYanRDataFrame():
             #Seed to offset the prob for deciding whether MC events in events which have HEM issue.
 
             print('Veto HEM Region For Data 2018...')
-            with open(f'./data/year{self.__year}/DrellYan/User.json','r') as f:
-                UserName = json.load(f)["UserName"]
-            with open(f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{self.__year}/{self.__channel}/files/Info_vetohemregion.json','r') as f:
-                Veto_Nevts = json.load(f)['Data:NumberOfEvents']
-            with open(f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{self.__year}/{self.__channel}/files/Info.json','r') as f:
-                All_Nevts = json.load(f)['Data:NumberOfEvents']
+            #with open(f'./data/year{self.__year}/DrellYan/User.json','r') as f:
+            #    UserName = json.load(f)["UserName"]
+            #with open(f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{self.__year}/{self.__channel}/files/Info_vetohemregion.json','r') as f:
+            #    Veto_Nevts = json.load(f)['Data:NumberOfEvents']
+            #with open(f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{self.__year}/{self.__channel}/files/Info.json','r') as f:
+            #    All_Nevts = json.load(f)['Data:NumberOfEvents']
+            
+            with open ("./data/year2018/TriggerSF/configuration/veto_ratio.json","r") as f :
+                veto_ratio = json.load(f)[self.__channel]
             lumi = self.__lumi
-            self.__lumi = (Veto_Nevts/All_Nevts)*self.__lumi
+            self.__lumi = veto_ratio*self.__lumi
             print(f'Total Luminosity reduce from {lumi} to {self.__lumi} due to HEM region in UL2018.')
         #Define IDSF files path and branchname
         #Define TrigSF files path and branchname
@@ -166,7 +170,6 @@ class DrellYanRDataFrame():
         for p in self.__Process:
             for MC in self.__FilesIn['MC'][p].keys():
                 Filtering(self.__dfs['MC'][MC],HistSettings,self.__veto)
-        
         for Sample_Name in self.__HLT_Path[self.__channel].keys():
             Filtering(self.__dfs['Data'][Sample_Name] , HistSettings,self.__veto)
 
@@ -177,11 +180,6 @@ class DrellYanRDataFrame():
                 Temps = OrderedDict()
                 Temps['Data'] = OrderedDict()
                 Temps['MC'] = OrderedDict()
-                for p in self.__Process:
-                    for MC in self.__FilesIn['MC'][p].keys():
-                        h = self.__dfs['MC'][MC].Hists[histname].GetValue()
-                        h.Scale(self.__Cross_Section[p][MC]/float(self.__NumberOfEvents[p][MC]))
-                        Temps['MC'][MC] = overunder_flowbin(h)
                 for idx ,Data in enumerate(self.__dfs['Data'].keys()):
                     h= self.__dfs['Data'][Data].Hists[histname].GetValue()
                     h = overunder_flowbin(h)
@@ -190,7 +188,12 @@ class DrellYanRDataFrame():
                         HistoGrams['Data'] = Temps['Data'][Data]
                     else:
                         HistoGrams['Data'].Add(Temps['Data'][Data])
-
+          
+                for p in self.__Process:
+                    for MC in self.__FilesIn['MC'][p].keys():
+                        h = self.__dfs['MC'][MC].Hists[histname].GetValue()
+                        h.Scale(self.__Cross_Section[p][MC]/float(self.__NumberOfEvents[p][MC]))
+                        Temps['MC'][MC] = overunder_flowbin(h)
                 ####
                 HistoGrams['MC']['DY'] = Temps['MC']['DYnlo']
                 HistoGrams['MC']['WJets'] = Temps['MC']['WJets']
@@ -238,8 +241,7 @@ class DrellYanRDataFrame():
                 HistoGrams['MC']['TT'] = Temps['MC']['TTTo1L']
                 HistoGrams['MC']['TT'].Add(Temps['MC']['TTTo2L'])
 
-                Plot(HistoGrams,x_name=histname ,lumi=self.__lumi,channel=self.__channel,year=self.__year,SF_mode=self.__SF_mode ,debug=self.__debug)
+                Plot(HistoGrams,x_name=histname ,lumi=self.__lumi,channel=self.__channel,year=self.__year,SF_mode=self.__SF_mode,ylog=self.__ylog)
             
-
         else:
             print("Finish Debug mode.")

@@ -18,8 +18,15 @@ def GenPaths_HLTTrigger_File(year:str):
         raise ValueError("year{year} HLT Path has not been specified yet!")
     with open(f'./data/year{year}/TriggerSF/configuration/HLTTrigger.json','w')  as f:
         json.dump(trigger,f,indent=4)
-
-
+def GenTotalLuminosity(year:str):
+    '''
+    Generate the total luminosity.
+    '''
+    lumi =dict()
+    lumi['2017'] = 41480
+    lumi['2018'] = 59700
+    with open(f'./data/year{year}/TriggerSF/configuration/lumi.json','w') as f :
+        json.dump(lumi,f,indent=4)
 
 def GenTrigEffInput_File(year:str):
     '''

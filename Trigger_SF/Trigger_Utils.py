@@ -63,7 +63,10 @@ def plot_eff1d(tag:str,**settings):
         else:
             gr.Draw("samep")
         leg.AddEntry(Histogram,Type)
-    CMSstyle.SetStyle(pad,year=settings['year'])
+
+    with open(f'./data/year{settings["year"]}/TriggerSF/configuration/lumi.json',"r") as f:
+        lumi = json.load(f)[f'{settings["year"]}']
+    CMSstyle.SetStyle(pad,year=settings['year'],lumi=lumi)
     leg.SetFillStyle(0)
     leg.Draw('SAME') 
     c.Update()
@@ -117,8 +120,16 @@ def plot_eff2d(tag:str,**settings):
         hist2D = FileIn[Type].Get(tag)
         hist2D = Hist2D_to_Binx_Equal(hist2D)
 
-        
-        CMSstyle.SetStyle(pad,year=settings['year'])
+        with open(f'./data/year{settings["year"]}/TriggerSF/configuration/lumi.json',"r") as f:
+            lumi = json.load(f)[f'{settings["year"]}']
+        if settings['veto']:
+            with open(f'./data/year{settings["year"]}/TriggerSF/configuration/veto_ratio.json','r') as f:
+                ratio = json.load(f)['MET']
+
+            lumi = ratio * lumi
+
+
+        CMSstyle.SetStyle(pad,year=settings['year'],lumi=lumi)
         pad.SetRightMargin(0.15)
         c.SetGridx(False)
         c.SetGridy(False)
@@ -187,6 +198,8 @@ def ScaleFactors(nominal_name:str,**settings):
             SF_hist.SetBinContent(i+1,j+1,SF_Central[i][j])
             SF_hist.SetBinError(i+1,j+1,SF_SystematicUncertainty[i][j])
 
+    with open(f'./data/year{settings["year"]}/TriggerSF/configuration/lumi.json',"r") as f:
+        lumi = json.load(f)[f'{settings["year"]}']
     
     
     if settings['year'] == '2018' and settings['veto']:  
@@ -212,7 +225,10 @@ def ScaleFactors(nominal_name:str,**settings):
     #mypalette.colorPalette()
     #SF_hist.Draw('COLZ TEXT E')
     
-    CMSstyle.SetStyle(pad,year=settings['year'])
+    
+
+
+    CMSstyle.SetStyle(pad,year=settings['year'],lumi=lumi)
     pad.SetRightMargin(0.15)
     
     c.SetGridx(False)

@@ -55,14 +55,14 @@ def SetAxisandLabels(histo):
     Y.SetLabelOffset(0.007)
     X.SetNdivisions(510)
 
-def SetStyle(gPad,year:str):
+def SetStyle(gPad,year:str,lumi:float,ylog=0):
     latex = TLatex()
     latex.SetNDC()
     l = gPad.GetLeftMargin()
     t = gPad.GetTopMargin()
     r = gPad.GetRightMargin()
     b = gPad.GetBottomMargin()
-    
+    gPad.SetLogy(ylog) 
     
     #CMS text
 
@@ -79,10 +79,11 @@ def SetStyle(gPad,year:str):
     extraOverCmsTextSize =0.76
     extraTextFont = 52
     
-    if year=='2017':
-        lumiText ='41.5 fb^{-1}(13 TeV)'
-    elif year =='2018': 
-        lumiText ='59.7 fb^{-1}(13 TeV)'
+    lumiText =f'{round(lumi*0.001,1)} fb^{-1}(13 TeV)'
+    #if year=='2017':
+    #    lumiText ='41.5 fb^{-1}(13 TeV)'
+    #elif year =='2018': 
+    #    lumiText ='59.7 fb^{-1}(13 TeV)'
     
     lumiTextSize = 0.5
     lumiTextOffset = 0.2
