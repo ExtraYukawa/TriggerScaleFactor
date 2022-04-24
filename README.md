@@ -111,6 +111,12 @@ python3 ./WorkFlow/main.py -m FakeRate -y 2017 --channel Electron -t FakeRate -n
 Note:
 argument [ -a/--trigSF_on] determine whether the trigSF should be applied or not.
 
+## Veto Issue:
+You need to execute 
+```
+python3 ./Utils/CalculateVetoRatio.py
+```
+to obtain the corresponding ratio of HEM region to Full region and the ratio of valid region to veto HEM.
 ### To-Do List:
 - [ ] FakeRate 
 
