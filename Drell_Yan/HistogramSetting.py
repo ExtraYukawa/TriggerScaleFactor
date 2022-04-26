@@ -5,14 +5,14 @@ manager = Manager()
 HistSettings =manager.dict()
 HistSettings['DY_l1_pt'] = manager.dict()
 HistSettings['DY_l1_pt']['name'] = 'OPS_l1_pt'
-HistSettings['DY_l1_pt']['nbins'] = 20
+HistSettings['DY_l1_pt']['nbins'] = 40
 HistSettings['DY_l1_pt']['lowedge'] = 0
 HistSettings['DY_l1_pt']['highedge'] = 200
 
 
 HistSettings['DY_l1_eta'] = manager.dict()
 HistSettings['DY_l1_eta']['name'] = 'OPS_l1_eta'
-HistSettings['DY_l1_eta']['nbins'] = 20
+HistSettings['DY_l1_eta']['nbins'] = 30
 HistSettings['DY_l1_eta']['lowedge'] = -3
 HistSettings['DY_l1_eta']['highedge'] = 3
 
@@ -24,13 +24,13 @@ HistSettings['DY_l1_phi']['highedge'] = 4
 
 HistSettings['DY_l2_pt'] = manager.dict()
 HistSettings['DY_l2_pt']['name'] = 'OPS_l2_pt'
-HistSettings['DY_l2_pt']['nbins'] = 20
+HistSettings['DY_l2_pt']['nbins'] = 40
 HistSettings['DY_l2_pt']['lowedge'] = 0
 HistSettings['DY_l2_pt']['highedge'] = 100
 
 HistSettings['DY_l2_eta'] = manager.dict()
 HistSettings['DY_l2_eta']['name'] = 'OPS_l2_eta'
-HistSettings['DY_l2_eta']['nbins'] = 20
+HistSettings['DY_l2_eta']['nbins'] = 30
 HistSettings['DY_l2_eta']['lowedge'] = -3
 HistSettings['DY_l2_eta']['highedge'] = 3
 

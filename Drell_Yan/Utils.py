@@ -52,11 +52,11 @@ class MyDataFrame(object):
             if self.__channel == 'DoubleElectron':
                 DY_region = 3
                 self.__lepton_RECO_SF = 'Electron_RECO_SF[OPS_l1_id]*Electron_RECO_SF[OPS_l2_id]'
-                self.__offline_selections = f'OPS_region=={DY_region} && OPS_2P0F && OPS_z_mass > 60 && OPS_z_mass<120 && OPS_l1_pt>30 && OPS_l2_pt>30 && OPS_drll>0.3 && {self.__flag_Condition} && nHad_tau==0 '
+                self.__offline_selections = f'OPS_region=={DY_region} && OPS_2P0F && OPS_z_mass > 60 && OPS_z_mass<120 && OPS_l1_pt>30 && OPS_l2_pt>20 && OPS_drll>0.3 && {self.__flag_Condition} && nHad_tau==0 '
             elif self.__channel == 'DoubleMuon':
                 DY_region = 1
                 self.__lepton_RECO_SF = '1'
-                self.__offline_selections = f"OPS_region=={DY_region} && OPS_2P0F && OPS_z_mass>60 && OPS_z_mass<120 && OPS_l1_pt>30 && OPS_l2_pt>30 && OPS_drll>0.3 && {self.__flag_Condition} && nHad_tau==0"
+                self.__offline_selections = f"OPS_region=={DY_region} && OPS_2P0F && OPS_z_mass>60 && OPS_z_mass<120 && OPS_l1_pt>30 && OPS_l2_pt>20 && OPS_drll>0.3 && {self.__flag_Condition} && nHad_tau==0"
         else:
             raise ValueError(f'No such channel{self.__channel}')
         

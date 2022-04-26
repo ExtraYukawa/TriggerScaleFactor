@@ -78,7 +78,9 @@ class TrigRDataFrame(MyDataFrame):
         ytitle = args.get('ytitle',None)
         content = args.get('content',None)
         weight = args.get('weight','weight')
-        
+        lep_type = args.get('lep_type',None)
+
+        #lep_type -> l1,l2,l1l2
 
         if df == None:
             raise ValueError('Should Specify RDataframe')
@@ -94,7 +96,13 @@ class TrigRDataFrame(MyDataFrame):
             warnings.warn('Should Speicify ytitle!')
         if dim == '1D':
             if tag == 'pt':
-                xbin = plt_set.ptbin
+                if lep_type=='l1':
+                    xbin = plt_set.l1ptbin
+                elif lep_type=='l2':
+                    xbin = plt_set.l2ptbin
+                else:
+                    raise ValueError(f'Error.')
+
             elif tag == 'eta':
                 xbin = plt_set.etabin
             elif tag == 'njet':
@@ -110,13 +118,18 @@ class TrigRDataFrame(MyDataFrame):
 
         if dim == '2D':
             if tag == 'pt':
-                xbin = plt_set.ptbin
-                ybin = plt_set.ptbin
+                xbin = plt_set.l1ptbin
+                ybin = plt_set.l2ptbin
             elif tag == 'eta':
                 xbin = plt_set.abs_etabin
                 ybin = plt_set.abs_etabin
             elif tag == 'pteta':
-                xbin = plt_set.ptbin
+                if lep_type=='l1':
+                    xbin = plt_set.l1ptbin
+                elif lep_type=='l2':
+                    xbin = plt_set.l2ptbin
+                else:
+                    raise ValueError(f'Error.')
                 ybin = plt_set.abs_etabin
             else:
                 raise ValueError(f'Tag{tag} is not in the list.')
@@ -225,7 +238,11 @@ class TrigRDataFrame(MyDataFrame):
             elif self.__channel == 'DoubleMuon':
                 RECOWeight_LEP_TTC = '1.'
                 RECOWeight_LEP_OPS = '1.'
-         
+        
+        #ttc_Flag -> Used to judge whether the region of events is ttc.
+        #OPS_Flag -> Used to judge whetehr the region of events is OPS.
+        
+
         df_region_trig = df_flag_trig\
                 .Filter(f'OPS_region == {self.__Leptons_Informations["region"]} || ttc_region == {self.__Leptons_Informations["region"]}')\
                 .Define("ttc_Flag",f'Region_FLAG(ttc_region,{self.__Leptons_Informations["region"]})')\
@@ -255,12 +272,14 @@ class TrigRDataFrame(MyDataFrame):
         
         df_Offline_Selection = df_region_trig\
             .Define("met",f"{MET}")\
-            .Filter('(l1p4+l2p4).M() >=20 && (l1p4.Pt() >= 30 && l2p4.Pt() >= 30) && l1p4.DeltaR(l2p4) >= 0.3 && met >=100','LeptonCut')\
+            .Filter('(l1p4+l2p4).M() >=20 && (l1pt >= 30 || l2pt >= 30) && l1p4.DeltaR(l2p4) >= 0.3 && met >=100','LeptonCut')\
             .Define('no_HLT','0.5')
 
         if self.__Type == 'Data':
             df_Offline_Selection = df_Offline_Selection.\
                     Define("weight",'1.')
+        #self.__Condition_Weights -> puWeight * PrefireWeight for UL2017 / PrefireWeight for UL2018
+        #RECOWeight_LEP_OPS -> Ele_RECO_SF[l1_id] * Ele_RECO_SF[l2_id] for double electron, 1 for double muon, Ele_RECO_SF[l2_id] for emu.
         else:
             df_Offline_Selection = df_Offline_Selection.\
                     Define("weight",f'float w ; if(ttc_Flag && OPS_Flag) throw "Contraction Region!" ;\
@@ -322,38 +341,38 @@ class TrigRDataFrame(MyDataFrame):
             ###1D Histogram
         
             ##PT
-            self.Init_Histogram(name='pre_l1pt',df=df_HLT_MET,dim='1D',xtitle='Leading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l1pt'])
-            self.Init_Histogram(name='pre_l1pt_lowjet',df=df_HLT_MET_lowjet,dim='1D',xtitle='Leading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l1pt'])
-            self.Init_Histogram(name='pre_l1pt_highjet',df=df_HLT_MET_highjet,dim='1D',xtitle='Leading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l1pt'])
-            self.Init_Histogram(name='pre_l1pt_lowpv',df=df_HLT_MET_lowpv,dim='1D',xtitle='Leading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l1pt'])
-            self.Init_Histogram(name='pre_l1pt_highpv',df=df_HLT_MET_highpv,dim='1D',xtitle='Leading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l1pt'])
-            self.Init_Histogram(name='pre_l1pt_lowmet',df=df_HLT_MET_lowmet,dim='1D',xtitle='Leading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l1pt'])
-            self.Init_Histogram(name='pre_l1pt_highmet',df=df_HLT_MET_highmet,dim='1D',xtitle='Leading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l1pt'])
+            self.Init_Histogram(name='pre_l1pt',df=df_HLT_MET,dim='1D',xtitle='Leading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l1pt'],lep_type='l1')
+            self.Init_Histogram(name='pre_l1pt_lowjet',df=df_HLT_MET_lowjet,dim='1D',xtitle='Leading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l1pt'],lep_type='l1')
+            self.Init_Histogram(name='pre_l1pt_highjet',df=df_HLT_MET_highjet,dim='1D',xtitle='Leading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l1pt'],lep_type='l1')
+            self.Init_Histogram(name='pre_l1pt_lowpv',df=df_HLT_MET_lowpv,dim='1D',xtitle='Leading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l1pt'],lep_type='l1')
+            self.Init_Histogram(name='pre_l1pt_highpv',df=df_HLT_MET_highpv,dim='1D',xtitle='Leading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l1pt'],lep_type='l1')
+            self.Init_Histogram(name='pre_l1pt_lowmet',df=df_HLT_MET_lowmet,dim='1D',xtitle='Leading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l1pt'],lep_type='l1')
+            self.Init_Histogram(name='pre_l1pt_highmet',df=df_HLT_MET_highmet,dim='1D',xtitle='Leading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l1pt'],lep_type='l1')
             
-            self.Init_Histogram(name='l1pt',df=df_HLT_LEPMET,dim='1D',xtitle='Leading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l1pt'])
-            self.Init_Histogram(name='l1pt_lowjet',df=df_HLT_LEPMET_lowjet,dim='1D',xtitle='Leading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l1pt'])
-            self.Init_Histogram(name='l1pt_highjet',df=df_HLT_LEPMET_highjet,dim='1D',xtitle='Leading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l1pt'])
-            self.Init_Histogram(name='l1pt_lowpv',df=df_HLT_LEPMET_lowpv,dim='1D',xtitle='Leading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l1pt'])
-            self.Init_Histogram(name='l1pt_highpv',df=df_HLT_LEPMET_highpv,dim='1D',xtitle='Leading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l1pt'])
-            self.Init_Histogram(name='l1pt_lowmet',df=df_HLT_LEPMET_lowmet,dim='1D',xtitle='Leading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l1pt'])
-            self.Init_Histogram(name='l1pt_highmet',df=df_HLT_LEPMET_highmet,dim='1D',xtitle='Leading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l1pt'])
+            self.Init_Histogram(name='l1pt',df=df_HLT_LEPMET,dim='1D',xtitle='Leading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l1pt'],lep_type='l1')
+            self.Init_Histogram(name='l1pt_lowjet',df=df_HLT_LEPMET_lowjet,dim='1D',xtitle='Leading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l1pt'],lep_type='l1')
+            self.Init_Histogram(name='l1pt_highjet',df=df_HLT_LEPMET_highjet,dim='1D',xtitle='Leading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l1pt'],lep_type='l1')
+            self.Init_Histogram(name='l1pt_lowpv',df=df_HLT_LEPMET_lowpv,dim='1D',xtitle='Leading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l1pt'],lep_type='l1')
+            self.Init_Histogram(name='l1pt_highpv',df=df_HLT_LEPMET_highpv,dim='1D',xtitle='Leading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l1pt'],lep_type='l1')
+            self.Init_Histogram(name='l1pt_lowmet',df=df_HLT_LEPMET_lowmet,dim='1D',xtitle='Leading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l1pt'],lep_type='l1')
+            self.Init_Histogram(name='l1pt_highmet',df=df_HLT_LEPMET_highmet,dim='1D',xtitle='Leading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l1pt'],lep_type='l1')
             
             
-            self.Init_Histogram(name='pre_l2pt',df=df_HLT_MET,dim='1D',xtitle='Subleading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l2pt'])
-            self.Init_Histogram(name='pre_l2pt_lowjet',df=df_HLT_MET_lowjet,dim='1D',xtitle='Subleading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l2pt'])
-            self.Init_Histogram(name='pre_l2pt_highjet',df=df_HLT_MET_highjet,dim='1D',xtitle='Subleading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l2pt'])
-            self.Init_Histogram(name='pre_l2pt_lowpv',df=df_HLT_MET_lowpv,dim='1D',xtitle='Subleading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l2pt'])
-            self.Init_Histogram(name='pre_l2pt_highpv',df=df_HLT_MET_highpv,dim='1D',xtitle='Subleading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l2pt'])
-            self.Init_Histogram(name='pre_l2pt_lowmet',df=df_HLT_MET_lowmet,dim='1D',xtitle='Subleading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l2pt'])
-            self.Init_Histogram(name='pre_l2pt_highmet',df=df_HLT_MET_highmet,dim='1D',xtitle='Subleading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l2pt'])
+            self.Init_Histogram(name='pre_l2pt',df=df_HLT_MET,dim='1D',xtitle='Subleading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l2pt'],lep_type='l2')
+            self.Init_Histogram(name='pre_l2pt_lowjet',df=df_HLT_MET_lowjet,dim='1D',xtitle='Subleading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l2pt'],lep_type='l2')
+            self.Init_Histogram(name='pre_l2pt_highjet',df=df_HLT_MET_highjet,dim='1D',xtitle='Subleading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l2pt'],lep_type='l2')
+            self.Init_Histogram(name='pre_l2pt_lowpv',df=df_HLT_MET_lowpv,dim='1D',xtitle='Subleading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l2pt'],lep_type='l2')
+            self.Init_Histogram(name='pre_l2pt_highpv',df=df_HLT_MET_highpv,dim='1D',xtitle='Subleading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l2pt'],lep_type='l2')
+            self.Init_Histogram(name='pre_l2pt_lowmet',df=df_HLT_MET_lowmet,dim='1D',xtitle='Subleading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l2pt'],lep_type='l2')
+            self.Init_Histogram(name='pre_l2pt_highmet',df=df_HLT_MET_highmet,dim='1D',xtitle='Subleading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l2pt'],lep_type='l2')
             
-            self.Init_Histogram(name='l2pt',df=df_HLT_LEPMET,dim='1D',xtitle='Subleading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l2pt'])
-            self.Init_Histogram(name='l2pt_lowjet',df=df_HLT_LEPMET_lowjet,dim='1D',xtitle='Subleading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l2pt'])
-            self.Init_Histogram(name='l2pt_highjet',df=df_HLT_LEPMET_highjet,dim='1D',xtitle='Subleading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l2pt'])
-            self.Init_Histogram(name='l2pt_lowpv',df=df_HLT_LEPMET_lowpv,dim='1D',xtitle='Subleading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l2pt'])
-            self.Init_Histogram(name='l2pt_highpv',df=df_HLT_LEPMET_highpv,dim='1D',xtitle='Subleading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l2pt'])
-            self.Init_Histogram(name='l2pt_lowmet',df=df_HLT_LEPMET_lowmet,dim='1D',xtitle='Subleading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l2pt'])
-            self.Init_Histogram(name='l2pt_highmet',df=df_HLT_LEPMET_highmet,dim='1D',xtitle='Subleading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l2pt'])
+            self.Init_Histogram(name='l2pt',df=df_HLT_LEPMET,dim='1D',xtitle='Subleading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l2pt'],lep_type='l2')
+            self.Init_Histogram(name='l2pt_lowjet',df=df_HLT_LEPMET_lowjet,dim='1D',xtitle='Subleading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l2pt'],lep_type='l2')
+            self.Init_Histogram(name='l2pt_highjet',df=df_HLT_LEPMET_highjet,dim='1D',xtitle='Subleading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l2pt'],lep_type='l2')
+            self.Init_Histogram(name='l2pt_lowpv',df=df_HLT_LEPMET_lowpv,dim='1D',xtitle='Subleading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l2pt'],lep_type='l2')
+            self.Init_Histogram(name='l2pt_highpv',df=df_HLT_LEPMET_highpv,dim='1D',xtitle='Subleading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l2pt'],lep_type='l2')
+            self.Init_Histogram(name='l2pt_lowmet',df=df_HLT_LEPMET_lowmet,dim='1D',xtitle='Subleading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l2pt'],lep_type='l2')
+            self.Init_Histogram(name='l2pt_highmet',df=df_HLT_LEPMET_highmet,dim='1D',xtitle='Subleading Lepton P_{T} [GeV]',ytitle='Efficiency',tag = 'pt',content=['l2pt'],lep_type='l2')
             
             ##ETA
             self.Init_Histogram(name='pre_l1eta',df=df_HLT_MET,dim='1D',xtitle='Leading Lepton #eta',ytitle='Efficiency',tag = 'eta',content=['l1eta'])
@@ -431,21 +450,21 @@ class TrigRDataFrame(MyDataFrame):
             self.Init_Histogram(name='pre_l1l2eta_lowmet',df=df_HLT_MET_lowmet,dim='2D',xtitle='Leading lepton #eta',ytitle='Subleading lepton #eta',tag = 'eta',content=['l1_abseta','l2_abseta'])
             self.Init_Histogram(name='pre_l1l2eta_highmet',df=df_HLT_MET_highmet,dim='2D',xtitle='Leading lepton #eta',ytitle='Subleading lepton #eta',tag = 'eta',content=['l1_abseta','l2_abseta'])
             
-            self.Init_Histogram(name='pre_l1pteta',df=df_HLT_MET,dim='2D',xtitle='Leading lepton P_{T} [GeV]',ytitle='Leading lepton #eta',tag = 'pteta',content=['l1pt','l1_abseta'])
-            self.Init_Histogram(name='pre_l1pteta_lowjet',df=df_HLT_MET_lowjet,dim='2D',xtitle='Leading lepton P_{T} [GeV]',ytitle='Leading lepton #eta',tag = 'pteta',content=['l1pt','l1_abseta'])
-            self.Init_Histogram(name='pre_l1pteta_highjet',df=df_HLT_MET_highjet,dim='2D',xtitle='Leading lepton P_{T} [GeV]',ytitle='Leading lepton #eta',tag = 'pteta',content=['l1pt','l1_abseta'])
-            self.Init_Histogram(name='pre_l1pteta_lowpv',df=df_HLT_MET_lowpv,dim='2D',xtitle='Leading lepton P_{T} [GeV]',ytitle='Leading lepton #eta',tag = 'pteta',content=['l1pt','l1_abseta'])
-            self.Init_Histogram(name='pre_l1pteta_highpv',df=df_HLT_MET_highpv,dim='2D',xtitle='Leading lepton P_{T} [GeV]',ytitle='Leading lepton #eta',tag = 'pteta',content=['l1pt','l1_abseta'])
-            self.Init_Histogram(name='pre_l1pteta_lowmet',df=df_HLT_MET_lowmet,dim='2D',xtitle='Leading lepton P_{T} [GeV]',ytitle='Leading lepton #eta',tag = 'pteta',content=['l1pt','l1_abseta'])
-            self.Init_Histogram(name='pre_l1pteta_highmet',df=df_HLT_MET_highmet,dim='2D',xtitle='Leading lepton P_{T} [GeV]',ytitle='Leading lepton #eta',tag = 'pteta',content=['l1pt','l1_abseta'])
+            self.Init_Histogram(name='pre_l1pteta',df=df_HLT_MET,dim='2D',xtitle='Leading lepton P_{T} [GeV]',ytitle='Leading lepton #eta',tag = 'pteta',content=['l1pt','l1_abseta'],lep_type='l1')
+            self.Init_Histogram(name='pre_l1pteta_lowjet',df=df_HLT_MET_lowjet,dim='2D',xtitle='Leading lepton P_{T} [GeV]',ytitle='Leading lepton #eta',tag = 'pteta',content=['l1pt','l1_abseta'],lep_type='l1')
+            self.Init_Histogram(name='pre_l1pteta_highjet',df=df_HLT_MET_highjet,dim='2D',xtitle='Leading lepton P_{T} [GeV]',ytitle='Leading lepton #eta',tag = 'pteta',content=['l1pt','l1_abseta'],lep_type='l1')
+            self.Init_Histogram(name='pre_l1pteta_lowpv',df=df_HLT_MET_lowpv,dim='2D',xtitle='Leading lepton P_{T} [GeV]',ytitle='Leading lepton #eta',tag = 'pteta',content=['l1pt','l1_abseta'],lep_type='l1')
+            self.Init_Histogram(name='pre_l1pteta_highpv',df=df_HLT_MET_highpv,dim='2D',xtitle='Leading lepton P_{T} [GeV]',ytitle='Leading lepton #eta',tag = 'pteta',content=['l1pt','l1_abseta'],lep_type='l1')
+            self.Init_Histogram(name='pre_l1pteta_lowmet',df=df_HLT_MET_lowmet,dim='2D',xtitle='Leading lepton P_{T} [GeV]',ytitle='Leading lepton #eta',tag = 'pteta',content=['l1pt','l1_abseta'],lep_type='l1')
+            self.Init_Histogram(name='pre_l1pteta_highmet',df=df_HLT_MET_highmet,dim='2D',xtitle='Leading lepton P_{T} [GeV]',ytitle='Leading lepton #eta',tag = 'pteta',content=['l1pt','l1_abseta'],lep_type='l1')
             
-            self.Init_Histogram(name='pre_l2pteta',df=df_HLT_MET,dim='2D',xtitle='Subleading lepton P_{T} [GeV]',ytitle='Subleading lepton #eta',tag = 'pteta',content=['l2pt','l2_abseta'])
-            self.Init_Histogram(name='pre_l2pteta_lowjet',df=df_HLT_MET_lowjet,dim='2D',xtitle='Subleading lepton P_{T} [GeV]',ytitle='Subleading lepton #eta',tag = 'pteta',content=['l2pt','l2_abseta'])
-            self.Init_Histogram(name='pre_l2pteta_highjet',df=df_HLT_MET_highjet,dim='2D',xtitle='Subleading lepton P_{T} [GeV]',ytitle='Subleading lepton #eta',tag = 'pteta',content=['l2pt','l2_abseta'])
-            self.Init_Histogram(name='pre_l2pteta_lowpv',df=df_HLT_MET_lowpv,dim='2D',xtitle='Subleading lepton P_{T} [GeV]',ytitle='Subleading lepton #eta',tag = 'pteta',content=['l2pt','l2_abseta'])
-            self.Init_Histogram(name='pre_l2pteta_highpv',df=df_HLT_MET_highpv,dim='2D',xtitle='Subleading lepton P_{T} [GeV]',ytitle='Subleading lepton #eta',tag = 'pteta',content=['l2pt','l2_abseta'])
-            self.Init_Histogram(name='pre_l2pteta_lowmet',df=df_HLT_MET_lowmet,dim='2D',xtitle='Subleading lepton P_{T} [GeV]',ytitle='Subleading lepton #eta',tag = 'pteta',content=['l2pt','l2_abseta'])
-            self.Init_Histogram(name='pre_l2pteta_highmet',df=df_HLT_MET_highmet,dim='2D',xtitle='Subleading lepton P_{T} [GeV]',ytitle='Subleading lepton #eta',tag = 'pteta',content=['l2pt','l2_abseta'])
+            self.Init_Histogram(name='pre_l2pteta',df=df_HLT_MET,dim='2D',xtitle='Subleading lepton P_{T} [GeV]',ytitle='Subleading lepton #eta',tag = 'pteta',content=['l2pt','l2_abseta'],lep_type='l2')
+            self.Init_Histogram(name='pre_l2pteta_lowjet',df=df_HLT_MET_lowjet,dim='2D',xtitle='Subleading lepton P_{T} [GeV]',ytitle='Subleading lepton #eta',tag = 'pteta',content=['l2pt','l2_abseta'],lep_type='l2')
+            self.Init_Histogram(name='pre_l2pteta_highjet',df=df_HLT_MET_highjet,dim='2D',xtitle='Subleading lepton P_{T} [GeV]',ytitle='Subleading lepton #eta',tag = 'pteta',content=['l2pt','l2_abseta'],lep_type='l2')
+            self.Init_Histogram(name='pre_l2pteta_lowpv',df=df_HLT_MET_lowpv,dim='2D',xtitle='Subleading lepton P_{T} [GeV]',ytitle='Subleading lepton #eta',tag = 'pteta',content=['l2pt','l2_abseta'],lep_type='l2')
+            self.Init_Histogram(name='pre_l2pteta_highpv',df=df_HLT_MET_highpv,dim='2D',xtitle='Subleading lepton P_{T} [GeV]',ytitle='Subleading lepton #eta',tag = 'pteta',content=['l2pt','l2_abseta'],lep_type='l2')
+            self.Init_Histogram(name='pre_l2pteta_lowmet',df=df_HLT_MET_lowmet,dim='2D',xtitle='Subleading lepton P_{T} [GeV]',ytitle='Subleading lepton #eta',tag = 'pteta',content=['l2pt','l2_abseta'],lep_type='l2')
+            self.Init_Histogram(name='pre_l2pteta_highmet',df=df_HLT_MET_highmet,dim='2D',xtitle='Subleading lepton P_{T} [GeV]',ytitle='Subleading lepton #eta',tag = 'pteta',content=['l2pt','l2_abseta'],lep_type='l2')
             #After LEPMET
             self.Init_Histogram(name='l1l2pt',df=df_HLT_LEPMET,dim='2D',xtitle='Leading lepton P_{T} [GeV]',ytitle='Subleading lepton P_{T} [GeV]',tag = 'pt',content=['l1pt','l2pt'])
             self.Init_Histogram(name='l1l2pt_lowjet',df=df_HLT_LEPMET_lowjet,dim='2D',xtitle='Leading lepton P_{T} [GeV]',ytitle='Subleading lepton P_{T} [GeV]',tag = 'pt',content=['l1pt','l2pt'])
@@ -463,21 +482,21 @@ class TrigRDataFrame(MyDataFrame):
             self.Init_Histogram(name='l1l2eta_lowmet',df=df_HLT_LEPMET_lowmet,dim='2D',xtitle='Leading lepton #eta',ytitle='Subleading lepton #eta',tag = 'eta',content=['l1_abseta','l2_abseta'])
             self.Init_Histogram(name='l1l2eta_highmet',df=df_HLT_LEPMET_highmet,dim='2D',xtitle='Leading lepton #eta',ytitle='Subleading lepton #eta',tag = 'eta',content=['l1_abseta','l2_abseta'])
             
-            self.Init_Histogram(name='l1pteta',df=df_HLT_LEPMET,dim='2D',xtitle='Leading lepton P_{T} [GeV]',ytitle='Leading lepton #eta',tag = 'pteta',content=['l1pt','l1_abseta'])
-            self.Init_Histogram(name='l1pteta_lowjet',df=df_HLT_LEPMET_lowjet,dim='2D',xtitle='Leading lepton P_{T} [GeV]',ytitle='Leading lepton #eta',tag = 'pteta',content=['l1pt','l1_abseta'])
-            self.Init_Histogram(name='l1pteta_highjet',df=df_HLT_LEPMET_highjet,dim='2D',xtitle='Leading lepton P_{T} [GeV]',ytitle='Leading lepton #eta',tag = 'pteta',content=['l1pt','l1_abseta'])
-            self.Init_Histogram(name='l1pteta_lowpv',df=df_HLT_LEPMET_lowpv,dim='2D',xtitle='Leading lepton P_{T} [GeV]',ytitle='Leading lepton #eta',tag = 'pteta',content=['l1pt','l1_abseta'])
-            self.Init_Histogram(name='l1pteta_highpv',df=df_HLT_LEPMET_highpv,dim='2D',xtitle='Leading lepton P_{T} [GeV]',ytitle='Leading lepton #eta',tag = 'pteta',content=['l1pt','l1_abseta'])
-            self.Init_Histogram(name='l1pteta_lowmet',df=df_HLT_LEPMET_lowmet,dim='2D',xtitle='Leading lepton P_{T} [GeV]',ytitle='Leading lepton #eta',tag = 'pteta',content=['l1pt','l1_abseta'])
-            self.Init_Histogram(name='l1pteta_highmet',df=df_HLT_LEPMET_highmet,dim='2D',xtitle='Leading lepton P_{T} [GeV]',ytitle='Leading lepton #eta',tag = 'pteta',content=['l1pt','l1_abseta'])
+            self.Init_Histogram(name='l1pteta',df=df_HLT_LEPMET,dim='2D',xtitle='Leading lepton P_{T} [GeV]',ytitle='Leading lepton #eta',tag = 'pteta',content=['l1pt','l1_abseta'],lep_type='l1')
+            self.Init_Histogram(name='l1pteta_lowjet',df=df_HLT_LEPMET_lowjet,dim='2D',xtitle='Leading lepton P_{T} [GeV]',ytitle='Leading lepton #eta',tag = 'pteta',content=['l1pt','l1_abseta'],lep_type='l1')
+            self.Init_Histogram(name='l1pteta_highjet',df=df_HLT_LEPMET_highjet,dim='2D',xtitle='Leading lepton P_{T} [GeV]',ytitle='Leading lepton #eta',tag = 'pteta',content=['l1pt','l1_abseta'],lep_type='l1')
+            self.Init_Histogram(name='l1pteta_lowpv',df=df_HLT_LEPMET_lowpv,dim='2D',xtitle='Leading lepton P_{T} [GeV]',ytitle='Leading lepton #eta',tag = 'pteta',content=['l1pt','l1_abseta'],lep_type='l1')
+            self.Init_Histogram(name='l1pteta_highpv',df=df_HLT_LEPMET_highpv,dim='2D',xtitle='Leading lepton P_{T} [GeV]',ytitle='Leading lepton #eta',tag = 'pteta',content=['l1pt','l1_abseta'],lep_type='l1')
+            self.Init_Histogram(name='l1pteta_lowmet',df=df_HLT_LEPMET_lowmet,dim='2D',xtitle='Leading lepton P_{T} [GeV]',ytitle='Leading lepton #eta',tag = 'pteta',content=['l1pt','l1_abseta'],lep_type='l1')
+            self.Init_Histogram(name='l1pteta_highmet',df=df_HLT_LEPMET_highmet,dim='2D',xtitle='Leading lepton P_{T} [GeV]',ytitle='Leading lepton #eta',tag = 'pteta',content=['l1pt','l1_abseta'],lep_type='l1')
             
-            self.Init_Histogram(name='l2pteta',df=df_HLT_LEPMET,dim='2D',xtitle='Subleading lepton P_{T} [GeV]',ytitle='Subleading lepton #eta',tag = 'pteta',content=['l2pt','l2_abseta'])
-            self.Init_Histogram(name='l2pteta_lowjet',df=df_HLT_LEPMET_lowjet,dim='2D',xtitle='Subleading lepton P_{T} [GeV]',ytitle='Subleading lepton #eta',tag = 'pteta',content=['l2pt','l2_abseta'])
-            self.Init_Histogram(name='l2pteta_highjet',df=df_HLT_LEPMET_highjet,dim='2D',xtitle='Subleading lepton P_{T} [GeV]',ytitle='Subleading lepton #eta',tag = 'pteta',content=['l2pt','l2_abseta'])
-            self.Init_Histogram(name='l2pteta_lowpv',df=df_HLT_LEPMET_lowpv,dim='2D',xtitle='Subleading lepton P_{T} [GeV]',ytitle='Subleading lepton #eta',tag = 'pteta',content=['l2pt','l2_abseta'])
-            self.Init_Histogram(name='l2pteta_highpv',df=df_HLT_LEPMET_highpv,dim='2D',xtitle='Subleading lepton P_{T} [GeV]',ytitle='Subleading lepton #eta',tag = 'pteta',content=['l2pt','l2_abseta'])
-            self.Init_Histogram(name='l2pteta_lowmet',df=df_HLT_LEPMET_lowmet,dim='2D',xtitle='Subleading lepton P_{T} [GeV]',ytitle='Subleading lepton #eta',tag = 'pteta',content=['l2pt','l2_abseta'])
-            self.Init_Histogram(name='l2pteta_highmet',df=df_HLT_LEPMET_highmet,dim='2D',xtitle='Subleading lepton P_{T} [GeV]',ytitle='Subleading lepton #eta',tag = 'pteta',content=['l2pt','l2_abseta'])
+            self.Init_Histogram(name='l2pteta',df=df_HLT_LEPMET,dim='2D',xtitle='Subleading lepton P_{T} [GeV]',ytitle='Subleading lepton #eta',tag = 'pteta',content=['l2pt','l2_abseta'],lep_type='l2')
+            self.Init_Histogram(name='l2pteta_lowjet',df=df_HLT_LEPMET_lowjet,dim='2D',xtitle='Subleading lepton P_{T} [GeV]',ytitle='Subleading lepton #eta',tag = 'pteta',content=['l2pt','l2_abseta'],lep_type='l2')
+            self.Init_Histogram(name='l2pteta_highjet',df=df_HLT_LEPMET_highjet,dim='2D',xtitle='Subleading lepton P_{T} [GeV]',ytitle='Subleading lepton #eta',tag = 'pteta',content=['l2pt','l2_abseta'],lep_type='l2')
+            self.Init_Histogram(name='l2pteta_lowpv',df=df_HLT_LEPMET_lowpv,dim='2D',xtitle='Subleading lepton P_{T} [GeV]',ytitle='Subleading lepton #eta',tag = 'pteta',content=['l2pt','l2_abseta'],lep_type='l2')
+            self.Init_Histogram(name='l2pteta_highpv',df=df_HLT_LEPMET_highpv,dim='2D',xtitle='Subleading lepton P_{T} [GeV]',ytitle='Subleading lepton #eta',tag = 'pteta',content=['l2pt','l2_abseta'],lep_type='l2')
+            self.Init_Histogram(name='l2pteta_lowmet',df=df_HLT_LEPMET_lowmet,dim='2D',xtitle='Subleading lepton P_{T} [GeV]',ytitle='Subleading lepton #eta',tag = 'pteta',content=['l2pt','l2_abseta'],lep_type='l2')
+            self.Init_Histogram(name='l2pteta_highmet',df=df_HLT_LEPMET_highmet,dim='2D',xtitle='Subleading lepton P_{T} [GeV]',ytitle='Subleading lepton #eta',tag = 'pteta',content=['l2pt','l2_abseta'],lep_type='l2')
 
             
             self.__FileOut = TFile.Open(self.__FileOutName,"RECREATE")

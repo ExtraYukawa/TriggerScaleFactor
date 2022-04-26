@@ -174,8 +174,6 @@ def ScaleFactors(nominal_name:str,**settings):
             'nominal_name':nominal_name
             }
     
-    etabin = plt_set.abs_etabin
-    ptbin = plt_set.ptbin
     
     SF_Central = Get_SF_Central(File=FileIn,nominal_name=nominal_name)
     SF_Corr_SystUncertainty = Get_SystematicUncertainty('Correlation Type',nominal_name)(Correlation_Err_Calc,**args)
@@ -183,7 +181,11 @@ def ScaleFactors(nominal_name:str,**settings):
 
     SF_SystematicUncertainty = np.sqrt((SF_Corr_SystUncertainty * SF_Central)**2+ (SF_Diff_SystUncertainty* SF_Central)**2)
     
-    
+    if 'l1' in args['nominal_name']:
+        ptbin = plt_set.l1ptbin
+    else:
+        ptbin = plt_set.l2ptbin
+    etabin = plt_set.abs_etabin
     SF_hist = ROOT.TH2D(nominal_name,nominal_name,len(ptbin)-1,ptbin,len(etabin)-1,etabin)
     SF_hist.SetStats(0) 
     #SF_hist.SetTitle('')
