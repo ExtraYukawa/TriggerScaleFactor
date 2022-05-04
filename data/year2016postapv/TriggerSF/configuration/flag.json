@@ -5,6 +5,5 @@
     "Flag_HBHENoiseIsoFilter",
     "Flag_EcalDeadCellTriggerPrimitiveFilter",
     "Flag_BadPFMuonFilter",
-    "Flag_eeBadScFilter",
-    "Flag_ecalBadCalibFilter"
+    "Flag_eeBadScFilter"
 ]

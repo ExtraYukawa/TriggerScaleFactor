@@ -48,7 +48,7 @@ def plot_eff1d(tag:str,**settings):
     pad = ROOT.TPad()
     pad.Draw()
     leg = ROOT.TLegend(0.5,0.2,0.65,0.2+0.05*2)
-    
+    print(tag) 
     for Type in ['MC','Data']:
         name, Histogram = create_hist(FileIn[Type],tag)
         Histogram.SetLineColor(settings['colors'][Type])
@@ -71,9 +71,9 @@ def plot_eff1d(tag:str,**settings):
     leg.Draw('SAME') 
     c.Update()
     if settings['veto']:
-        c.SaveAs(os.path.join(settings['DirOut'],'Efficiency_1D_'+tag+'_vetohemregion.png'))
+        c.SaveAs(os.path.join(settings['DirOut'],'Efficiency_1D_'+tag+'_vetohemregion.pdf'))
     else:
-        c.SaveAs(os.path.join(settings['DirOut'],'Efficiency_1D_'+tag+'.png'))
+        c.SaveAs(os.path.join(settings['DirOut'],'Efficiency_1D_'+tag+'.pdf'))
     c.Close()
     pad.Close()
     del c
@@ -86,7 +86,6 @@ def create_hist(infile:ROOT.TFile,tag:str):
     A lazy function to get histogram in root file.
     '''
     histoname = 'Eff_'+tag
-    print(histoname)
     histotemp = infile.Get(histoname)
     histotemp.SetNameTitle(tag,"")
     
@@ -118,7 +117,7 @@ def plot_eff2d(tag:str,**settings):
         pad.cd()
                 
         hist2D = FileIn[Type].Get(tag)
-        hist2D = Hist2D_to_Binx_Equal(hist2D)
+        hist2D = Hist2D_to_Binx_Equal(hist2D,axis=settings['axis'])
 
         with open(f'./data/year{settings["year"]}/TriggerSF/configuration/lumi.json',"r") as f:
             lumi = json.load(f)[f'{settings["year"]}']
@@ -135,9 +134,9 @@ def plot_eff2d(tag:str,**settings):
         c.SetGridy(False)
         c.Update()
         if settings['year'] == '2018' and settings['veto']:
-            c.SaveAs(os.path.join(settings['DirOut'],'Efficiency_2D_'+Type+'_'+tag+'_vetohemregion.png'))
+            c.SaveAs(os.path.join(settings['DirOut'],'Efficiency_2D_'+Type+'_'+tag+'_vetohemregion.pdf'))
         else:
-            c.SaveAs(os.path.join(settings['DirOut'],'Efficiency_2D_'+Type+'_'+tag+'.png'))
+            c.SaveAs(os.path.join(settings['DirOut'],'Efficiency_2D_'+Type+'_'+tag+'.pdf'))
         pad.Close()
         c.Close()
         del c 
@@ -173,28 +172,42 @@ def ScaleFactors(nominal_name:str,**settings):
             'FileIn':FileIn,
             'nominal_name':nominal_name
             }
-    
-    
     SF_Central = Get_SF_Central(File=FileIn,nominal_name=nominal_name)
     SF_Corr_SystUncertainty = Get_SystematicUncertainty('Correlation Type',nominal_name)(Correlation_Err_Calc,**args)
     SF_Diff_SystUncertainty = Get_SystematicUncertainty('Criteria Difference Type',nominal_name)(CriteriaDiff_Err_Calc,**args)
 
     SF_SystematicUncertainty = np.sqrt((SF_Corr_SystUncertainty * SF_Central)**2+ (SF_Diff_SystUncertainty* SF_Central)**2)
     
-    if 'l1' in args['nominal_name']:
-        ptbin = plt_set.l1ptbin
+    if 'l1l2pt' == args['nominal_name'] :
+        xbin = plt_set.l1ptbin
+        ybin = plt_set.l2ptbin
+        xtitle = 'Leading Lepton P_{T}[GeV]'
+        ytitle = 'Subleading Lepton P_{T}[GeV]'
+        axis = 'ptpt'
+    elif 'l1l2eta' == args['nominal_name']:
+        xbin = plt_set.abs_etabin
+        ybin = plt_set.abs_etabin
+        xtitle = 'Leading Lepton |#eta|'
+        ytitle = 'Subleading Lepton |#eta|'
+        axis = 'etaeta'
     else:
-        ptbin = plt_set.l2ptbin
-    etabin = plt_set.abs_etabin
-    SF_hist = ROOT.TH2D(nominal_name,nominal_name,len(ptbin)-1,ptbin,len(etabin)-1,etabin)
+        xbin = plt_set.l1ptbin
+        ybin = plt_set.abs_etabin
+        if 'l1pteta'  == args['nominal_name']:
+            xtitle = 'Leading Lepton P_{T}[GeV]'
+            ytitle = 'Leading Lepton |#eta|'
+            axis = 'pteta'
+        elif 'l2pteta'  == args['nominal_name']:
+            xtitle = 'Subleading Lepton P_{T}[GeV]'
+            ytitle = 'Subleading Lepton |#eta|'
+            axis = 'pteta'
+        else:
+            raise ValueError(f'No such type of corrsponding scale factor!{args["nominal_name"]}')
+    SF_hist = ROOT.TH2D(nominal_name,nominal_name,len(xbin)-1,xbin,len(ybin)-1,ybin)
     SF_hist.SetStats(0) 
     #SF_hist.SetTitle('')
-    if 'l1' in args['nominal_name']:
-        SF_hist.GetXaxis().SetTitle('Leading Lepton P_{T}[GeV]')
-        SF_hist.GetYaxis().SetTitle('Leading Lepton |#eta|')
-    else:
-        SF_hist.GetXaxis().SetTitle('Subleading Lepton P_{T}[GeV]')
-        SF_hist.GetYaxis().SetTitle('Subleading Lepton |#eta|')
+    SF_hist.GetXaxis().SetTitle(xtitle)
+    SF_hist.GetYaxis().SetTitle(ytitle)
     for i in range(SF_hist.GetNbinsX()):
         for j in range(SF_hist.GetNbinsY()):
             SF_hist.SetBinContent(i+1,j+1,SF_Central[i][j])
@@ -223,7 +236,7 @@ def ScaleFactors(nominal_name:str,**settings):
     pad.Draw()
     pad.cd()
     
-    SF_hist = Hist2D_to_Binx_Equal(SF_hist)
+    SF_hist = Hist2D_to_Binx_Equal(SF_hist,axis=axis)
     #mypalette.colorPalette()
     #SF_hist.Draw('COLZ TEXT E')
     
@@ -237,9 +250,9 @@ def ScaleFactors(nominal_name:str,**settings):
     c.SetGridy(False)
     c.Update()
     if settings['year'] == '2018' and settings['veto']:  
-        c.SaveAs(os.path.join(settings['DirOut'],'SF'+'_'+nominal_name+'_vetohemregion.png'))
+        c.SaveAs(os.path.join(settings['DirOut'],'SF'+'_'+nominal_name+'_vetohemregion.pdf'))
     else:
-        c.SaveAs(os.path.join(settings['DirOut'],'SF'+'_'+nominal_name+'.png'))
+        c.SaveAs(os.path.join(settings['DirOut'],'SF'+'_'+nominal_name+'.pdf'))
 
     pad.Close()
     c.Close()
@@ -247,7 +260,6 @@ def ScaleFactors(nominal_name:str,**settings):
     del TS
     del pad
     del SF_hist
-
 def Get_SystematicUncertainty(Uncertainty_type:str,nominal_name:str):
     def SF_syst_type(func,**args) ->float:
         print('Calculating Systematic Uncertainty: {} for {}'.format(Uncertainty_type,nominal_name))
@@ -334,11 +346,13 @@ def CriteriaDiff_Err_Calc(**args) -> np.ndarray:
         for i in range(SF_hist2D['nominal'].GetNbinsX()):
             for j in range(SF_hist2D['nominal'].GetNbinsY()):
                 uncertainty = abs(SF_hist2D[tag]['low'].GetBinContent(i+1,j+1) - SF_hist2D[tag]['high'].GetBinContent(i+1,j+1))
-                uncertainty /= SF_hist2D['nominal'].GetBinContent(i+1,j+1)*2.
+                if SF_hist2D['nominal'].GetBinContent(i+1,j+1)*2. ==0:
+                    uncertainty = 0.
+                else:
+                    uncertainty /= SF_hist2D['nominal'].GetBinContent(i+1,j+1)*2.
                 SF_Uncertainty[tag][i][j] += uncertainty
     SF_Uncertainty['nominal'] =np.sqrt(SF_Uncertainty['jet']**2 + SF_Uncertainty['pv']**2)
     
     return SF_Uncertainty['nominal']
-
 
 

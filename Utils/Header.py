@@ -39,9 +39,7 @@ TH2D *h2_IDSF = (TH2D*)f2_IDSF->Get("{3}");
 Histogram_Definition['TrigSF']='''
 #include "TFile.h"
 #include "TH2D.h"
-TFile *f1_TrigSF = TFile::Open("{0}");
-TFile *f2_TrigSF = TFile::Open("{1}");
-TH2D *h1_TrigSF= (TH2D*)f1_TrigSF->Get("{2}");
-TH2D *h2_TrigSF = (TH2D*)f2_TrigSF->Get("{3}");
+TFile *TrigSF = TFile::Open("{0}");
+TH2D *h_TrigSF= (TH2D*)TrigSF->Get("{1}");
 '''
 

@@ -1,0 +1,17 @@
+{
+    "DirOut": {
+        "DoubleElectron": {
+            "plots": "/eos/user/z/zhenggan/ExtraYukawa/TriggerSF/year2016postapv/DoubleElectron/plots",
+            "files": "/eos/user/z/zhenggan/ExtraYukawa/TriggerSF/year2016postapv/DoubleElectron/files"
+        },
+        "DoubleMuon": {
+            "plots": "/eos/user/z/zhenggan/ExtraYukawa/TriggerSF/year2016postapv/DoubleMuon/plots",
+            "files": "/eos/user/z/zhenggan/ExtraYukawa/TriggerSF/year2016postapv/DoubleMuon/files"
+        },
+        "ElectronMuon": {
+            "plots": "/eos/user/z/zhenggan/ExtraYukawa/TriggerSF/year2016postapv/ElectronMuon/plots",
+            "files": "/eos/user/z/zhenggan/ExtraYukawa/TriggerSF/year2016postapv/ElectronMuon/files"
+        }
+    },
+    "UserName": "zhenggan"
+}

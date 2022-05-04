@@ -21,6 +21,9 @@ parser.add_argument('-a','--SF_mode',choices=[0,1,2,3],help="This option is to d
 parser.add_argument('-v','--veto',action = "store_true",help="In 2018 Issue, veto the HEM region if specified.")
 parser.add_argument('-d','--debug',action="store_true",help="Debug mode")
 parser.add_argument('-s','--ylog',choices=[0,1],help="Set y scale to be log scale, only works for Control Region validation at this moment.",type=int,default = 0)
+parser.add_argument('-x','--trigSFType',choices=[0,1,2,3],help="Trigger Scale Factors Type. 0: l1pteta,1: l2pteta,2:l1l2pt,3:l1l2eta",type=int,default=-1)
+
+
 args = parser.parse_args()
 
 

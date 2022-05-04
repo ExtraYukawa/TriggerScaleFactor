@@ -21,14 +21,20 @@ def GenTriggerSF_Path(year:str):
         path['file']['DoubleMuon'] = dict()
         path['file']['ElectronMuon'] = dict()
     
-        path['file']['DoubleElectron']['l1'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/DoubleElectron/files/SF_l1pteta.root'
-        path['file']['DoubleElectron']['l2'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/DoubleElectron/files/SF_l2pteta.root'
+        path['file']['DoubleElectron']['l1pteta'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/DoubleElectron/files/SF_l1pteta.root'
+        path['file']['DoubleElectron']['l2pteta'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/DoubleElectron/files/SF_l2pteta.root'
+        path['file']['DoubleElectron']['l1l2pt'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/DoubleElectron/files/SF_l1l2pt.root'
+        path['file']['DoubleElectron']['l1l2eta'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/DoubleElectron/files/SF_l1l2eta.root'
 
-        path['file']['DoubleMuon']['l1'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/DoubleMuon/files/SF_l1pteta.root'
-        path['file']['DoubleMuon']['l2'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/DoubleMuon/files/SF_l2pteta.root'
+        path['file']['DoubleMuon']['l1pteta'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/DoubleMuon/files/SF_l1pteta.root'
+        path['file']['DoubleMuon']['l2pteta'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/DoubleMuon/files/SF_l2pteta.root'
+        path['file']['DoubleMuon']['l1l2pt'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/DoubleMuon/files/SF_l1l2pt.root'
+        path['file']['DoubleMuon']['l1l2eta'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/DoubleMuon/files/SF_l1l2eta.root'
         
-        path['file']['ElectronMuon']['l1'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/ElectronMuon/files/SF_l1pteta.root'
-        path['file']['ElectronMuon']['l2'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/ElectronMuon/files/SF_l2pteta.root'
+        path['file']['ElectronMuon']['l1pteta'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/ElectronMuon/files/SF_l1pteta.root'
+        path['file']['ElectronMuon']['l2pteta'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/ElectronMuon/files/SF_l2pteta.root'
+        path['file']['ElectronMuon']['l1l2pt'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/ElectronMuon/files/SF_l1l2pt.root'
+        path['file']['ElectronMuon']['l1l2eta'] = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/ElectronMuon/files/SF_l1l2eta.root'
     else:
         path['file']['all'] = dict()
         path['file']['veto'] = dict()
@@ -37,14 +43,16 @@ def GenTriggerSF_Path(year:str):
         for c in ['all','veto']:
             for channel in channels :
                 path['file'][c][channel] = dict()
-                for l in ['l1','l2']:
+                for l in ['l1pteta','l2pteta','l1l2pt','l1l2eta']:
                     if c =='all':
-                        path['file'][c][channel][l] =  f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/{channel}/files/SF_{l}pteta.root'
+                        path['file'][c][channel][l] =  f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/{channel}/files/SF_{l}.root'
                     else:
-                        path['file'][c][channel][l] =  f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/{channel}/files/SF_{l}pteta_vetohemregion.root'
+                        path['file'][c][channel][l] =  f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{year}/{channel}/files/SF_{l}_vetohemregion.root'
 
-    path['branchname']['l1'] = 'l1pteta'
-    path['branchname']['l2'] = 'l2pteta'
+    path['branchname']['l1pteta'] = 'l1pteta'
+    path['branchname']['l2pteta'] = 'l2pteta'
+    path['branchname']['l1l2pt'] = 'l1l2pt'
+    path['branchname']['l1l2eta'] = 'l1l2eta'
 
 
     with open(f'./data/year{year}/DrellYan/path/triggerSF.json','wt') as f:

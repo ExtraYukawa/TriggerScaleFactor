@@ -33,21 +33,24 @@ class MyDataFrame(object):
             self.__veto_prob_threshold = 1.
             if self.__year == '2018':
                 if self.__veto:
-                    self.__TriggerSF_File = settings.get('TriggerSF')['file']['all'][self.__channel]
+                    #self.__TriggerSF_File = settings.get('TriggerSF')['file']['all'][self.__channel]
                     with open('./data/year2018/TriggerSF/configuration/veto_prob.json','r') as f:
                         self.__veto_prob_threshold = json.load(f)[self.__channel]
                 else:
-                    self.__TriggerSF_File = settings.get('TriggerSF')['file']['veto'][self.__channel]
+                    pass
+                    #self.__TriggerSF_File = settings.get('TriggerSF')['file']['veto'][self.__channel]
             else:
-                self.__TriggerSF_File = settings.get('TriggerSF')['file'][self.__channel]
-            self.__TriggerSF_Branch = settings.get('TriggerSF')['branchname']
+                pass
+                #self.__TriggerSF_File = settings.get('TriggerSF')['file'][self.__channel]
+            pass
+            #self.__TriggerSF_Branch = settings.get('TriggerSF')['branchname']
             #ROOT.gInterpreter.ProcessLine(Histogram_Definition['Diff_Type'].format(self.__TriggerSF_File['l1'],self.__TriggerSF_File['l2'],self.__TriggerSF_Branch['l1'],self.__TriggerSF_Branch['l2']))
 
         
         if self.__channel == 'ElectronMuon':
             DY_region = 2 
             self.__lepton_RECO_SF = 'Electron_RECO_SF[OPS_l2_id]'
-            self.__offline_selections = f'OPS_region=={DY_region} && OPS_z_mass > 60 && OPS_z_mass<120 && OPS_2P0F &&( OPS_l1_pt>30 ||  OPS_l2_pt>30) && OPS_drll>0.3 && {self.__flag_Condition} && nHad_tau==0' 
+            self.__offline_selections = f'OPS_region=={DY_region} && OPS_z_mass > 60 && OPS_z_mass<120 && OPS_2P0F &&( OPS_l1_pt>30 ||  OPS_l2_pt>20) && OPS_drll>0.3 && {self.__flag_Condition} && nHad_tau==0' 
         elif self.__channel != None:
             if self.__channel == 'DoubleElectron':
                 DY_region = 3
@@ -131,18 +134,27 @@ class MyDataFrame(object):
     def veto_prob_threshold(self)->float:
         return self.__veto_prob_threshold
 
-def Filtering(df:MyDataFrame,HistsSettings:dict,veto:bool):
+def Filtering(df:MyDataFrame,HistsSettings:dict,veto:bool,trigSFType:str):
     '''
     veto_Function -> Only have true meaning for UL2018. A filter to veto whether there is any jet falling into HEM region.
     
     '''
+    if trigSFType == 'l1pteta':
+        trigSF = 'Trigger_sf(h_TrigSF,OPS_l1_pt,OPS_l1_eta)'
+    elif trigSFType == 'l2pteta':
+        trigSF = 'Trigger_sf(h_TrigSF,OPS_l2_pt,OPS_l2_eta)'
+    elif trigSFType == 'l1l2pt':
+        trigSF = 'Trigger_sf(h_TrigSF,OPS_l1_pt,OPS_l2_pt)'
+    elif trigSFType == 'l1l2eta':
+        trigSF = 'Trigger_sf(h_TrigSF,OPS_l1_eta,OPS_l2_eta)'
+    else:
+        raise ValueError(f'Wrong Trigger SF type:{trigSFType}')
     
     
     if df.nevents ==-1:
         Tree= ROOT.RDataFrame('Events',df.File_Paths)
     else:
         Tree = ROOT.RDataFrame('Events',df.File_Paths).Range(0,df.nevents)
-    
     veto_Function = 'true'
     if df.IsData:
         if veto:
@@ -150,6 +162,11 @@ def Filtering(df:MyDataFrame,HistsSettings:dict,veto:bool):
     if not df.IsData:
         if veto:
             veto_Function =f'veto_hemregion_sim(prob(),Jet_phi,Jet_eta,{df.veto_prob_threshold})'
+    
+    Tree=Tree.Filter(veto_Function)\
+            .Filter(df.Trigger_Condition)\
+            .Filter(df.offline_selections)
+    if not df.IsData:
         if df.SF_mode == 0:
             Tree = Tree.Define('trigger_SF','1.')
             Tree = Tree.Define('Id_SF','1.')
@@ -157,25 +174,23 @@ def Filtering(df:MyDataFrame,HistsSettings:dict,veto:bool):
             Tree = Tree.Define('trigger_SF','1.')
             Tree = Tree.Define('Id_SF','ID_sf_singlelepton(h1_IDSF,OPS_l1_pt,OPS_l1_eta)*ID_sf_singlelepton(h2_IDSF,OPS_l2_pt,OPS_l2_eta)')
         elif df.SF_mode == 2:
-            Tree = Tree.Define('trigger_SF','Trigger_sf(h1_TrigSF,OPS_l1_pt,OPS_l1_eta)*Trigger_sf(h2_TrigSF,OPS_l2_pt,OPS_l2_eta)')
+            Tree = Tree.Define('trigger_SF',trigSF)
             Tree = Tree.Define('Id_SF','1.')
         elif df.SF_mode == 3:
-            Tree = Tree.Define('trigger_SF','Trigger_sf(h1_TrigSF,OPS_l1_pt,OPS_l1_eta)*Trigger_sf(h2_TrigSF,OPS_l2_pt,OPS_l2_eta)')
+            Tree = Tree.Define('trigger_SF',trigSF)
+            
             Tree = Tree.Define('Id_SF','ID_sf_singlelepton(h1_IDSF,OPS_l1_pt,OPS_l1_eta)*ID_sf_singlelepton(h2_IDSF,OPS_l2_pt,OPS_l2_eta)')
-        Tree = Tree.Define('genweight',f'{df.p_weight}*{df.lepton_RECO_SF}*trigger_SF*Id_SF*genWeight/abs(genWeight)')
+        Tree = Tree.Define('genweight',f'{df.p_weight}*{df.lepton_RECO_SF}*(trigger_SF)*Id_SF*genWeight/abs(genWeight)')#*genWeight/abs(genWeight)
     
-    Tree = Tree.Filter(veto_Function)
-    Tree =Tree.Filter(df.Trigger_Condition)
-    Tree = Tree.Filter(df.offline_selections)
-    df.Tree = Tree
+    #df.Tree = Tree
     Hists =dict()
     for name in HistsSettings.keys():
         setting = HistsSettings[name]
         if df.IsData != None:
             if df.IsData :
-                Hists[name] = df.Tree.Histo1D((setting['name'],'',setting['nbins'],setting['lowedge'],setting['highedge']),setting['name'])
+                Hists[name] = Tree.Histo1D((setting['name'],'',setting['nbins'],setting['lowedge'],setting['highedge']),setting['name'])
             else:
-                Hists[name] = df.Tree.Histo1D((setting['name'],'',setting['nbins'],setting['lowedge'],setting['highedge']),setting['name'],'genweight')
+                Hists[name] = Tree.Histo1D((setting['name'],'',setting['nbins'],setting['lowedge'],setting['highedge']),setting['name'],'genweight')
         else:
             raise ValueError
     df.Hists = Hists
@@ -208,7 +223,7 @@ def set_axis(histo,coordinate:str,title:str,is_energy:bool):
         axis.SetTitle(title)
 
 from collections import OrderedDict
-def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:float,SF_mode:int,channel='DoubleElectron',veto=False,ylog=0):
+def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:float,SF_mode:int,channel='DoubleElectron',veto=False,ylog=0,trigSF_branchname='Default'):
     Histo['MC']['DY'].SetFillColor(ROOT.kRed)
     Histo['MC']['WJets'].SetFillColor(ROOT.kBlue - 7)
     Histo['MC']['VV'].SetFillColor(ROOT.kCyan - 9)
@@ -375,9 +390,9 @@ def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:float,SF_mode:int,channel=
     elif SF_mode ==1:
         SF_postfix = '_IDSF'
     elif SF_mode ==2:
-        SF_postfix = '_TrigSF'
+        SF_postfix = '_TrigSF_'+trigSF_branchname
     elif SF_mode ==3:
-        SF_postfix = '_ID_Trig_SF'
+        SF_postfix = '_ID_Trig_SF_'+trigSF_branchname
     
     else:
         raise ValueError('weired.')

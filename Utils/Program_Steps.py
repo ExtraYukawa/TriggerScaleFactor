@@ -77,6 +77,19 @@ def Drell_Yan_Reconstruction(args):
         raise ValueError("Channel should be specified or The Specified Channel is Not in the list. ex:[-i/--channel DoubleElectron]")
     if args.ylog == 1:
         print('Setting y scale to be log scale...')
+    
+    
+    if args.trigSFType == 0:
+        trigSFType = 'l1pteta'
+    elif args.trigSFType == 1:
+        trigSFType = 'l2pteta'
+    elif args.trigSFType == 2:
+        trigSFType = 'l1l2pt'
+    elif args.trigSFType==3 :
+        trigSFType = 'l1l2eta'
+    else:
+        raise ValueError('please specify trigSFType: [-x/--trigSFType "0,1,2,3"]')
+    print(f'Trigger Scale Factor Array: {trigSFType}')
 
     settings = dict()
     settings['year'] = args.year
@@ -87,6 +100,8 @@ def Drell_Yan_Reconstruction(args):
     settings['debug'] = args.debug
     settings['ylog'] = args.ylog
     
+    settings['TriggerSF']=dict()
+
     with open(f'./data/year{args.year}/DrellYan/configuration/HLTTriggerCondition.json','rb') as f:
         settings['HLT_Path'] = json.load(f)
     with open(f'./data/year{args.year}/DrellYan/configuration/data_xs.json','rb') as f:
@@ -98,7 +113,7 @@ def Drell_Yan_Reconstruction(args):
         settings['FilesIn'] = json.load(f)
     
     with open(f'./data/year{args.year}/DrellYan/path/triggerSF.json','rb') as f:
-        settings['TriggerSF'] = json.load(f)
+        trigSF = json.load(f)
 
     with open(f'./data/year{args.year}/TriggerSF/configuration/weights.json','rb') as f:
         settings['Weights'] = json.load(f)
@@ -107,7 +122,16 @@ def Drell_Yan_Reconstruction(args):
     
     with open(f'./data/year{args.year}/TriggerSF/configuration/flag.json','r') as f:
         settings['FLAG'] = json.load(f)
-
+    
+    print(trigSFType)
+    if args.year=='2018':
+        if args.veto:
+            settings['TriggerSF']['FileIn'] = trigSF['file']['veto'][args.channel][trigSFType]
+        else:
+            settings['TriggerSF']['FileIn'] = trigSF['file']['all'][args.channel][trigSFType]
+    else:
+        settings['TriggerSF']['FileIn'] = trigSF['file'][args.channel][trigSFType]
+    settings['TriggerSF']['branchname'] = trigSF['branchname'][trigSFType]
     Analyzer = DrellYanRDataFrame(settings)
     Analyzer.Run()
 
@@ -236,6 +260,10 @@ def Plot_efficiency(args):
                 'eta':['l2eta','l2eta_highjet','l2eta_lowjet','l2eta_highpv','l2eta_lowpv','l2eta_highmet','l2eta_lowmet'],
                 'pteta':['l2pteta','l2pteta_highjet','l2pteta_lowjet','l2pteta_highpv','l2pteta_lowpv','l2pteta_highmet','l2pteta_lowmet']
             },
+            'l1l2':{
+                'pt':['l1l2pt','l1l2pt_highjet','l1l2pt_lowjet','l1l2pt_highpv','l1l2pt_lowpv','l1l2pt_highmet','l1l2pt_lowmet'] ,
+                'eta':['l1l2eta','l1l2eta_highjet','l1l2eta_lowjet','l1l2eta_highpv','l1l2eta_lowpv','l1l2eta_highmet','l1l2eta_lowmet'],
+                }
         }
 
     print(f'Plotting 1D histograms for channel :{args.channel}')
@@ -253,13 +281,17 @@ def Plot_efficiency(args):
     print(f'Plotting 2D histograms for channel :{args.channel}')
     user_settings['Type'] = 'Trigger Efficiency 2D Histogram'
     for tag in  tags['l1']['pteta']:
+        user_settings['axis'] = 'pteta'#used to classify axis title of histogram
         TrigUtils.Plot(TrigUtils.plot_eff2d,**user_settings)(tag=tag)
     for tag in  tags['l2']['pteta']:
+        user_settings['axis'] = 'pteta'
         TrigUtils.Plot(TrigUtils.plot_eff2d,**user_settings)(tag=tag)
-    #for tag in  tags['l1l2']['pt']:
-    #    Plot(plot_eff2d,**user_settings)(tag=tag)
-    #for tag in  tags['l1l2']['eta']:
-    #    Plot(plot_eff2d,**user_settings)(tag=tag)
+    for tag in  tags['l1l2']['pt']:
+        user_settings['axis'] = 'ptpt'
+        TrigUtils.Plot(TrigUtils.plot_eff2d,**user_settings)(tag=tag)
+    for tag in  tags['l1l2']['eta']:
+        user_settings['axis'] = 'etaeta'
+        TrigUtils.Plot(TrigUtils.plot_eff2d,**user_settings)(tag=tag)
 
 
 def SF_Calc(args):
@@ -284,8 +316,7 @@ def SF_Calc(args):
             'veto':args.veto
             }
     
-    nominal_names =['l1pteta','l2pteta']
-
+    nominal_names =['l1pteta','l2pteta','l1l2pt','l1l2eta']
     
     print('Producing TriggerSF...')
     for nominal_name in nominal_names:

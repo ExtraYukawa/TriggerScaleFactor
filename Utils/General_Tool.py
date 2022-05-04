@@ -5,7 +5,7 @@ sys.path.append(CURRENT_WORKDIR)
 import math
 from math import sqrt
 
-def get_NumberOfEvent(filename:str) -> int:
+def get_NumberOfEvent(filename:str) -> float:
     ftemp = ROOT.TFile.Open(filename)
     htemp = ftemp.Get('nEventsGenWeighted')
     return  htemp.GetBinContent(1)
@@ -72,7 +72,7 @@ def overunder_flowbin(h=None,Hist_dim='1D'):
 
 
 
-def Hist2D_to_Binx_Equal(h_original:ROOT.TH2D,IsFakeRate=False)->ROOT.TH2D:
+def Hist2D_to_Binx_Equal(h_original:ROOT.TH2D,IsFakeRate=False,axis='Default')->ROOT.TH2D:
 
 
     nx = h_original.GetXaxis().GetNbins()
@@ -115,11 +115,17 @@ def Hist2D_to_Binx_Equal(h_original:ROOT.TH2D,IsFakeRate=False)->ROOT.TH2D:
         for i in range(nx+1):
             xlow = h_original.GetXaxis().GetBinUpEdge(i)
             xnew = h_new.GetXaxis().GetBinLowEdge(i+1)
-            label.DrawText(xnew,ylabel,f"{int(xlow)}")
+            if axis =='Default' or axis == 'ptpt' or axis =='pteta':
+                label.DrawText(xnew,ylabel,f"{int(xlow)}")
+            else:
+                label.DrawText(xnew,ylabel,f"{xlow:.1f}")
         for i in range(ny+1):
             ylow = h_original.GetYaxis().GetBinUpEdge(i)
             ynew = h_new.GetYaxis().GetBinLowEdge(i+1)
-            label.DrawText(xlabel,ynew,f"{ylow:.1f}")
+            if axis =='Default' or axis =='etaeta' or axis == 'pteta':
+                label.DrawText(xlabel,ynew,f"{ylow:.1f}")
+            else:
+                label.DrawText(xlabel,ynew,f"{int(ylow)}")
     else:
         for i in range(nx+1):
             xlow = h_original.GetXaxis().GetBinUpEdge(i)

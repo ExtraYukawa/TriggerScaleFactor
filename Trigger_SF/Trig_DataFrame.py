@@ -112,10 +112,10 @@ class TrigRDataFrame(MyDataFrame):
             else:
                 raise ValueError(f'Tag{f} is not in the list.')
             nxbin = len(xbin) -1 
-            self.__Histogram[dim][tag][name] = df.Histo1D((name,f"{name};{xtitle};{ytitle}",nxbin,xbin),*content,weight).GetValue()
+            self.__Histogram[dim][tag][name] = df.Histo1D((name,f"{name};{xtitle};{ytitle}",nxbin,xbin),*content,weight)
             self.__Histogram[dim][tag][name].Sumw2()
             self.__Histogram[dim][tag][name].SetMinimum(0)
-
+            
         if dim == '2D':
             if tag == 'pt':
                 xbin = plt_set.l1ptbin
@@ -135,9 +135,11 @@ class TrigRDataFrame(MyDataFrame):
                 raise ValueError(f'Tag{tag} is not in the list.')
             nxbin = len(xbin) -1 
             nybin = len(ybin) -1 
-            self.__Histogram[dim][tag][name] = df.Histo2D((name,f"{name};{xtitle};{ytitle}",nxbin,xbin,nybin,ybin),*content,weight).GetValue()
+            self.__Histogram[dim][tag][name] = df.Histo2D((name,f"{name};{xtitle};{ytitle}",nxbin,xbin,nybin,ybin),*content,weight)
             self.__Histogram[dim][tag][name].Sumw2()
+
         self.__Histogram[dim][tag][name].SetStats(0)
+        self.__Histogram[dim][tag][name] = self.__Histogram[dim][tag][name].GetValue()
     def Save_Histogram(self,name:str,dim:str,tag:str):
         if name == None:
             raise ValueError('Should Specify Name of Histogram')
@@ -149,12 +151,8 @@ class TrigRDataFrame(MyDataFrame):
     def Merge_Hist(self,dim:str,tag,name:str,name2=None):
         if name2==None:
             name2 = 'pre_'+name
-
         if dim == '1D':
-            if tag != 'HLT':
-                eff = TEfficiency(self.__Histogram[dim][tag][name],self.__Histogram[dim][tag][name2])   
-            else:
-                eff = TEfficiency(self.__Histogram[dim][tag][name],self.__Histogram[dim][tag][name2])
+            eff = TEfficiency(self.__Histogram[dim][tag][name],self.__Histogram[dim][tag][name2])
             eff.SetTitle(f'Eff {name}')
             eff.SetName(f'Eff_{name}')
             eff.Write()
@@ -163,6 +161,11 @@ class TrigRDataFrame(MyDataFrame):
             self.__Histogram[dim][tag][name].Write()
         else:
             raise ValueError('Dimension {dim} is not in the list.')
+    def Counter_Hist(self,dim:str,tag,name:str):
+        #count number in the bin.
+        self.__Histogram[dim][tag][name].SetTitle(f'Count {name}')
+        self.__Histogram[dim][tag][name].SetName(f'Count_{name}')
+        self.__Histogram[dim][tag][name].Write()
     def Correct_VarName(self,name:list,process:str,tag:str)->list:
         
         corrected_name = []
@@ -209,11 +212,10 @@ class TrigRDataFrame(MyDataFrame):
             veto='true'
         
         
-        
         df = df.Filter(veto,"veto cut").Define('count','1')#This could be ignored for UL2017/UL2016 case
         
         df_flag_trig = df.Filter(' && '.join(self.__MET_Filters),"Flag Cut")
-        
+        print(' && '.join(self.__MET_Filters)) 
         if self.__channel == 'ElectronMuon': 
             RECOWeight_Mul_TTC = 'Electron_RECO_SF[ttc_l2_id]'
             RECOWeight_Mul_OPS = 'Electron_RECO_SF[OPS_l2_id]'
@@ -242,11 +244,13 @@ class TrigRDataFrame(MyDataFrame):
         #ttc_Flag -> Used to judge whether the region of events is ttc.
         #OPS_Flag -> Used to judge whetehr the region of events is OPS.
         
+               # \#.Filter(f'OPS_region == {self.__Leptons_Informations["region"]} || ttc_region == {self.__Leptons_Informations["region"]}')\
+                #.Filter('ttc_Flag || OPS_Flag')\
 
         df_region_trig = df_flag_trig\
-                .Filter(f'OPS_region == {self.__Leptons_Informations["region"]} || ttc_region == {self.__Leptons_Informations["region"]}')\
                 .Define("ttc_Flag",f'Region_FLAG(ttc_region,{self.__Leptons_Informations["region"]})')\
                 .Define("OPS_Flag",f'Region_FLAG(OPS_region,{self.__Leptons_Informations["region"]})')\
+                .Filter('ttc_Flag || OPS_Flag')\
                 .Define("l1p4",f'LeptonP4(ttc_Flag,OPS_Flag,{self.__Leptons_Informations["ttc_p4"]["l1"][0]}\
                 ,{self.__Leptons_Informations["ttc_p4"]["l1"][1]},{self.__Leptons_Informations["ttc_p4"]["l1"][2]}\
                 ,{self.__Leptons_Informations["ttc_p4"]["l1"][3]},{self.__Leptons_Informations["OPS_p4"]["l1"][0]}\
@@ -263,7 +267,9 @@ class TrigRDataFrame(MyDataFrame):
                 .Define("l2eta","l2p4.Eta()")\
                 .Define("l1_abseta","abs(l1p4.Eta())")\
                 .Define("l2_abseta","abs(l2p4.Eta())")\
-                .Define("IDsf",f'IDScaleFact("{self._channel}",h1,h2,l1pt,l2pt,l1eta,l2eta)')
+                .Define("IDsf",f'IDScaleFact("{self._channel}",h1,h2,l1pt,l2pt,l1eta,l2eta)')\
+                .Define("flag_2P0F",'if(ttc_Flag) return ttc_2P0F;else if(OPS_Flag) return OPS_2P0F;throw "Contraction Region!";')\
+                .Filter('flag_2P0F')
         
         if self.__Type=='Data':
             MET = 'MET_T1_pt'
@@ -272,64 +278,63 @@ class TrigRDataFrame(MyDataFrame):
         
         df_Offline_Selection = df_region_trig\
             .Define("met",f"{MET}")\
-            .Filter('(l1p4+l2p4).M() >=20 && (l1pt >= 30 || l2pt >= 30) && l1p4.DeltaR(l2p4) >= 0.3 && met >=100','LeptonCut')\
+            .Filter('(l1p4+l2p4).M() >=20 && (l1pt >= 30 || l2pt >= 20) && l1p4.DeltaR(l2p4) >= 0.3 && met >=100')\
             .Define('no_HLT','0.5')
 
         if self.__Type == 'Data':
-            df_Offline_Selection = df_Offline_Selection.\
-                    Define("weight",'1.')
+            df_Offline_Selection = df_Offline_Selection\
+                    .Define("weight",'1.')
         #self.__Condition_Weights -> puWeight * PrefireWeight for UL2017 / PrefireWeight for UL2018
         #RECOWeight_LEP_OPS -> Ele_RECO_SF[l1_id] * Ele_RECO_SF[l2_id] for double electron, 1 for double muon, Ele_RECO_SF[l2_id] for emu.
         else:
             df_Offline_Selection = df_Offline_Selection.\
-                    Define("weight",f'float w ; if(ttc_Flag && OPS_Flag) throw "Contraction Region!" ;\
-                    else if(ttc_Flag) w = {self.__Condition_Weights}*{RECOWeight_LEP_TTC}*IDsf;\
-                    else if(OPS_Flag) w = {self.__Condition_Weights}*IDsf*{RECOWeight_LEP_OPS};\
-                    return w')
-
-        
+                    Define("weight",f'if(ttc_Flag && OPS_Flag) throw "Contraction Region!" ;\
+                    else if(ttc_Flag) return {self.__Condition_Weights}*{RECOWeight_LEP_TTC}*IDsf*genWeight/abs(genWeight);\
+                    else if(OPS_Flag) return {self.__Condition_Weights}*IDsf*{RECOWeight_LEP_OPS}*genWeight/abs(genWeight);')
+            #df_Offline_Selection = df_Offline_Selection.Define("weight",'1.')
+        print(' || '.join(self.__HLT_LEP)) 
         df_HLT_LEP = df_Offline_Selection\
-                .Filter(' || '.join(self.__HLT_LEP),"HLT_LEP_Trig")\
+                .Filter(' || '.join(self.__HLT_LEP))\
                 .Define('HLT_LEP_pass','0.5')
-
+        print(' || '.join(self.__HLT_MET))
         df_HLT_MET = df_Offline_Selection\
-                .Filter(" || ".join(self.__HLT_MET),"HLT_MET_Trig")\
+                .Filter(" || ".join(self.__HLT_MET))\
                 .Define('HLT_MET_pass','0.5')
-
         df_HLT_MET_highjet = df_HLT_MET\
-                .Filter('n_tight_jet >3','pre_high_jet')
+                .Filter('n_tight_jet >=3','pre_high_jet')
         df_HLT_MET_lowjet = df_HLT_MET\
                 .Filter('n_tight_jet <3','pre_low_jet')
         df_HLT_MET_highpv = df_HLT_MET\
-                .Filter('PV_npvs >30','pre_high_pv')
+                .Filter('PV_npvs >=30','pre_high_pv')
         df_HLT_MET_lowpv = df_HLT_MET\
                 .Filter('PV_npvs <30','pre_low_pv')
         df_HLT_MET_highmet = df_HLT_MET\
-                .Filter('met >150','pre_high_met')
+                .Filter('met >=150','pre_high_met')
         df_HLT_MET_lowmet = df_HLT_MET\
                 .Filter('met <150','pre_low_met')
-        
         df_HLT_LEPMET = df_HLT_MET\
-                .Filter(" || ".join(self.__HLT_LEP),"HLT_LEPMET_Trig")\
+                .Filter(" || ".join(self.__HLT_LEP))\
                 .Define('HLT_LEPMET_pass','0.5')
-        
         df_HLT_LEPMET_highjet = df_HLT_LEPMET\
-                .Filter('n_tight_jet >3','high_jet')
+                .Filter('n_tight_jet >=3','high_jet')
         df_HLT_LEPMET_lowjet = df_HLT_LEPMET\
                 .Filter('n_tight_jet <3','low_jet')
         df_HLT_LEPMET_highpv = df_HLT_LEPMET\
-                .Filter('PV_npvs >30','high_pv')
+                .Filter('PV_npvs >=30','high_pv')
         df_HLT_LEPMET_lowpv = df_HLT_LEPMET\
                 .Filter('PV_npvs <30','low_pv')
         df_HLT_LEPMET_highmet = df_HLT_LEPMET\
-                .Filter('met >150','high_met')
+                .Filter('met >=150','high_met')
         df_HLT_LEPMET_lowmet = df_HLT_LEPMET\
                 .Filter('met <150','low_met')
-        
         weight_all = df_Offline_Selection.Sum("weight")
         weight_lep = df_HLT_LEP.Sum("weight")
         weight_met = df_HLT_MET.Sum("weight")
         weight_lepmet = df_HLT_LEPMET.Sum("weight")
+        test_1 = df_HLT_LEPMET_lowmet.Sum("weight")
+        test_2 = df_HLT_LEPMET_highmet.Sum("weight")
+        test_3 = df_HLT_LEPMET_lowpv.Sum("weight")
+        test_4 = df_HLT_LEPMET_highpv.Sum("weight")
         if not self.__debug:
 
 
@@ -498,37 +503,41 @@ class TrigRDataFrame(MyDataFrame):
             self.Init_Histogram(name='l2pteta_lowmet',df=df_HLT_LEPMET_lowmet,dim='2D',xtitle='Subleading lepton P_{T} [GeV]',ytitle='Subleading lepton #eta',tag = 'pteta',content=['l2pt','l2_abseta'],lep_type='l2')
             self.Init_Histogram(name='l2pteta_highmet',df=df_HLT_LEPMET_highmet,dim='2D',xtitle='Subleading lepton P_{T} [GeV]',ytitle='Subleading lepton #eta',tag = 'pteta',content=['l2pt','l2_abseta'],lep_type='l2')
 
-            
             self.__FileOut = TFile.Open(self.__FileOutName,"RECREATE")
 
             self.__FileOut.cd()
             for name in ['l1pt','l1pt_highjet','l1pt_lowjet','l1pt_lowmet','l1pt_highmet','l1pt_lowpv','l1pt_highpv'\
                     ,'l2pt','l2pt_highjet','l2pt_lowjet','l2pt_lowmet','l2pt_highmet','l2pt_lowpv','l2pt_highpv']:
                 self.Merge_Hist(dim='1D',tag='pt',name=name)
+                #self.Counter_Hist(dim='1D',tag='pt',name=name)
+                #self.Counter_Hist(dim='1D',tag='pt',name='pre_'+name)
             for name in ['l1eta','l1eta_highjet','l1eta_lowjet','l1eta_lowmet','l1eta_highmet','l1eta_lowpv','l1eta_highpv'\
                     ,'l2eta','l2eta_highjet','l2eta_lowjet','l2eta_lowmet','l2eta_highmet','l2eta_lowpv','l2eta_highpv']:
                 self.Merge_Hist(dim='1D',tag='eta',name=name)
+                #self.Counter_Hist(dim='1D',tag='eta',name=name)
+                #self.Counter_Hist(dim='1D',tag='pt',name='pre_'+name)
             for name in ['l1pteta','l1pteta_highjet','l1pteta_lowjet','l1pteta_lowmet','l1pteta_highmet','l1pteta_lowpv','l1pteta_highpv'\
                     ,'l2pteta','l2pteta_highjet','l2pteta_lowjet','l2pteta_lowmet','l2pteta_highmet','l2pteta_lowpv','l2pteta_highpv']:
                 self.Merge_Hist(dim='2D',tag='pteta',name=name)
+                #self.Counter_Hist(dim='2D',tag='pteta',name=name)
+                #self.Counter_Hist(dim='2D',tag='pteta',name='pre_'+name)
             for name in ['l1l2pt','l1l2pt_highjet','l1l2pt_lowjet','l1l2pt_lowmet','l1l2pt_highmet','l1l2pt_lowpv','l1l2pt_highpv']:
                 self.Merge_Hist(dim='2D',tag='pt',name=name)
+                #self.Counter_Hist(dim='2D',tag='pt',name=name)
+                #self.Counter_Hist(dim='2D',tag='pt',name='pre_'+name)
         
             for name in ['l1l2eta','l1l2eta_highjet','l1l2eta_lowjet','l1l2eta_lowmet','l1l2eta_highmet','l1l2eta_lowpv','l1l2eta_highpv']:
                 self.Merge_Hist(dim='2D',tag='eta',name=name)
-
+                #self.Counter_Hist(dim='2D',tag='eta',name=name)
+                #self.Counter_Hist(dim='2D',tag='eta',name='pre_'+name)
             for name in ['HLT_MET','HLT_LEP','HLT_LEPMET']:
                 self.Merge_Hist(dim='1D',tag='HLT',name=name,name2='No_HLT')
-            #for dim in self.__Histogram.keys():
-            #    for tag in self.__Histogram[dim].keys():
-            #        for name in self.__Histogram[dim][tag].keys():
-            #            self.Save_Histogram(name=name,tag=tag,dim=dim)
+            
             self.__FileOut.Close()
         
             eff_lep =weight_lep.GetValue()/weight_all.GetValue()
             eff_met = weight_met.GetValue()/weight_all.GetValue()
             eff_lepmet= weight_lepmet.GetValue()/weight_all.GetValue()
-        
         
         
         
@@ -559,4 +568,8 @@ class TrigRDataFrame(MyDataFrame):
             print(f'weight_lep:{weight_lep.GetValue()}')
             print(f'weight_met:{weight_met.GetValue()}')
             print(f'weight_lepmet:{weight_lepmet.GetValue()}')
+            print(f'test_1:"{test_1.GetValue()}')
+            print(f'test_2:"{test_2.GetValue()}')
+            print(f'test_3:"{test_3.GetValue()}')
+            print(f'test_4:"{test_4.GetValue()}')
 

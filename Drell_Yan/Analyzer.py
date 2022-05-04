@@ -90,12 +90,6 @@ class DrellYanRDataFrame():
             #Seed to offset the prob for deciding whether MC events in events which have HEM issue.
 
             print('Veto HEM Region For Data 2018...')
-            #with open(f'./data/year{self.__year}/DrellYan/User.json','r') as f:
-            #    UserName = json.load(f)["UserName"]
-            #with open(f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{self.__year}/{self.__channel}/files/Info_vetohemregion.json','r') as f:
-            #    Veto_Nevts = json.load(f)['Data:NumberOfEvents']
-            #with open(f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/TriggerSF/year{self.__year}/{self.__channel}/files/Info.json','r') as f:
-            #    All_Nevts = json.load(f)['Data:NumberOfEvents']
             
             with open ("./data/year2018/TriggerSF/configuration/veto_ratio.json","r") as f :
                 veto_ratio = json.load(f)[self.__channel]
@@ -118,21 +112,18 @@ class DrellYanRDataFrame():
             IDSF_File = self.__LepIDSF_File['path']
             ROOT.gInterpreter.ProcessLine(Histogram_Definition['Same_Type_IDSF'].format(IDSF_File,IDSF_type))
         
-        l1_trigSF_branchname = self.__TriggerSF['branchname']['l1']
-        l2_trigSF_branchname = self.__TriggerSF['branchname']['l2']
+        trigSF_branchname = self.__TriggerSF['branchname']
         
         if self.__year != '2018':
-            l1_trigSF_File = self.__TriggerSF['file'][self.__channel]['l1']
-            l2_trigSF_File = self.__TriggerSF['file'][self.__channel]['l2']
+            trigSF_File = self.__TriggerSF['FileIn']
         else:
             if self.__veto:
-                l1_trigSF_File = self.__TriggerSF['file']['veto'][self.__channel]['l1']
-                l2_trigSF_File = self.__TriggerSF['file']['veto'][self.__channel]['l2']
+                trigSF_File = self.__TriggerSF['file']['veto'][self.__channel][trigSF_branchname]
             else:
-                l1_trigSF_File = self.__TriggerSF['file']['all'][self.__channel]['l1']
-                l2_trigSF_File = self.__TriggerSF['file']['all'][self.__channel]['l2']
+                trigSF_File = self.__TriggerSF['file']['all'][self.__channel][trigSF_branchname]
 
-        ROOT.gInterpreter.ProcessLine(Histogram_Definition['TrigSF'].format(l1_trigSF_File,l2_trigSF_File,l1_trigSF_branchname,l2_trigSF_branchname))
+        ROOT.gInterpreter.ProcessLine(Histogram_Definition['TrigSF'].format(trigSF_File,trigSF_branchname))
+        
         #To Load IDSF function
     
         #DataFrame For Data 
@@ -158,20 +149,21 @@ class DrellYanRDataFrame():
                         'Trigger_Condition': self.__HLT_Path['All'],
                         'weights' : self.__condition_weights['MC'],
                         'File_Paths' : self.__FilesIn['MC'][p][MC],
-                        'TriggerSF': self.__TriggerSF,
+                        #'TriggerSF': self.__TriggerSF,
                         'nevents' : self.__nevents,
                         'SF_mode':self.__SF_mode,
                         'veto':self.__veto,
                         'year':self.__year,
-                        'Flag':self.__flag
+                        'Flag':self.__flag,
+                        'trigSF_Type':trigSF_branchname
                         }
                 self.__dfs['MC'][MC]= MyDataFrame(settings)
 
         for p in self.__Process:
             for MC in self.__FilesIn['MC'][p].keys():
-                Filtering(self.__dfs['MC'][MC],HistSettings,self.__veto)
+                Filtering(self.__dfs['MC'][MC],HistSettings,self.__veto,trigSFType=trigSF_branchname)
         for Sample_Name in self.__HLT_Path[self.__channel].keys():
-            Filtering(self.__dfs['Data'][Sample_Name] , HistSettings,self.__veto)
+            Filtering(self.__dfs['Data'][Sample_Name] , HistSettings,self.__veto,trigSFType=trigSF_branchname)
 
         if not self.__debug:
             for histname in HistSettings.keys():
@@ -181,6 +173,7 @@ class DrellYanRDataFrame():
                 Temps['Data'] = OrderedDict()
                 Temps['MC'] = OrderedDict()
                 for idx ,Data in enumerate(self.__dfs['Data'].keys()):
+                    self.__dfs['Data'][Data].Hists[histname].Draw()
                     h= self.__dfs['Data'][Data].Hists[histname].GetValue()
                     h = overunder_flowbin(h)
                     Temps['Data'][Data] = overunder_flowbin(h)
@@ -191,6 +184,7 @@ class DrellYanRDataFrame():
           
                 for p in self.__Process:
                     for MC in self.__FilesIn['MC'][p].keys():
+                        self.__dfs['MC'][MC].Hists[histname].Draw()
                         h = self.__dfs['MC'][MC].Hists[histname].GetValue()
                         h.Scale(self.__Cross_Section[p][MC]/float(self.__NumberOfEvents[p][MC]))
                         Temps['MC'][MC] = overunder_flowbin(h)
@@ -199,8 +193,8 @@ class DrellYanRDataFrame():
                 HistoGrams['MC']['WJets'] = Temps['MC']['WJets']
                 
                 HistoGrams['MC']['VV'] = Temps['MC']['osWW']
-                HistoGrams['MC']['VV'] = Temps['MC']['ssWW']
-                HistoGrams['MC']['VV'] = Temps['MC']['WWdps']
+                HistoGrams['MC']['VV'].Add( Temps['MC']['ssWW'])
+                HistoGrams['MC']['VV'].Add(Temps['MC']['WWdps'])
                 if self.__year =='2017':
                     HistoGrams['MC']['VV'].Add(Temps['MC']['WZ_ew'])
                     HistoGrams['MC']['VV'].Add(Temps['MC']['WZ_qcd'])
@@ -241,7 +235,7 @@ class DrellYanRDataFrame():
                 HistoGrams['MC']['TT'] = Temps['MC']['TTTo1L']
                 HistoGrams['MC']['TT'].Add(Temps['MC']['TTTo2L'])
 
-                Plot(HistoGrams,x_name=histname ,lumi=self.__lumi,channel=self.__channel,year=self.__year,SF_mode=self.__SF_mode,ylog=self.__ylog)
+                Plot(HistoGrams,x_name=histname ,lumi=self.__lumi,channel=self.__channel,year=self.__year,SF_mode=self.__SF_mode,ylog=self.__ylog,trigSF_branchname=trigSF_branchname)
             
         else:
             print("Finish Debug mode.")
