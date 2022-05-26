@@ -1,20 +1,20 @@
 {
     "DoubleElectron": {
-        "path": "/afs/cern.ch/user/m/melu/public/eleIDSF_2016postapv.root",
-        "name": "EleIDDataEff"
+        "path": "/afs/cern.ch/user/m/melu/public/EG_SF/2016/2016.root",
+        "name": "EleIDSF"
     },
     "DoubleMuon": {
         "path": "/eos/user/t/tihsu/share/muonID_SF/2016postapvUL/muonIdSF_2016postapvUL.root",
-        "name": "muIdSF"
+        "name": "muIdSF_2016"
     },
     "ElectronMuon": {
         "path": {
             "Muon": "/eos/user/t/tihsu/share/muonID_SF/2016postapvUL/muonIdSF_2016postapvUL.root",
-            "Electron": "/afs/cern.ch/user/m/melu/public/eleIDSF_2016postapv.root"
+            "Electron": "/afs/cern.ch/user/m/melu/public/EG_SF/2016/2016.root"
         },
         "name": {
-            "Muon": "muIdSF",
-            "Electron": "EleIDDataEff"
+            "Muon": "muIdSF_2016",
+            "Electron": "EleIDSF"
         }
     }
 }

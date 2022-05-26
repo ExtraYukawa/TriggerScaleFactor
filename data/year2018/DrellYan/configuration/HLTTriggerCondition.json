@@ -1,15 +1,214 @@
 {
-    "All": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ || HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ || HLT_IsoMu27 || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf",
-    "DoubleElectron": {
-        "EGamma": "(HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ)||(!(HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL) && !(HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ) && (HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf)) "
+    "MC": {
+        "DoubleElectron": {
+            "DY": {
+                "DYnlo": "HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL"
+            },
+            "WJets": {
+                "WJets": "HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL"
+            },
+            "VV": {
+                "WZ": "HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "ssWW": "HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "WWdps": "HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "ZG_ew": "HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "osWW": "HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "ZZ": "HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL"
+            },
+            "VVV": {
+                "WWW": "HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "WWZ": "HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "WZZ": "HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "ZZZ": "HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL"
+            },
+            "SingleTop": {
+                "t_tch": "HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "tbar_tch": "HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "tsch": "HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "tW": "HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "tbarW": "HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL"
+            },
+            "ttXorXX": {
+                "ttWtoLNu": "HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "ttWtoQQ": "HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "ttZ": "HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "ttZtoQQ": "HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "ttH": "HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "ttWW": "HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "ttWZ": "HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "ttZZ": "HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "ttWH": "HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "ttZH": "HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "tttJ": "HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "tttW": "HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "tttt": "HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL"
+            },
+            "tzq": {
+                "tzq": "HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL"
+            },
+            "TT": {
+                "TTTo2L": "HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "TTTo1L": "HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL"
+            }
+        },
+        "DoubleMuon": {
+            "DY": {
+                "DYnlo": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_IsoMu27 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8"
+            },
+            "WJets": {
+                "WJets": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_IsoMu27 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8"
+            },
+            "VV": {
+                "WZ": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_IsoMu27 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8",
+                "ssWW": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_IsoMu27 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8",
+                "WWdps": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_IsoMu27 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8",
+                "ZG_ew": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_IsoMu27 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8",
+                "osWW": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_IsoMu27 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8",
+                "ZZ": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_IsoMu27 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8"
+            },
+            "VVV": {
+                "WWW": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_IsoMu27 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8",
+                "WWZ": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_IsoMu27 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8",
+                "WZZ": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_IsoMu27 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8",
+                "ZZZ": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_IsoMu27 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8"
+            },
+            "SingleTop": {
+                "t_tch": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_IsoMu27 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8",
+                "tbar_tch": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_IsoMu27 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8",
+                "tsch": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_IsoMu27 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8",
+                "tW": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_IsoMu27 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8",
+                "tbarW": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_IsoMu27 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8"
+            },
+            "ttXorXX": {
+                "ttWtoLNu": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_IsoMu27 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8",
+                "ttWtoQQ": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_IsoMu27 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8",
+                "ttZ": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_IsoMu27 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8",
+                "ttZtoQQ": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_IsoMu27 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8",
+                "ttH": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_IsoMu27 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8",
+                "ttWW": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_IsoMu27 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8",
+                "ttWZ": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_IsoMu27 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8",
+                "ttZZ": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_IsoMu27 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8",
+                "ttWH": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_IsoMu27 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8",
+                "ttZH": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_IsoMu27 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8",
+                "tttJ": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_IsoMu27 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8",
+                "tttW": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_IsoMu27 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8",
+                "tttt": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_IsoMu27 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8"
+            },
+            "tzq": {
+                "tzq": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_IsoMu27 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8"
+            },
+            "TT": {
+                "TTTo2L": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_IsoMu27 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8",
+                "TTTo1L": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_IsoMu27 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8"
+            }
+        },
+        "ElectronMuon": {
+            "DY": {
+                "DYnlo": "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Ele32_WPTight_Gsf|| HLT_IsoMu27|| HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf"
+            },
+            "WJets": {
+                "WJets": "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Ele32_WPTight_Gsf|| HLT_IsoMu27|| HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf"
+            },
+            "VV": {
+                "WZ": "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Ele32_WPTight_Gsf|| HLT_IsoMu27|| HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf",
+                "ssWW": "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Ele32_WPTight_Gsf|| HLT_IsoMu27|| HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf",
+                "WWdps": "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Ele32_WPTight_Gsf|| HLT_IsoMu27|| HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf",
+                "ZG_ew": "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Ele32_WPTight_Gsf|| HLT_IsoMu27|| HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf",
+                "osWW": "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Ele32_WPTight_Gsf|| HLT_IsoMu27|| HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf",
+                "ZZ": "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Ele32_WPTight_Gsf|| HLT_IsoMu27|| HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf"
+            },
+            "VVV": {
+                "WWW": "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Ele32_WPTight_Gsf|| HLT_IsoMu27|| HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf",
+                "WWZ": "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Ele32_WPTight_Gsf|| HLT_IsoMu27|| HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf",
+                "WZZ": "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Ele32_WPTight_Gsf|| HLT_IsoMu27|| HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf",
+                "ZZZ": "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Ele32_WPTight_Gsf|| HLT_IsoMu27|| HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf"
+            },
+            "SingleTop": {
+                "t_tch": "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Ele32_WPTight_Gsf|| HLT_IsoMu27|| HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf",
+                "tbar_tch": "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Ele32_WPTight_Gsf|| HLT_IsoMu27|| HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf",
+                "tsch": "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Ele32_WPTight_Gsf|| HLT_IsoMu27|| HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf",
+                "tW": "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Ele32_WPTight_Gsf|| HLT_IsoMu27|| HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf",
+                "tbarW": "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Ele32_WPTight_Gsf|| HLT_IsoMu27|| HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf"
+            },
+            "ttXorXX": {
+                "ttWtoLNu": "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Ele32_WPTight_Gsf|| HLT_IsoMu27|| HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf",
+                "ttWtoQQ": "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Ele32_WPTight_Gsf|| HLT_IsoMu27|| HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf",
+                "ttZ": "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Ele32_WPTight_Gsf|| HLT_IsoMu27|| HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf",
+                "ttZtoQQ": "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Ele32_WPTight_Gsf|| HLT_IsoMu27|| HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf",
+                "ttH": "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Ele32_WPTight_Gsf|| HLT_IsoMu27|| HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf",
+                "ttWW": "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Ele32_WPTight_Gsf|| HLT_IsoMu27|| HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf",
+                "ttWZ": "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Ele32_WPTight_Gsf|| HLT_IsoMu27|| HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf",
+                "ttZZ": "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Ele32_WPTight_Gsf|| HLT_IsoMu27|| HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf",
+                "ttWH": "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Ele32_WPTight_Gsf|| HLT_IsoMu27|| HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf",
+                "ttZH": "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Ele32_WPTight_Gsf|| HLT_IsoMu27|| HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf",
+                "tttJ": "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Ele32_WPTight_Gsf|| HLT_IsoMu27|| HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf",
+                "tttW": "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Ele32_WPTight_Gsf|| HLT_IsoMu27|| HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf",
+                "tttt": "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Ele32_WPTight_Gsf|| HLT_IsoMu27|| HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf"
+            },
+            "tzq": {
+                "tzq": "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Ele32_WPTight_Gsf|| HLT_IsoMu27|| HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf"
+            },
+            "TT": {
+                "TTTo2L": "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Ele32_WPTight_Gsf|| HLT_IsoMu27|| HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf",
+                "TTTo1L": "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Ele32_WPTight_Gsf|| HLT_IsoMu27|| HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf"
+            }
+        }
     },
-    "DoubleMuon": {
-        "DoubleMuon": "(HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8)",
-        "SingleMuon": "!(HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8) && HLT_IsoMu27"
-    },
-    "ElectronMuon": {
-        "EGamma": "!(HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ) && !(HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ) && !(HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ) && (HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf)",
-        "SingleMuon": "!(HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ || HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ) && HLT_IsoMu27",
-        "MuonEG": "(HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ || HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ)"
+    "Data": {
+        "DoubleElectron": {
+            "SingleEG": {
+                "A": "!(HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL) && (HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf )",
+                "B": "!(HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL) && (HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf )",
+                "C": "!(HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL) && (HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf )",
+                "D_0": "!(HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL) && (HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf )",
+                "D_1": "!(HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL) && (HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf )"
+            },
+            "DoubleEG": {
+                "A": "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "B": "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "C": "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "D_0": "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "D_1": "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL"
+            }
+        },
+        "DoubleMuon": {
+            "SingleMuon": {
+                "A": "!(HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8)&& HLT_IsoMu27",
+                "B": "!(HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8)&& HLT_IsoMu27",
+                "C": "!(HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8)&& HLT_IsoMu27",
+                "D_0": "!(HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8)&& HLT_IsoMu27",
+                "D_1": "!(HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8)&& HLT_IsoMu27"
+            },
+            "DoubleMuon": {
+                "A": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8",
+                "B": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8",
+                "C": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8",
+                "D_0": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8",
+                "D_1": "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8"
+            }
+        },
+        "ElectronMuon": {
+            "SingleEG": {
+                "A": "!(HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ) && (HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf )",
+                "B": "!(HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ) && (HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf )",
+                "C": "!(HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ) && (HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf )",
+                "D_0": "!(HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ) && (HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf )",
+                "D_1": "!(HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ) && (HLT_Ele32_WPTight_Gsf || HLT_passEle32WPTight || HLT_Ele35_WPTight_Gsf )"
+            },
+            "SingleMuon": {
+                "A": "!(HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ) && HLT_IsoMu27",
+                "B": "!(HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ) && HLT_IsoMu27",
+                "C": "!(HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ) && HLT_IsoMu27",
+                "D_0": "!(HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ) && HLT_IsoMu27",
+                "D_1": "!(HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ) && HLT_IsoMu27"
+            },
+            "MuonEG": {
+                "A": "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",
+                "B": "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",
+                "C": "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",
+                "D_0": "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",
+                "D_1": "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ|| HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ"
+            }
+        }
     }
 }

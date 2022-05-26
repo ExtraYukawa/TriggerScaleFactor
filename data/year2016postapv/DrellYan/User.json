@@ -1,0 +1,14 @@
+{
+    "DirOut": {
+        "DoubleElectron": {
+            "plots": "/eos/user/z/zhenggan/ExtraYukawa/DrellYan/year2016postapv/DoubleElectron/plots"
+        },
+        "DoubleMuon": {
+            "plots": "/eos/user/z/zhenggan/ExtraYukawa/DrellYan/year2016postapv/DoubleMuon/plots"
+        },
+        "ElectronMuon": {
+            "plots": "/eos/user/z/zhenggan/ExtraYukawa/DrellYan/year2016postapv/ElectronMuon/plots"
+        }
+    },
+    "UserName": "zhenggan"
+}

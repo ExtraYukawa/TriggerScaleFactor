@@ -79,16 +79,16 @@
         },
         "OPS_p4": {
             "l1": [
-                "Muon_corrected_pt",
-                "Muon_eta",
-                "Muon_phi",
-                "Muon_mass"
+                "Muon_corrected_pt[OPS_l1_id]",
+                "Muon_eta[OPS_l1_id]",
+                "Muon_phi[OPS_l1_id]",
+                "Muon_mass[OPS_l1_id]"
             ],
             "l2": [
-                "Electron_pt",
-                "Electron_eta",
-                "Electron_phi",
-                "Electron_mass"
+                "Electron_pt[OPS_l2_id]",
+                "Electron_eta[OPS_l2_id]",
+                "Electron_phi[OPS_l2_id]",
+                "Electron_mass[OPS_l2_id]"
             ]
         },
         "ttc_p4": {

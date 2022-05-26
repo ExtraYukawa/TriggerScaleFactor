@@ -1,11 +1,21 @@
 {
-    "Data": [
-        "/eos/cms/store/group/phys_top/ExtraYukawa/TTC_version9/METB.root",
-        "/eos/cms/store/group/phys_top/ExtraYukawa/TTC_version9/METC.root",
-        "/eos/cms/store/group/phys_top/ExtraYukawa/TTC_version9/METD.root",
-        "/eos/cms/store/group/phys_top/ExtraYukawa/TTC_version9/METE.root",
-        "/eos/cms/store/group/phys_top/ExtraYukawa/TTC_version9/METF.root"
-    ],
+    "Data": {
+        "B": [
+            "/eos/cms/store/group/phys_top/ExtraYukawa/TTC_version9/METB.root"
+        ],
+        "C": [
+            "/eos/cms/store/group/phys_top/ExtraYukawa/TTC_version9/METC.root"
+        ],
+        "D": [
+            "/eos/cms/store/group/phys_top/ExtraYukawa/TTC_version9/METD.root"
+        ],
+        "E": [
+            "/eos/cms/store/group/phys_top/ExtraYukawa/TTC_version9/METE.root"
+        ],
+        "F": [
+            "/eos/cms/store/group/phys_top/ExtraYukawa/TTC_version9/METF.root"
+        ]
+    },
     "MC": [
         "/eos/cms/store/group/phys_top/ExtraYukawa/TTC_version9/TTTo2L.root"
     ]

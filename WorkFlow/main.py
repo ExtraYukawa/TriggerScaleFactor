@@ -22,7 +22,7 @@ parser.add_argument('-v','--veto',action = "store_true",help="In 2018 Issue, vet
 parser.add_argument('-d','--debug',action="store_true",help="Debug mode")
 parser.add_argument('-s','--ylog',choices=[0,1],help="Set y scale to be log scale, only works for Control Region validation at this moment.",type=int,default = 0)
 parser.add_argument('-x','--trigSFType',choices=[0,1,2,3],help="Trigger Scale Factors Type. 0: l1pteta,1: l2pteta,2:l1l2pt,3:l1l2eta",type=int,default=-1)
-
+parser.add_argument('-e','--Era',type=str,help='Data Era',default=[''],nargs='+')
 
 args = parser.parse_args()
 
@@ -57,10 +57,14 @@ if args.mode == 'Init':
     
     elif args.task == 'DrellYan':
         from Drell_Yan.Init import *
-        GenDataPath_File(args.year) ##Need to be checked.
-        GenPaths_HLTTriggerCondition_ForAnalyzer_File(args.year)
-        GenXsValue_File(args.year) ##Need to be checked.
+        from Drell_Yan.DiLeptonTrigger import *
+        from Drell_Yan.MET_Filters import *
+        GenDataPath_File(args.year) ##
+        GenXsValue_File(args.year) ##
+        GenProcessName(args.year)
         GenTriggerSF_Path(args.year)
+        GEN_METFilters(args.year)
+        GenPaths_HLTTriggerCondition_ForAnalyzer_File(args.year)
     elif args.task == 'FakeRate':
         from Fake_Rate.Init import *
         FakeRateConfiguration(args.year)

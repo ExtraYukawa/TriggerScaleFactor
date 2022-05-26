@@ -77,19 +77,6 @@ def Drell_Yan_Reconstruction(args):
         raise ValueError("Channel should be specified or The Specified Channel is Not in the list. ex:[-i/--channel DoubleElectron]")
     if args.ylog == 1:
         print('Setting y scale to be log scale...')
-    
-    
-    if args.trigSFType == 0:
-        trigSFType = 'l1pteta'
-    elif args.trigSFType == 1:
-        trigSFType = 'l2pteta'
-    elif args.trigSFType == 2:
-        trigSFType = 'l1l2pt'
-    elif args.trigSFType==3 :
-        trigSFType = 'l1l2eta'
-    else:
-        raise ValueError('please specify trigSFType: [-x/--trigSFType "0,1,2,3"]')
-    print(f'Trigger Scale Factor Array: {trigSFType}')
 
     settings = dict()
     settings['year'] = args.year
@@ -103,7 +90,7 @@ def Drell_Yan_Reconstruction(args):
     settings['TriggerSF']=dict()
 
     with open(f'./data/year{args.year}/DrellYan/configuration/HLTTriggerCondition.json','rb') as f:
-        settings['HLT_Path'] = json.load(f)
+        settings['DiLepton_Triggers'] = json.load(f)
     with open(f'./data/year{args.year}/DrellYan/configuration/data_xs.json','rb') as f:
         structure = json.load(f)
         settings['xs'] = structure['xs']
@@ -120,18 +107,40 @@ def Drell_Yan_Reconstruction(args):
     with open(f'./data/year{args.year}/TriggerSF/path/LeptonsID_SF.json','rb') as f:
         settings['LepIDSF_File'] = json.load(f)[args.channel]
     
-    with open(f'./data/year{args.year}/TriggerSF/configuration/flag.json','r') as f:
-        settings['FLAG'] = json.load(f)
+    #with open(f'./data/year{args.year}/TriggerSF/configuration/flag.json','r') as f:
+    #    settings['FLAG'] = json.load(f)
     
-    print(trigSFType)
-    if args.year=='2018':
-        if args.veto:
-            settings['TriggerSF']['FileIn'] = trigSF['file']['veto'][args.channel][trigSFType]
+    with open(f"./data/year{args.year}/DrellYan/configuration/MET_Filters.json","r") as f:
+        settings['MET_Filters'] = json.load(f)
+    
+
+    with open(f'./data/year{args.year}/DrellYan/configuration/data_xs.json','rb') as f:
+        settings['Phys_Process'] = json.load(f)
+
+    if args.SF_mode==3 or args.SF_mode==2:
+        if args.trigSFType == 0:
+            trigSFType = 'l1pteta'
+        elif args.trigSFType == 1:
+            trigSFType = 'l2pteta'
+        elif args.trigSFType == 2:
+            trigSFType = 'l1l2pt'
+        elif args.trigSFType==3 :
+            trigSFType = 'l1l2eta'
         else:
-            settings['TriggerSF']['FileIn'] = trigSF['file']['all'][args.channel][trigSFType]
-    else:
+            raise ValueError('please specify trigSFType: [-x/--trigSFType "0,1,2,3"]')
+        print(f'Trigger Scale Factor Array: {trigSFType}')
+        '''
+        if args.year=='2018':
+            if args.veto:
+                settings['TriggerSF']['FileIn'] = trigSF['file']['veto'][args.channel][trigSFType]
+            else:
+                settings['TriggerSF']['FileIn'] = trigSF['file']['all'][args.channel][trigSFType]
+        else:
+        '''
         settings['TriggerSF']['FileIn'] = trigSF['file'][args.channel][trigSFType]
-    settings['TriggerSF']['branchname'] = trigSF['branchname'][trigSFType]
+        settings['TriggerSF']['branchname'] = trigSF['branchname'][trigSFType]
+    else:
+        print("Warning: The control region will not involve the Trigger Scale Factor.")
     Analyzer = DrellYanRDataFrame(settings)
     Analyzer.Run()
 
@@ -179,6 +188,15 @@ def Trig_Calc(args):
     *args.Type
         - Data / MC
     '''
+    ROOT.gInterpreter.ProcessLine('#include "./include/IDScaleFactor.h"')
+    ROOT.gSystem.Load('./myLib/IDScaleFactor_cpp.so')
+    print('./include/IDScaleFactor.h is Loaded.')
+    ROOT.gInterpreter.ProcessLine('#include "./include/Flag.h"')
+    ROOT.gSystem.Load('./myLib/Flag_cpp.so')
+    print('./include/Flag.h is Loaded.')
+    ROOT.gInterpreter.ProcessLine('#include "./include/Lepton_Info.h"')
+    ROOT.gSystem.Load('./myLib/Lepton_Info_cpp.so')
+    print('./include/Lepton_Info.h is Loaded.')
     if args.year is None:
         raise ValueError('Arguments [year] must be speicified.')
     if args.channel == None:
@@ -191,15 +209,15 @@ def Trig_Calc(args):
     with open(f'./data/year{args.year}/TriggerSF/configuration/HLTTrigger.json','rb') as f:
         HLT_Path = json.load(f)
     with open(f'./data/year{args.year}/TriggerSF/configuration/name.json','rb') as f :
-        Leptons_Information = json.load(f)
+        Leptons_Information = json.load(f)[args.channel]
     with open(f'./data/year{args.year}/TriggerSF/configuration/flag.json','rb') as f :
-        Flag = json.load(f)
+        Flag = json.load(f)[args.Type]
 
     with open(f'./data/year{args.year}/TriggerSF/path/filein.json','rb') as f:
-        FileIn = json.load(f)
+        FileIn = json.load(f)[args.Type]
 
     with open(f'./data/year{args.year}/TriggerSF/User.json','rb') as f:
-        User = json.load(f)
+        DirOut = json.load(f)['DirOut'][args.channel]['files']
     
     with open(f'./data/year{args.year}/TriggerSF/path/LeptonsID_SF.json','rb') as f:
         LepSF_File = json.load(f)[args.channel]
@@ -209,12 +227,10 @@ def Trig_Calc(args):
 
     
     setting={
-        'HLT_MET': HLT_Path['MET'],
-        'HLT_LEP': HLT_Path[args.channel],
-        'Leptons_Information' : Leptons_Information[args.channel],
+        'Leptons_Information' : Leptons_Information,
         'channel' : args.channel,
-        'DirOut' : User['DirOut'][args.channel]['files'],
-        'FileIn' : FileIn[args.Type],
+        'DirOut' : DirOut,
+        'FileIn' : FileIn,
         'MET_Filters':Flag,
         'Type':args.Type,
         'LepSF_File':LepSF_File,
@@ -222,10 +238,33 @@ def Trig_Calc(args):
         'nevents':args.nevents,
         'Condition_Weights':Condition_Weights,
         'veto':args.veto,
-        'debug':args.debug
+        'debug':args.debug,
+        'year':args.year
     }
-    A = TrigRDataFrame(setting)
-    A.Run()
+    Trig_DFs = dict() 
+    if args.Type=='MC':
+        setting['FileIn'] = FileIn
+        setting['HLT_MET'] = HLT_Path['MET']['MC']
+        setting['HLT_LEP'] = HLT_Path[args.channel]['MC']
+        Trig_DFs['MC'] = TrigRDataFrame(setting)
+        Trig_DFs['MC'].Run()
+    else:
+        if args.Era == ['']:
+            print('Full Data!')
+            eras =FileIn.keys()
+        else:
+            eras = args.Era
+            print(eras)
+        for era in eras:
+            setting['FileIn'] = FileIn[era]
+            setting['HLT_MET'] = HLT_Path['MET']['Data'][era]
+            setting['HLT_LEP'] = HLT_Path[args.channel]['Data'][era]
+            for filename in setting['FileIn']:
+                print('Data name with era: '+filename)
+            Trig_DFs[era] = TrigRDataFrame(setting)
+            Trig_DFs[era].Run()
+    
+    Data_Processor(Trig_DFs,DirOut=DirOut,Type=args.Type,veto=args.veto)
 
 
 def Plot_efficiency(args):
@@ -292,7 +331,7 @@ def Plot_efficiency(args):
     for tag in  tags['l1l2']['eta']:
         user_settings['axis'] = 'etaeta'
         TrigUtils.Plot(TrigUtils.plot_eff2d,**user_settings)(tag=tag)
-
+    TrigUtils.Calculate_Eff(**user_settings)
 
 def SF_Calc(args):
     '''

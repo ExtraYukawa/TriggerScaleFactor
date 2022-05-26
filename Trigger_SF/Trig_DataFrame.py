@@ -24,31 +24,28 @@ class TrigRDataFrame(MyDataFrame):
         self.__LepSF_File = settings.get('LepSF_File',None)
         self.__DirOut = settings.get('DirOut',None)
         self.__Type = settings.get('Type',None)
-        self.__Year = settings.get('Year',None)
         self.__channel = settings.get('channel',None)
         self.__FileIn = settings.get('FileIn',None)
         self.__nEvents = settings.get('nevents',None)
-        self.__veto = settings.get('veto',None)
         self.__Condition_Weights = '*'.join(settings.get('Condition_Weights',None))
-        self.__debug = settings.get('debug',False)
+        self.__debug = settings.get('debug',None)
+        self.__veto = settings.get('veto',None)
+        self.__year = settings.get('year',None)
 
-        if self.__veto and self.__Year =='year2018':
-            self.__FileOutName = os.path.join(self.__DirOut,'EfficiencyFor'+self.__Type + '_vetohemregion.root')
-            self.__EventsInfo_FileName = os.path.join(self.__DirOut,'Info_vetohemregion.json')
-        else:
-            self.__FileOutName = os.path.join(self.__DirOut,'EfficiencyFor'+self.__Type +'.root')
-            self.__EventsInfo_FileName = os.path.join(self.__DirOut,'Info.json')
+        if self.__veto:
+            if self.__year != '2018':
+                raise ValueError('HEM issue "Only" occured in year2018 data/MC sample')
+
+        
+        #self.__EventsInfo_FileName = os.path.join(self.__DirOut,'Info.json')
+        
+
 
 
         self.__FileIn_vecstr= ROOT.std.vector('string')()
-
-        for p in self.__FileIn:
-            self.__FileIn_vecstr.push_back(p)
+        for file_path in self.__FileIn:
+            self.__FileIn_vecstr.push_back(file_path)
         
-        if self.__Type == 'Data' :
-            self.__isData = 1
-        else:
-            self.__isData = 0 
         self.__Histogram = dict()
         self.__Histogram['1D'] = dict()
         self.__Histogram['1D']['pt'] = dict()
@@ -63,9 +60,6 @@ class TrigRDataFrame(MyDataFrame):
         self.__Histogram['2D']['eta'] = dict()
         
         self.__Histogram['1D']['HLT'] = dict()
-        #print(self.__HLT_LEP)
-        #print(self.__Leptons_Informations)
-        #print(self.__MET_Filters)
     @property
     def FileOutName()->str:
         return self.__FileOutName
@@ -115,7 +109,6 @@ class TrigRDataFrame(MyDataFrame):
             self.__Histogram[dim][tag][name] = df.Histo1D((name,f"{name};{xtitle};{ytitle}",nxbin,xbin),*content,weight)
             self.__Histogram[dim][tag][name].Sumw2()
             self.__Histogram[dim][tag][name].SetMinimum(0)
-            
         if dim == '2D':
             if tag == 'pt':
                 xbin = plt_set.l1ptbin
@@ -148,44 +141,27 @@ class TrigRDataFrame(MyDataFrame):
         if tag == None:
             raise ValueError('Should Speicify What is the tag of the Histogram.')
         self.__Histogram[dim][tag][name].Write()
-    def Merge_Hist(self,dim:str,tag,name:str,name2=None):
-        if name2==None:
-            name2 = 'pre_'+name
-        if dim == '1D':
-            eff = TEfficiency(self.__Histogram[dim][tag][name],self.__Histogram[dim][tag][name2])
-            eff.SetTitle(f'Eff {name}')
-            eff.SetName(f'Eff_{name}')
-            eff.Write()
-        elif dim == '2D':
-            self.__Histogram[dim][tag][name].Divide(self.__Histogram[dim][tag][name2])
-            self.__Histogram[dim][tag][name].Write()
-        else:
-            raise ValueError('Dimension {dim} is not in the list.')
     def Counter_Hist(self,dim:str,tag,name:str):
         #count number in the bin.
         self.__Histogram[dim][tag][name].SetTitle(f'Count {name}')
         self.__Histogram[dim][tag][name].SetName(f'Count_{name}')
         self.__Histogram[dim][tag][name].Write()
+    @property
+    def Histogram(self):
+        return self.__Histogram
+    
     def Correct_VarName(self,name:list,process:str,tag:str)->list:
         
         corrected_name = []
         if process == 'OPS':
-            for n in name: 
+            for n in name:
+                print(n)
                 corrected_name.append(n+'[OPS_'+tag+'_id]')
         
         return corrected_name
 
     def Run(self):
-        #ROOT.ROOT.EnableImplicitMT()
-        ROOT.gInterpreter.ProcessLine('#include "./include/IDScaleFactor.h"')
-        ROOT.gSystem.Load('./myLib/IDScaleFactor_cpp.so')
-        print('./include/IDScaleFactor.h is Loaded.')
-        ROOT.gInterpreter.ProcessLine('#include "./include/Flag.h"')
-        ROOT.gSystem.Load('./myLib/Flag_cpp.so')
-        print('./include/Flag.h is Loaded.')
-        ROOT.gInterpreter.ProcessLine('#include "./include/Lepton_Info.h"')
-        ROOT.gSystem.Load('./myLib/Lepton_Info_cpp.so')
-        print('./include/Lepton_Info.h is Loaded.')
+       #ROOT.ROOT.EnableImplicitMT()
         if not self.__debug:
             print(f"Start to Analyze Trigger Efficiency of {self.__Type} for {self.__channel} ...")
         else:
@@ -196,8 +172,7 @@ class TrigRDataFrame(MyDataFrame):
         else:
             print(f'Only {self.__nEvents} events will be dumped into Analyzer.')
             df = ROOT.RDataFrame("Events",self.__FileIn_vecstr).Range(0,self.__nEvents)
-
-        if self.__Year == 'year2018' and self.__veto:
+        if self.__veto:
             ROOT.gInterpreter.ProcessLine('#include "./include/HEM_veto.h"')
             ROOT.gSystem.Load('./myLib/HEM_veto_cpp.so')
             print('Kind Warning: You start to veto HEM region.')
@@ -205,22 +180,19 @@ class TrigRDataFrame(MyDataFrame):
                 veto = 'veto_hemregion(run,Jet_phi,Jet_eta)'
             else:
                 ROOT.gInterpreter.Declare('#include <time.h>;srand(12345);')
-                with open('./data/year2018/TriggerSF/configuration/veto_prob.json','r') as f :
-                    veto_prob = json.load(f)['MET']
-                veto = f'veto_hemregion_sim(prob(),Jet_phi,Jet_eta,{veto_prob})' 
-        else:
-            veto='true'
-        
-        
-        df = df.Filter(veto,"veto cut").Define('count','1')#This could be ignored for UL2017/UL2016 case
+                with open('./data/year2018/TriggerSF/configuration/MET_vetoHEM_rate.json','r') as f:
+                    CD_ratio = json.load(f)
+                veto = f'veto_hemregion_sim(prob(),Jet_phi,Jet_eta,{CD_ratio})'
+            df = df.Filter(veto) 
+
+
+        print('MET Filters: '+' && '.join(self.__MET_Filters)+'\n') 
         
         df_flag_trig = df.Filter(' && '.join(self.__MET_Filters),"Flag Cut")
-        print(' && '.join(self.__MET_Filters)) 
         if self.__channel == 'ElectronMuon': 
-            RECOWeight_Mul_TTC = 'Electron_RECO_SF[ttc_l2_id]'
-            RECOWeight_Mul_OPS = 'Electron_RECO_SF[OPS_l2_id]'
-            self.__Leptons_Informations["OPS_p4"]["l1"]  = self.Correct_VarName(name=self.__Leptons_Informations["OPS_p4"]["l1"],process='OPS',tag='l1')
-            self.__Leptons_Informations["OPS_p4"]["l2"]  = self.Correct_VarName(name=self.__Leptons_Informations["OPS_p4"]["l2"],process='OPS',tag='l2')
+            RECOWeight_LEP_TTC = 'Electron_RECO_SF[ttc_l2_id]'
+            RECOWeight_LEP_OPS = 'Electron_RECO_SF[OPS_l2_id]'
+            
             l1_IDSF_type = self.__LepSF_File['name']['Muon']
             l1_IDSF_File = self.__LepSF_File['path']['Muon']
             
@@ -243,9 +215,6 @@ class TrigRDataFrame(MyDataFrame):
         
         #ttc_Flag -> Used to judge whether the region of events is ttc.
         #OPS_Flag -> Used to judge whetehr the region of events is OPS.
-        
-               # \#.Filter(f'OPS_region == {self.__Leptons_Informations["region"]} || ttc_region == {self.__Leptons_Informations["region"]}')\
-                #.Filter('ttc_Flag || OPS_Flag')\
 
         df_region_trig = df_flag_trig\
                 .Define("ttc_Flag",f'Region_FLAG(ttc_region,{self.__Leptons_Informations["region"]})')\
@@ -261,24 +230,24 @@ class TrigRDataFrame(MyDataFrame):
                 ,{self.__Leptons_Informations["ttc_p4"]["l2"][3]},{self.__Leptons_Informations["OPS_p4"]["l2"][0]}\
                 ,{self.__Leptons_Informations["OPS_p4"]["l2"][1]},{self.__Leptons_Informations["OPS_p4"]["l2"][2]},\
                 {self.__Leptons_Informations["OPS_p4"]["l2"][3]})')\
-                .Define("l1pt","l1p4.Pt()")\
-                .Define("l2pt","l2p4.Pt()")\
-                .Define("l1eta","l1p4.Eta()")\
-                .Define("l2eta","l2p4.Eta()")\
-                .Define("l1_abseta","abs(l1p4.Eta())")\
-                .Define("l2_abseta","abs(l2p4.Eta())")\
+                .Define("l1pt_tmp","if (l1p4.Pt() < 200) return l1p4.Pt();else return 199.;")\
+                .Define("l2pt_tmp","if (l2p4.Pt() < 200) return l2p4.Pt();else return 199.;")\
+                .Define("l1pt","if(l1pt_tmp > l2pt_tmp) return l1pt_tmp;else return l2pt_tmp")\
+                .Define("l2pt","if(l1pt_tmp > l2pt_tmp) return l2pt_tmp;else return l1pt_tmp")\
+                .Define("l1eta","if(l1pt_tmp > l2pt_tmp) return l1p4.Eta();else return l2p4.Eta();")\
+                .Define("l2eta","if(l1pt_tmp > l2pt_tmp) return l2p4.Eta();else return l1p4.Eta();")\
+                .Define("l1_abseta","abs(l1eta)")\
+                .Define("l2_abseta","abs(l2eta)")\
                 .Define("IDsf",f'IDScaleFact("{self._channel}",h1,h2,l1pt,l2pt,l1eta,l2eta)')\
                 .Define("flag_2P0F",'if(ttc_Flag) return ttc_2P0F;else if(OPS_Flag) return OPS_2P0F;throw "Contraction Region!";')\
                 .Filter('flag_2P0F')
-        
         if self.__Type=='Data':
             MET = 'MET_T1_pt'
         else:
             MET = 'MET_T1Smear_pt'
-        
         df_Offline_Selection = df_region_trig\
             .Define("met",f"{MET}")\
-            .Filter('(l1p4+l2p4).M() >=20 && (l1pt >= 30 || l2pt >= 20) && l1p4.DeltaR(l2p4) >= 0.3 && met >=100')\
+            .Filter('(l1p4+l2p4).M() >=20 && (l1pt >= 30 || l2pt >= 20) && TMath::Abs(l1p4.DeltaR(l2p4)) >= 0.3 && met >=100 && nHad_tau == 0 ')\
             .Define('no_HLT','0.5')
 
         if self.__Type == 'Data':
@@ -292,11 +261,11 @@ class TrigRDataFrame(MyDataFrame):
                     else if(ttc_Flag) return {self.__Condition_Weights}*{RECOWeight_LEP_TTC}*IDsf*genWeight/abs(genWeight);\
                     else if(OPS_Flag) return {self.__Condition_Weights}*IDsf*{RECOWeight_LEP_OPS}*genWeight/abs(genWeight);')
             #df_Offline_Selection = df_Offline_Selection.Define("weight",'1.')
-        print(' || '.join(self.__HLT_LEP)) 
+        print('High-Level Trigger For DiLepton Channel: '+' || '.join(self.__HLT_LEP)+'\n') 
         df_HLT_LEP = df_Offline_Selection\
                 .Filter(' || '.join(self.__HLT_LEP))\
                 .Define('HLT_LEP_pass','0.5')
-        print(' || '.join(self.__HLT_MET))
+        print('High-Level Trigger For MET: '+' || '.join(self.__HLT_MET)+'\n')
         df_HLT_MET = df_Offline_Selection\
                 .Filter(" || ".join(self.__HLT_MET))\
                 .Define('HLT_MET_pass','0.5')
@@ -336,7 +305,6 @@ class TrigRDataFrame(MyDataFrame):
         test_3 = df_HLT_LEPMET_lowpv.Sum("weight")
         test_4 = df_HLT_LEPMET_highpv.Sum("weight")
         if not self.__debug:
-
 
             self.__Histogram['1D']['HLT']['No_HLT'] = df_Offline_Selection.Histo1D(("No_HLT","No_HLT",1,0,1),"no_HLT","weight").GetValue()
             self.__Histogram['1D']['HLT']['HLT_LEP'] = df_HLT_LEP.Histo1D(("HLT_LEP_pass","HLT_LEP_pass",1,0,1),"HLT_LEP_pass","weight").GetValue()
@@ -502,74 +470,100 @@ class TrigRDataFrame(MyDataFrame):
             self.Init_Histogram(name='l2pteta_highpv',df=df_HLT_LEPMET_highpv,dim='2D',xtitle='Subleading lepton P_{T} [GeV]',ytitle='Subleading lepton #eta',tag = 'pteta',content=['l2pt','l2_abseta'],lep_type='l2')
             self.Init_Histogram(name='l2pteta_lowmet',df=df_HLT_LEPMET_lowmet,dim='2D',xtitle='Subleading lepton P_{T} [GeV]',ytitle='Subleading lepton #eta',tag = 'pteta',content=['l2pt','l2_abseta'],lep_type='l2')
             self.Init_Histogram(name='l2pteta_highmet',df=df_HLT_LEPMET_highmet,dim='2D',xtitle='Subleading lepton P_{T} [GeV]',ytitle='Subleading lepton #eta',tag = 'pteta',content=['l2pt','l2_abseta'],lep_type='l2')
+def Data_Processor(trig_dfs:dict,DirOut:str,Type:str,veto:bool):
+    
+    if veto:
+        FileOutName = os.path.join(DirOut,f'EfficiencyFor{Type}_vetoHEM.root')
+    else:
+        FileOutName = os.path.join(DirOut,f'EfficiencyFor{Type}.root')
+    FileOut = TFile.Open(FileOutName,"RECREATE") 
 
-            self.__FileOut = TFile.Open(self.__FileOutName,"RECREATE")
-
-            self.__FileOut.cd()
-            for name in ['l1pt','l1pt_highjet','l1pt_lowjet','l1pt_lowmet','l1pt_highmet','l1pt_lowpv','l1pt_highpv'\
-                    ,'l2pt','l2pt_highjet','l2pt_lowjet','l2pt_lowmet','l2pt_highmet','l2pt_lowpv','l2pt_highpv']:
-                self.Merge_Hist(dim='1D',tag='pt',name=name)
-                #self.Counter_Hist(dim='1D',tag='pt',name=name)
-                #self.Counter_Hist(dim='1D',tag='pt',name='pre_'+name)
-            for name in ['l1eta','l1eta_highjet','l1eta_lowjet','l1eta_lowmet','l1eta_highmet','l1eta_lowpv','l1eta_highpv'\
-                    ,'l2eta','l2eta_highjet','l2eta_lowjet','l2eta_lowmet','l2eta_highmet','l2eta_lowpv','l2eta_highpv']:
-                self.Merge_Hist(dim='1D',tag='eta',name=name)
-                #self.Counter_Hist(dim='1D',tag='eta',name=name)
-                #self.Counter_Hist(dim='1D',tag='pt',name='pre_'+name)
-            for name in ['l1pteta','l1pteta_highjet','l1pteta_lowjet','l1pteta_lowmet','l1pteta_highmet','l1pteta_lowpv','l1pteta_highpv'\
-                    ,'l2pteta','l2pteta_highjet','l2pteta_lowjet','l2pteta_lowmet','l2pteta_highmet','l2pteta_lowpv','l2pteta_highpv']:
-                self.Merge_Hist(dim='2D',tag='pteta',name=name)
-                #self.Counter_Hist(dim='2D',tag='pteta',name=name)
-                #self.Counter_Hist(dim='2D',tag='pteta',name='pre_'+name)
-            for name in ['l1l2pt','l1l2pt_highjet','l1l2pt_lowjet','l1l2pt_lowmet','l1l2pt_highmet','l1l2pt_lowpv','l1l2pt_highpv']:
-                self.Merge_Hist(dim='2D',tag='pt',name=name)
-                #self.Counter_Hist(dim='2D',tag='pt',name=name)
-                #self.Counter_Hist(dim='2D',tag='pt',name='pre_'+name)
-        
-            for name in ['l1l2eta','l1l2eta_highjet','l1l2eta_lowjet','l1l2eta_lowmet','l1l2eta_highmet','l1l2eta_lowpv','l1l2eta_highpv']:
-                self.Merge_Hist(dim='2D',tag='eta',name=name)
-                #self.Counter_Hist(dim='2D',tag='eta',name=name)
-                #self.Counter_Hist(dim='2D',tag='eta',name='pre_'+name)
-            for name in ['HLT_MET','HLT_LEP','HLT_LEPMET']:
-                self.Merge_Hist(dim='1D',tag='HLT',name=name,name2='No_HLT')
-            
-            self.__FileOut.Close()
-        
-            eff_lep =weight_lep.GetValue()/weight_all.GetValue()
-            eff_met = weight_met.GetValue()/weight_all.GetValue()
-            eff_lepmet= weight_lepmet.GetValue()/weight_all.GetValue()
-        
-        
-        
-            if not os.path.isfile(self.__EventsInfo_FileName):
-                Info = dict()
-                Info['Efficiency'] = dict()
-                Info['Efficiency'][self.__Type] = dict()
-                Info['Correlation'] = dict()
-                
+    FileOut.cd()
+    print('Histogramming now...') 
+    for name in ['l1pt','l1pt_highjet','l1pt_lowjet','l1pt_lowmet','l1pt_highmet','l1pt_lowpv','l1pt_highpv'\
+            ,'l2pt','l2pt_highjet','l2pt_lowjet','l2pt_lowmet','l2pt_highmet','l2pt_lowpv','l2pt_highpv']:
+        h = dict()
+        for idx,era in  enumerate(trig_dfs.keys()):
+            if idx ==0:
+                h['1'] = trig_dfs[era].Histogram['1D']['pt'][name].Clone()
+                h['2'] = trig_dfs[era].Histogram['1D']['pt']['pre_'+name].Clone()
             else:
-                with open(self.__EventsInfo_FileName,'r') as f :
-                    Info = json.load(f)
-            Info['Efficiency'][self.__Type] = dict()
-            Info['Efficiency'][self.__Type]['LEP_Trig']  =  eff_lep
-            Info['Efficiency'][self.__Type]['MET_Trig'] = eff_met
-            Info['Efficiency'][self.__Type]['LEPMET_Trig'] = eff_lepmet
-            Info['Correlation'][self.__Type] = eff_lep*eff_met/eff_lepmet
+                h['1'].Add(trig_dfs[era].Histogram['1D']['pt'][name].Clone())
+                h['2'].Add(trig_dfs[era].Histogram['1D']['pt']['pre_'+name].Clone())
+        Merge_Hist(h['1'],h['2'],dim='1D',title=name) 
+    for name in ['l1eta','l1eta_highjet','l1eta_lowjet','l1eta_lowmet','l1eta_highmet','l1eta_lowpv','l1eta_highpv'\
+            ,'l2eta','l2eta_highjet','l2eta_lowjet','l2eta_lowmet','l2eta_highmet','l2eta_lowpv','l2eta_highpv']:
+        h = dict()
+        for idx,era in  enumerate(trig_dfs.keys()):
+            if idx ==0:
+                h['1'] = trig_dfs[era].Histogram['1D']['eta'][name].Clone()
+                h['2'] = trig_dfs[era].Histogram['1D']['eta']['pre_'+name].Clone()
+            else:
+                h['1'].Add(trig_dfs[era].Histogram['1D']['eta'][name].Clone())
+                h['2'].Add(trig_dfs[era].Histogram['1D']['eta']['pre_'+name].Clone())
+        Merge_Hist(h['1'],h['2'],dim='1D',title=name) 
+    for name in ['l1pteta','l1pteta_highjet','l1pteta_lowjet','l1pteta_lowmet','l1pteta_highmet','l1pteta_lowpv','l1pteta_highpv'\
+            ,'l2pteta','l2pteta_highjet','l2pteta_lowjet','l2pteta_lowmet','l2pteta_highmet','l2pteta_lowpv','l2pteta_highpv']:
+        h = dict()
+        for idx,era in  enumerate(trig_dfs.keys()):
+            if idx ==0:
+                h['1'] = trig_dfs[era].Histogram['2D']['pteta'][name].Clone()
+                h['2'] = trig_dfs[era].Histogram['2D']['pteta']['pre_'+name].Clone()
+            else:
+                h['1'].Add(trig_dfs[era].Histogram['2D']['pteta'][name].Clone())
+                h['2'].Add(trig_dfs[era].Histogram['2D']['pteta']['pre_'+name].Clone())
+        Merge_Hist(h['1'],h['2'],dim='2D',title=name) 
+    for name in ['l1l2pt','l1l2pt_highjet','l1l2pt_lowjet','l1l2pt_lowmet','l1l2pt_highmet','l1l2pt_lowpv','l1l2pt_highpv']:
+        h = dict()
+        for idx,era in  enumerate(trig_dfs.keys()):
+            if idx ==0:
+                h['1'] = trig_dfs[era].Histogram['2D']['pt'][name].Clone()
+                h['2'] = trig_dfs[era].Histogram['2D']['pt']['pre_'+name].Clone()
+            else:
+                h['1'].Add(trig_dfs[era].Histogram['2D']['pt'][name].Clone())
+                h['2'].Add(trig_dfs[era].Histogram['2D']['pt']['pre_'+name].Clone())
+        Merge_Hist(h['1'],h['2'],dim='2D',title=name) 
 
-            if self.__Type =='Data':
-                Info['Data:NumberOfEvents'] = df.Sum('count').GetValue()
-            with open(self.__EventsInfo_FileName,'w') as f :
-                json.dump(Info,f,indent=4)
-            print(f'You can browse the file: {self.__EventsInfo_FileName} to see the information for this calculation.')
-        
-        
-        else: 
-            print(f'weight_all:{weight_all.GetValue()}')
-            print(f'weight_lep:{weight_lep.GetValue()}')
-            print(f'weight_met:{weight_met.GetValue()}')
-            print(f'weight_lepmet:{weight_lepmet.GetValue()}')
-            print(f'test_1:"{test_1.GetValue()}')
-            print(f'test_2:"{test_2.GetValue()}')
-            print(f'test_3:"{test_3.GetValue()}')
-            print(f'test_4:"{test_4.GetValue()}')
+    for name in ['l1l2eta','l1l2eta_highjet','l1l2eta_lowjet','l1l2eta_lowmet','l1l2eta_highmet','l1l2eta_lowpv','l1l2eta_highpv']:
+        h = dict()
+        for idx,era in  enumerate(trig_dfs.keys()):
+            if idx ==0:
+                h['1'] = trig_dfs[era].Histogram['2D']['eta'][name].Clone()
+                h['2'] = trig_dfs[era].Histogram['2D']['eta']['pre_'+name].Clone()
+            else:
+                h['1'].Add(trig_dfs[era].Histogram['2D']['eta'][name].Clone())
+                h['2'].Add(trig_dfs[era].Histogram['2D']['eta']['pre_'+name].Clone())
+        Merge_Hist(h['1'],h['2'],dim='2D',title=name) 
+    for name in ['HLT_MET','HLT_LEP','HLT_LEPMET']:
+        h = dict()
+        for idx,era in  enumerate(trig_dfs.keys()):
+            if idx ==0:
+                h['1'] = trig_dfs[era].Histogram['1D']['HLT'][name].Clone()
+                h['2'] = trig_dfs[era].Histogram['1D']['HLT']['No_HLT'].Clone()
+            else:
+                h['1'].Add(trig_dfs[era].Histogram['1D']['HLT'][name].Clone())
+                h['2'].Add(trig_dfs[era].Histogram['1D']['HLT']['No_HLT'].Clone())
+        Merge_Hist(h['1'],h['2'],dim='1D',title=name) 
+    h = dict()
+    for idx,era in enumerate(trig_dfs.keys()):
+        if idx ==0:
+            h['1'] = trig_dfs[era].Histogram['1D']['HLT']['HLT_LEPMET'].Clone()
+            h['2'] = trig_dfs[era].Histogram['1D']['HLT']['HLT_MET'].Clone()
+        else:
+            h['1'].Add(trig_dfs[era].Histogram['1D']['HLT']['HLT_LEPMET'].Clone())
+            h['2'].Add(trig_dfs[era].Histogram['1D']['HLT']['HLT_MET'].Clone())
+    Merge_Hist(h['1'],h['2'],dim='1D',title='Integrated') 
+    FileOut.Close()
+    print(f'You could see Efficiency of {Type}: {FileOutName}')
+def Merge_Hist(Hist1,Hist2,dim:str,title='default'):
+    if dim == '1D':
+        eff = TEfficiency(Hist1,Hist2)
+        eff.SetTitle(f'Eff {title}')
+        eff.SetName(f'Eff_{title}')
+        eff.Write()
+    elif dim == '2D':
+        Hist1.Divide(Hist2)
+        Hist1.Write()
+    else:
+        raise ValueError('Dimension {dim} is not in the list.')
 

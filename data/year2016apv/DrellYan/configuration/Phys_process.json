@@ -1,0 +1,43 @@
+{
+    "DY": [
+        "DYnlo"
+    ],
+    "WJets": [
+        "WJets"
+    ],
+    "VV": [
+        "ww",
+        "wz_qcd",
+        "zz2l"
+    ],
+    "VVV": [
+        "www1",
+        "wwz1",
+        "wzz1",
+        "zzz1"
+    ],
+    "SingleTop": [
+        "tW",
+        "tbarW",
+        "t_sch",
+        "t_tch",
+        "tbar_tch"
+    ],
+    "ttXorXX": [
+        "ttH",
+        "ttW",
+        "ttWToQQ",
+        "ttZ",
+        "ttZToQQ",
+        "ttWW",
+        "ttWZ",
+        "ttZZ"
+    ],
+    "tzq": [
+        "tZq"
+    ],
+    "TT": [
+        "TTTo2L2Nu",
+        "TTTo1L"
+    ]
+}

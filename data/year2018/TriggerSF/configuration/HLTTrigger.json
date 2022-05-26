@@ -1,27 +1,209 @@
 {
-    "DoubleElectron": [
-        "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
-        "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
-        "HLT_passEle32WPTight",
-        "HLT_Ele35_WPTight_Gsf"
-    ],
-    "DoubleMuon": [
-        "HLT_IsoMu27",
-        "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8"
-    ],
-    "ElectronMuon": [
-        "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",
-        "HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",
-        "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
-        "HLT_IsoMu27",
-        "HLT_passEle32WPTight",
-        "HLT_Ele35_WPTight_Gsf"
-    ],
-    "MET": [
-        "HLT_PFMET120_PFMHT120_IDTight",
-        "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight",
-        "HLT_PFHT500_PFMET100_PFMHT100_IDTight",
-        "HLT_PFHT700_PFMET85_PFMHT85_IDTight",
-        "HLT_PFHT800_PFMET75_PFMHT75_IDTight"
-    ]
+    "MET": {
+        "Data": {
+            "A": [
+                "HLT_PFMET200_HBHE_BeamHaloCleaned",
+                "HLT_PFMETTypeOne200_HBHE_BeamHaloCleaned",
+                "HLT_PFMET120_PFMHT120_IDTight",
+                "HLT_PFMET120_PFMHT120_IDTight_PFHT60",
+                "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight",
+                "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60",
+                "HLT_PFHT500_PFMET100_PFMHT100_IDTight",
+                "HLT_PFHT700_PFMET85_PFMHT85_IDTight",
+                "HLT_PFHT800_PFMET75_PFMHT75_IDTight"
+            ],
+            "B": [
+                "HLT_PFMET200_HBHE_BeamHaloCleaned",
+                "HLT_PFMETTypeOne200_HBHE_BeamHaloCleaned",
+                "HLT_PFMET120_PFMHT120_IDTight",
+                "HLT_PFMET120_PFMHT120_IDTight_PFHT60",
+                "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight",
+                "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60",
+                "HLT_PFHT500_PFMET100_PFMHT100_IDTight",
+                "HLT_PFHT700_PFMET85_PFMHT85_IDTight",
+                "HLT_PFHT800_PFMET75_PFMHT75_IDTight"
+            ],
+            "C": [
+                "HLT_PFMET200_HBHE_BeamHaloCleaned",
+                "HLT_PFMETTypeOne200_HBHE_BeamHaloCleaned",
+                "HLT_PFMET120_PFMHT120_IDTight",
+                "HLT_PFMET120_PFMHT120_IDTight_PFHT60",
+                "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight",
+                "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60",
+                "HLT_PFHT500_PFMET100_PFMHT100_IDTight",
+                "HLT_PFHT700_PFMET85_PFMHT85_IDTight",
+                "HLT_PFHT800_PFMET75_PFMHT75_IDTight"
+            ],
+            "D_0": [
+                "HLT_PFMET200_HBHE_BeamHaloCleaned",
+                "HLT_PFMETTypeOne200_HBHE_BeamHaloCleaned",
+                "HLT_PFMET120_PFMHT120_IDTight",
+                "HLT_PFMET120_PFMHT120_IDTight_PFHT60",
+                "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight",
+                "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60",
+                "HLT_PFHT500_PFMET100_PFMHT100_IDTight",
+                "HLT_PFHT700_PFMET85_PFMHT85_IDTight",
+                "HLT_PFHT800_PFMET75_PFMHT75_IDTight"
+            ],
+            "D_1": [
+                "HLT_PFMET200_HBHE_BeamHaloCleaned",
+                "HLT_PFMETTypeOne200_HBHE_BeamHaloCleaned",
+                "HLT_PFMET120_PFMHT120_IDTight",
+                "HLT_PFMET120_PFMHT120_IDTight_PFHT60",
+                "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight",
+                "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60",
+                "HLT_PFHT500_PFMET100_PFMHT100_IDTight",
+                "HLT_PFHT700_PFMET85_PFMHT85_IDTight",
+                "HLT_PFHT800_PFMET75_PFMHT75_IDTight"
+            ]
+        },
+        "MC": [
+            "HLT_PFMET200_HBHE_BeamHaloCleaned",
+            "HLT_PFMETTypeOne200_HBHE_BeamHaloCleaned",
+            "HLT_PFMET120_PFMHT120_IDTight",
+            "HLT_PFMET120_PFMHT120_IDTight_PFHT60",
+            "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight",
+            "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60",
+            "HLT_PFHT500_PFMET100_PFMHT100_IDTight",
+            "HLT_PFHT700_PFMET85_PFMHT85_IDTight",
+            "HLT_PFHT800_PFMET75_PFMHT75_IDTight"
+        ]
+    },
+    "DoubleElectron": {
+        "Data": {
+            "A": [
+                "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "HLT_Ele32_WPTight_Gsf",
+                "HLT_passEle32WPTight",
+                "HLT_Ele35_WPTight_Gsf"
+            ],
+            "B": [
+                "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "HLT_Ele32_WPTight_Gsf",
+                "HLT_passEle32WPTight",
+                "HLT_Ele35_WPTight_Gsf"
+            ],
+            "C": [
+                "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "HLT_Ele32_WPTight_Gsf",
+                "HLT_passEle32WPTight",
+                "HLT_Ele35_WPTight_Gsf"
+            ],
+            "D_0": [
+                "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "HLT_Ele32_WPTight_Gsf",
+                "HLT_passEle32WPTight",
+                "HLT_Ele35_WPTight_Gsf"
+            ],
+            "D_1": [
+                "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "HLT_Ele32_WPTight_Gsf",
+                "HLT_passEle32WPTight",
+                "HLT_Ele35_WPTight_Gsf"
+            ]
+        },
+        "MC": [
+            "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+            "HLT_Ele32_WPTight_Gsf",
+            "HLT_passEle32WPTight",
+            "HLT_Ele35_WPTight_Gsf"
+        ]
+    },
+    "DoubleMuon": {
+        "Data": {
+            "A": [
+                "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8",
+                "HLT_IsoMu27",
+                "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8"
+            ],
+            "B": [
+                "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8",
+                "HLT_IsoMu27",
+                "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8"
+            ],
+            "C": [
+                "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8",
+                "HLT_IsoMu27",
+                "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8"
+            ],
+            "D_0": [
+                "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8",
+                "HLT_IsoMu27",
+                "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8"
+            ],
+            "D_1": [
+                "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8",
+                "HLT_IsoMu27",
+                "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8"
+            ]
+        },
+        "MC": [
+            "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8",
+            "HLT_IsoMu27"
+        ]
+    },
+    "ElectronMuon": {
+        "Data": {
+            "A": [
+                "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
+                "HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",
+                "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",
+                "HLT_Ele32_WPTight_Gsf",
+                "HLT_IsoMu27",
+                "HLT_passEle32WPTight",
+                "HLT_Ele35_WPTight_Gsf"
+            ],
+            "B": [
+                "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
+                "HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",
+                "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",
+                "HLT_Ele32_WPTight_Gsf",
+                "HLT_IsoMu27",
+                "HLT_passEle32WPTight",
+                "HLT_Ele35_WPTight_Gsf"
+            ],
+            "C": [
+                "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
+                "HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",
+                "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",
+                "HLT_Ele32_WPTight_Gsf",
+                "HLT_IsoMu27",
+                "HLT_passEle32WPTight",
+                "HLT_Ele35_WPTight_Gsf"
+            ],
+            "D_0": [
+                "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
+                "HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",
+                "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",
+                "HLT_Ele32_WPTight_Gsf",
+                "HLT_IsoMu27",
+                "HLT_passEle32WPTight",
+                "HLT_Ele35_WPTight_Gsf"
+            ],
+            "D_1": [
+                "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
+                "HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",
+                "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",
+                "HLT_Ele32_WPTight_Gsf",
+                "HLT_IsoMu27",
+                "HLT_passEle32WPTight",
+                "HLT_Ele35_WPTight_Gsf"
+            ]
+        },
+        "MC": [
+            "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL",
+            "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
+            "HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",
+            "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",
+            "HLT_Ele32_WPTight_Gsf",
+            "HLT_IsoMu27",
+            "HLT_passEle32WPTight",
+            "HLT_Ele35_WPTight_Gsf"
+        ]
+    }
 }

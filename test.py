@@ -4,6 +4,7 @@ import json
 import ROOT
 
 
+'''
 ROOT.gInterpreter.ProcessLine('#include "./include/IDScaleFactor.h"')
 ROOT.gSystem.Load('./myLib/IDScaleFactor_cpp.so')
 
@@ -16,6 +17,15 @@ l2_trigSF_branchname = "l2pteta"
 ROOT.gInterpreter.ProcessLine(Histogram_Definition['TrigSF'].format(l1_trigSF_File,l2_trigSF_File,l1_trigSF_branchname,l2_trigSF_branchname))
 
 ROOT.gInterpreter.ProcessLine("std::cout<<Trigger_sf(h1_TrigSF,50,1.5)*Trigger_sf(h2_TrigSF,20,0.5)")
+'''
+
+A = dict()
+
+for i in range(10):
+    A[i] = [i for i in range(i)]
+
+print(A)
+
 
 
 

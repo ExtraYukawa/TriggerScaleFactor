@@ -46,7 +46,7 @@ class DrellYanRDataFrame():
         self.__channel = settings['channel']
         self.__nevents = settings['nevents'] ## of events for DataFrame to run through
 
-        self.__HLT_Path = settings['HLT_Path']
+        self.__DiLepton_Triggers = settings['DiLepton_Triggers']
         self.__Cross_Section = settings['xs']
         self.__lumi = self.__Cross_Section['lumi']
         self.__NumberOfEvents = settings['NumberOfEvents']# # of events for Data
@@ -55,10 +55,11 @@ class DrellYanRDataFrame():
         if self.__veto and self.__year !='2018':
             raise ValueError('[-v/--veto] is only valid for UL2018.')
         
-        self.__FilesIn = settings['FilesIn']
+        self.__DataPath = settings['FilesIn']['Data'][self.__channel]
+        self.__MCPath = settings['FilesIn']['MC']
         self.__Process = settings['Process']  # Sorts of Process, please see ./data/year{year}/DrellYan/path/datapath.json
         
-        self.__TriggerSF= settings['TriggerSF']
+        self.__TriggerSF= settings.get('TriggerSF',None)
         self.__LepIDSF_File = settings['LepIDSF_File']
         
         self.__histos = OrderedDict()
@@ -70,7 +71,9 @@ class DrellYanRDataFrame():
         self.__dfs['Data'] = OrderedDict()
         self.__SF_mode = settings['SF_mode'] # trig_SF is applied or not
         self.__condition_weights = settings['Weights']
-        self.__flag = settings['FLAG']
+        self.__MET_Filters = settings['MET_Filters']
+        self.__Phys_Process = settings['Phys_Process']
+
         self.__debug = settings['debug']
         self.__ylog = settings['ylog']
     
@@ -111,129 +114,178 @@ class DrellYanRDataFrame():
             IDSF_type = self.__LepIDSF_File['name']
             IDSF_File = self.__LepIDSF_File['path']
             ROOT.gInterpreter.ProcessLine(Histogram_Definition['Same_Type_IDSF'].format(IDSF_File,IDSF_type))
-        
-        trigSF_branchname = self.__TriggerSF['branchname']
-        
-        if self.__year != '2018':
+        trigSF_branchname='Default' 
+        if self.__SF_mode == 2 or self.__SF_mode ==3:
+            trigSF_branchname = self.__TriggerSF['branchname']
+            
             trigSF_File = self.__TriggerSF['FileIn']
-        else:
-            if self.__veto:
-                trigSF_File = self.__TriggerSF['file']['veto'][self.__channel][trigSF_branchname]
-            else:
-                trigSF_File = self.__TriggerSF['file']['all'][self.__channel][trigSF_branchname]
+            #if self.__year != '2016':
+            #    print(self.__TriggerSF)
+            #    trigSF_File = self.__TriggerSF['FileIn']
+            #else:
+            #if self.__year == '2018':
+            #if self.__veto:
+            #    trigSF_File = self.__TriggerSF['veto'][self.__channel][trigSF_branchname]
+            #else:
+            #    trigSF_File = self.__TriggerSF['all'][self.__channel][trigSF_branchname]
 
-        ROOT.gInterpreter.ProcessLine(Histogram_Definition['TrigSF'].format(trigSF_File,trigSF_branchname))
+            ROOT.gInterpreter.ProcessLine(Histogram_Definition['TrigSF'].format(trigSF_File,trigSF_branchname))
         
         #To Load IDSF function
     
         #DataFrame For Data 
-        for Sample_Name in self.__HLT_Path[self.__channel].keys():
-            settings = {
-                    'channel': self.__channel,
-                    'weights' : self.__condition_weights['Data'],
-                    'Trigger_Condition' :  self.__HLT_Path[self.__channel][Sample_Name],
-                    'Data': True,
-                    'File_Paths' : self.__FilesIn['Data'][self.__channel][Sample_Name],
-                    'nevents' : self.__nevents,
-                    'veto':self.__veto,
-                    'Flag':self.__flag
-                    }
-            self.__dfs['Data'][Sample_Name]= MyDataFrame(settings)
+        
+        for dataset in self.__DataPath.keys():
+            self.__dfs['Data'][dataset] = dict()
+            for era in self.__DataPath[dataset].keys():
+                settings = {
+                        'channel': self.__channel,
+                        'weights' : self.__condition_weights['Data'],
+                        'MET_Filters' :  self.__MET_Filters['Data'],
+                        'DiLepton_Triggers' : self.__DiLepton_Triggers['Data'][self.__channel][dataset][era],
+                        'Data': True,
+                        'File_Paths' : self.__DataPath[dataset][era],
+                        'nevents' : self.__nevents,
+                        'veto':self.__veto,
+                        }
+                self.__dfs['Data'][dataset][era] = MyDataFrame(settings)
         
         #DataFrame For Simulation Events
-        for p in self.__Process:
-            for MC in self.__FilesIn['MC'][p].keys():
+        for process in self.__MCPath.keys():
+            self.__dfs['MC'][process] = dict()
+            for phys_name in self.__MCPath[process].keys():
                 settings ={
                         'channel': self.__channel,
                         'Data' : False,
-                        'Trigger_Condition': self.__HLT_Path['All'],
+                        'MET_Filters' :  self.__MET_Filters['MC'][process][phys_name],
+                        'DiLepton_Triggers' : self.__DiLepton_Triggers['MC'][self.__channel][process][phys_name],
                         'weights' : self.__condition_weights['MC'],
-                        'File_Paths' : self.__FilesIn['MC'][p][MC],
-                        #'TriggerSF': self.__TriggerSF,
+                        'File_Paths' : self.__MCPath[process][phys_name],
                         'nevents' : self.__nevents,
                         'SF_mode':self.__SF_mode,
                         'veto':self.__veto,
                         'year':self.__year,
-                        'Flag':self.__flag,
-                        'trigSF_Type':trigSF_branchname
                         }
-                self.__dfs['MC'][MC]= MyDataFrame(settings)
-
-        for p in self.__Process:
-            for MC in self.__FilesIn['MC'][p].keys():
-                Filtering(self.__dfs['MC'][MC],HistSettings,self.__veto,trigSFType=trigSF_branchname)
-        for Sample_Name in self.__HLT_Path[self.__channel].keys():
-            Filtering(self.__dfs['Data'][Sample_Name] , HistSettings,self.__veto,trigSFType=trigSF_branchname)
-
+                
+                if self.__SF_mode== 2 or self.__SF_mode==3:
+                    settings['trigSF_Type']=trigSF_branchname
+                self.__dfs['MC'][process][phys_name]= MyDataFrame(settings)
+        for process in self.__MCPath.keys():
+            for phys_name in self.__MCPath[process].keys():
+                print(f"{process}:{phys_name}:Filtering")
+                Filtering(self.__dfs['MC'][process][phys_name],HistSettings,self.__veto,trigSFType=trigSF_branchname)
+                print(f"{process}:{phys_name}:Filter equipped success")
+        for dataset in self.__DataPath.keys():
+            for era in self.__DataPath[dataset].keys():
+                print(f"{dataset}:{era}:Filtering")
+                Filtering(self.__dfs['Data'][dataset][era] , HistSettings,self.__veto,trigSFType=trigSF_branchname)
+                print(f"{dataset}:{era}:Filter equipped success")
         if not self.__debug:
+            print('Starting to process...')
             for histname in HistSettings.keys():
                 HistoGrams = OrderedDict()
                 HistoGrams['MC'] = OrderedDict()
                 Temps = OrderedDict()
                 Temps['Data'] = OrderedDict()
                 Temps['MC'] = OrderedDict()
-                for idx ,Data in enumerate(self.__dfs['Data'].keys()):
-                    self.__dfs['Data'][Data].Hists[histname].Draw()
-                    h= self.__dfs['Data'][Data].Hists[histname].GetValue()
-                    h = overunder_flowbin(h)
-                    Temps['Data'][Data] = overunder_flowbin(h)
-                    if idx == 0:
-                        HistoGrams['Data'] = Temps['Data'][Data]
-                    else:
-                        HistoGrams['Data'].Add(Temps['Data'][Data])
+                for idx1 ,dataset in enumerate(self.__DataPath.keys()):
+                    Temps['Data'][dataset] = dict()
+                    for idx2, era in enumerate(self.__DataPath[dataset].keys()):
+                        h = self.__dfs['Data'][dataset][era].Hists[histname].GetValue()
+                        h = overunder_flowbin(h)
+                        
+                        
+                        Temps['Data'][dataset][era] = h
+                        if idx1 == 0 and idx2 == 0:
+                            HistoGrams['Data'] = Temps['Data'][dataset][era]
+                        else:
+                            HistoGrams['Data'].Add(Temps['Data'][dataset][era])
           
-                for p in self.__Process:
-                    for MC in self.__FilesIn['MC'][p].keys():
-                        self.__dfs['MC'][MC].Hists[histname].Draw()
-                        h = self.__dfs['MC'][MC].Hists[histname].GetValue()
-                        h.Scale(self.__Cross_Section[p][MC]/float(self.__NumberOfEvents[p][MC]))
-                        Temps['MC'][MC] = overunder_flowbin(h)
+                for process in self.__MCPath.keys():
+                    for phys_name in self.__MCPath[process].keys():
+                
+                        #self.__dfs['MC'][MC].Hists[histname].Draw()
+                        h = self.__dfs['MC'][process][phys_name].Hists[histname].GetValue()
+                        h.Scale((self.__Cross_Section[process][phys_name]*self.__lumi)/float(self.__NumberOfEvents[process][phys_name]))
+                        Temps['MC'][phys_name] = overunder_flowbin(h)
                 ####
                 HistoGrams['MC']['DY'] = Temps['MC']['DYnlo']
                 HistoGrams['MC']['WJets'] = Temps['MC']['WJets']
-                
-                HistoGrams['MC']['VV'] = Temps['MC']['osWW']
-                HistoGrams['MC']['VV'].Add( Temps['MC']['ssWW'])
-                HistoGrams['MC']['VV'].Add(Temps['MC']['WWdps'])
-                if self.__year =='2017':
-                    HistoGrams['MC']['VV'].Add(Temps['MC']['WZ_ew'])
-                    HistoGrams['MC']['VV'].Add(Temps['MC']['WZ_qcd'])
-                elif self.__year =='2018':
-                    HistoGrams['MC']['VV'].Add(Temps['MC']['WZ'])
 
-                
-                HistoGrams['MC']['VV'].Add(Temps['MC']['ZZ'])
-                HistoGrams['MC']['VV'].Add(Temps['MC']['ZG_ew'])
-                
-                HistoGrams['MC']['VVV'] = Temps['MC']['WWW']
-                HistoGrams['MC']['VVV'].Add(Temps['MC']['WWZ'])
-                HistoGrams['MC']['VVV'].Add(Temps['MC']['WZZ'])
-                HistoGrams['MC']['VVV'].Add(Temps['MC']['ZZZ'])
-                
-                HistoGrams['MC']['SingleTop'] = Temps['MC']['tsch']
-                HistoGrams['MC']['SingleTop'].Add(Temps['MC']['t_tch'])
-                HistoGrams['MC']['SingleTop'].Add(Temps['MC']['tbar_tch'])
-                HistoGrams['MC']['SingleTop'].Add(Temps['MC']['tW'])
-                HistoGrams['MC']['SingleTop'].Add(Temps['MC']['tbarW'])
+                if self.__year =='2018' or self.__year == '2017':
+                    HistoGrams['MC']['VV'] = Temps['MC']['osWW']
+                    HistoGrams['MC']['VV'].Add( Temps['MC']['ssWW'])
+                    HistoGrams['MC']['VV'].Add(Temps['MC']['WWdps'])
+                    HistoGrams['MC']['VV'].Add(Temps['MC']['ZG_ew'])
+                    HistoGrams['MC']['VV'].Add(Temps['MC']['ZZ'])
+                    if self.__year == '2018':
+                        HistoGrams['MC']['VV'].Add(Temps['MC']['WZ'])
+                    else:
+                        HistoGrams['MC']['VV'].Add(Temps['MC']['WZ_ew'])
+                        HistoGrams['MC']['VV'].Add(Temps['MC']['WZ_qcd'])
+                    HistoGrams['MC']['SingleTop'] = Temps['MC']['tsch']
+                    HistoGrams['MC']['SingleTop'].Add(Temps['MC']['t_tch'])
+                    HistoGrams['MC']['SingleTop'].Add(Temps['MC']['tbar_tch'])
+                    HistoGrams['MC']['SingleTop'].Add(Temps['MC']['tW'])
+                    HistoGrams['MC']['SingleTop'].Add(Temps['MC']['tbarW'])
 
-                HistoGrams['MC']['ttXorXX'] = Temps['MC']['ttWtoLNu']
-                HistoGrams['MC']['ttXorXX'].Add(Temps['MC']['ttWtoQQ'])
-                HistoGrams['MC']['ttXorXX'].Add(Temps['MC']['ttZ'])
-                HistoGrams['MC']['ttXorXX'].Add(Temps['MC']['ttZtoQQ'])
-                HistoGrams['MC']['ttXorXX'].Add(Temps['MC']['ttH'])
-                HistoGrams['MC']['ttXorXX'].Add(Temps['MC']['ttWW'])
-                HistoGrams['MC']['ttXorXX'].Add(Temps['MC']['ttWZ'])
-                HistoGrams['MC']['ttXorXX'].Add(Temps['MC']['ttZZ'])
-                HistoGrams['MC']['ttXorXX'].Add(Temps['MC']['ttWH'])
-                HistoGrams['MC']['ttXorXX'].Add(Temps['MC']['ttZH'])
-                HistoGrams['MC']['ttXorXX'].Add(Temps['MC']['tttJ'])
-                HistoGrams['MC']['ttXorXX'].Add(Temps['MC']['tttW'])
-                HistoGrams['MC']['ttXorXX'].Add(Temps['MC']['tttt'])
-           
-                HistoGrams['MC']['tzq'] = Temps['MC']['tzq']
+                    
+                    
+                    HistoGrams['MC']['VVV'] = Temps['MC']['WWW']
+                    HistoGrams['MC']['VVV'].Add(Temps['MC']['WWZ'])
+                    HistoGrams['MC']['VVV'].Add(Temps['MC']['WZZ'])
+                    HistoGrams['MC']['VVV'].Add(Temps['MC']['ZZZ'])
+                    
 
-                HistoGrams['MC']['TT'] = Temps['MC']['TTTo1L']
-                HistoGrams['MC']['TT'].Add(Temps['MC']['TTTo2L'])
+                    HistoGrams['MC']['ttXorXX'] = Temps['MC']['ttWtoLNu']
+                    HistoGrams['MC']['ttXorXX'].Add(Temps['MC']['ttWtoQQ'])
+                    HistoGrams['MC']['ttXorXX'].Add(Temps['MC']['ttZ'])
+                    HistoGrams['MC']['ttXorXX'].Add(Temps['MC']['ttZtoQQ'])
+                    HistoGrams['MC']['ttXorXX'].Add(Temps['MC']['ttH'])
+                    HistoGrams['MC']['ttXorXX'].Add(Temps['MC']['ttWW'])
+                    HistoGrams['MC']['ttXorXX'].Add(Temps['MC']['ttWZ'])
+                    HistoGrams['MC']['ttXorXX'].Add(Temps['MC']['ttZZ'])
+                    HistoGrams['MC']['ttXorXX'].Add(Temps['MC']['ttWH'])
+                    HistoGrams['MC']['ttXorXX'].Add(Temps['MC']['ttZH'])
+                    HistoGrams['MC']['ttXorXX'].Add(Temps['MC']['tttJ'])
+                    HistoGrams['MC']['ttXorXX'].Add(Temps['MC']['tttW'])
+                    HistoGrams['MC']['ttXorXX'].Add(Temps['MC']['tttt'])
+               
+                    HistoGrams['MC']['tzq'] = Temps['MC']['tzq']
+
+                    HistoGrams['MC']['TT'] = Temps['MC']['TTTo1L']
+                    HistoGrams['MC']['TT'].Add(Temps['MC']['TTTo2L'])
+                else:
+                    HistoGrams['MC']['VV'] = Temps['MC']['ww']
+                    HistoGrams['MC']['VV'].Add(Temps['MC']['wz_qcd'])
+                    HistoGrams['MC']['VV'].Add(Temps['MC']['zz2l'])
+                    
+                    HistoGrams['MC']['VVV'] = Temps['MC']['www1']
+                    HistoGrams['MC']['VVV'].Add(Temps['MC']['wwz1'])
+                    HistoGrams['MC']['VVV'].Add(Temps['MC']['wzz1'])
+                    HistoGrams['MC']['VVV'].Add(Temps['MC']['zzz1'])
+
+                    HistoGrams['MC']['SingleTop'] = Temps['MC']['tW']
+                    HistoGrams['MC']['SingleTop'].Add(Temps['MC']['tW'])
+                    HistoGrams['MC']['SingleTop'].Add(Temps['MC']['t_sch'])
+                    HistoGrams['MC']['SingleTop'].Add(Temps['MC']['t_tch'])
+                    HistoGrams['MC']['SingleTop'].Add(Temps['MC']['tbar_tch'])
+
+                    HistoGrams['MC']['ttXorXX'] = Temps['MC']['ttH']
+                    HistoGrams['MC']['ttXorXX'].Add(Temps['MC']['ttW'])
+                    HistoGrams['MC']['ttXorXX'].Add(Temps['MC']['ttWToQQ'])
+                    HistoGrams['MC']['ttXorXX'].Add(Temps['MC']['ttZ'])
+                    HistoGrams['MC']['ttXorXX'].Add(Temps['MC']['ttZToQQ'])
+                    HistoGrams['MC']['ttXorXX'].Add(Temps['MC']['ttWW'])
+                    HistoGrams['MC']['ttXorXX'].Add(Temps['MC']['ttWZ'])
+                    HistoGrams['MC']['ttXorXX'].Add(Temps['MC']['ttZZ'])
+
+                    HistoGrams['MC']['tzq'] = Temps['MC']['tZq']
+
+                    HistoGrams['MC']['TT'] = Temps['MC']['TTTo2L2Nu']
+                    HistoGrams['MC']['TT'].Add(Temps['MC']['TTTo1L'])
+
+
 
                 Plot(HistoGrams,x_name=histname ,lumi=self.__lumi,channel=self.__channel,year=self.__year,SF_mode=self.__SF_mode,ylog=self.__ylog,trigSF_branchname=trigSF_branchname)
             

@@ -1,0 +1,51 @@
+{
+    "DY": [
+        "DYnlo"
+    ],
+    "WJets": [
+        "WJets"
+    ],
+    "VV": [
+        "WZ",
+        "ssWW",
+        "WWdps",
+        "ZG_ew",
+        "osWW",
+        "ZZ"
+    ],
+    "VVV": [
+        "WWW",
+        "WWZ",
+        "WZZ",
+        "ZZZ"
+    ],
+    "SingleTop": [
+        "t_tch",
+        "tbar_tch",
+        "tsch",
+        "tW",
+        "tbarW"
+    ],
+    "ttXorXX": [
+        "ttWtoLNu",
+        "ttWtoQQ",
+        "ttZ",
+        "ttZtoQQ",
+        "ttH",
+        "ttWW",
+        "ttWZ",
+        "ttZZ",
+        "ttWH",
+        "ttZH",
+        "tttJ",
+        "tttW",
+        "tttt"
+    ],
+    "tzq": [
+        "tzq"
+    ],
+    "TT": [
+        "TTTo2L",
+        "TTTo1L"
+    ]
+}

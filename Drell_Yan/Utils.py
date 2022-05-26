@@ -28,7 +28,7 @@ class MyDataFrame(object):
         self.__channel = settings.get('channel')
         self.__year = settings.get('year')
         self.__veto = settings.get('veto')
-        self.__flag_Condition =' && '.join(settings.get('Flag'))
+        self.__flag_Condition =' && '.join(settings.get('MET_Filters'))
         if not self.__Data:
             self.__veto_prob_threshold = 1.
             if self.__year == '2018':
@@ -50,12 +50,12 @@ class MyDataFrame(object):
         if self.__channel == 'ElectronMuon':
             DY_region = 2 
             self.__lepton_RECO_SF = 'Electron_RECO_SF[OPS_l2_id]'
-            self.__offline_selections = f'OPS_region=={DY_region} && OPS_z_mass > 60 && OPS_z_mass<120 && OPS_2P0F &&( OPS_l1_pt>30 ||  OPS_l2_pt>20) && OPS_drll>0.3 && {self.__flag_Condition} && nHad_tau==0' 
+            self.__offline_selections = f'OPS_region=={DY_region} && OPS_z_mass > 60 && OPS_z_mass<120 && OPS_2P0F &&( OPS_l1_pt>30 ||  OPS_l2_pt>20) && OPS_drll>0.3 && {self.__flag_Condition} && nHad_tau==0 ' 
         elif self.__channel != None:
             if self.__channel == 'DoubleElectron':
                 DY_region = 3
                 self.__lepton_RECO_SF = 'Electron_RECO_SF[OPS_l1_id]*Electron_RECO_SF[OPS_l2_id]'
-                self.__offline_selections = f'OPS_region=={DY_region} && OPS_2P0F && OPS_z_mass > 60 && OPS_z_mass<120 && OPS_l1_pt>30 && OPS_l2_pt>20 && OPS_drll>0.3 && {self.__flag_Condition} && nHad_tau==0 '
+                self.__offline_selections = f'OPS_region=={DY_region} && OPS_2P0F && OPS_z_mass > 60 && OPS_z_mass<120 && OPS_l1_pt>30 && OPS_l2_pt>20 && OPS_drll>0.3 && nHad_tau==0&& {self.__flag_Condition} && nHad_tau==0 '
             elif self.__channel == 'DoubleMuon':
                 DY_region = 1
                 self.__lepton_RECO_SF = '1'
@@ -67,7 +67,7 @@ class MyDataFrame(object):
         self.__df_tree = ROOT.RDataFrame
         self.__Hists = Manager().dict()
         
-        self.__Trigger_Condition = settings.get('Trigger_Condition')
+        self.__Trigger_Condition = settings.get('DiLepton_Triggers')
         
         
         self.__nevents =  settings.get('nevents')       
@@ -76,11 +76,7 @@ class MyDataFrame(object):
         self.__File_Paths = ROOT.std.vector('string')()
         self.__weights = '*'.join(settings.get('weights'))
         
-        if self.__Data == True:
-            for path in File_Paths:
-                self.__File_Paths.push_back(path)
-        else:
-            self.__File_Paths.push_back(File_Paths)
+        self.__File_Paths.push_back(File_Paths)
     @property
     def Tree(self) ->ROOT.RDataFrame.Filter:
         return self.__df_tree
@@ -139,16 +135,17 @@ def Filtering(df:MyDataFrame,HistsSettings:dict,veto:bool,trigSFType:str):
     veto_Function -> Only have true meaning for UL2018. A filter to veto whether there is any jet falling into HEM region.
     
     '''
-    if trigSFType == 'l1pteta':
-        trigSF = 'Trigger_sf(h_TrigSF,OPS_l1_pt,OPS_l1_eta)'
-    elif trigSFType == 'l2pteta':
-        trigSF = 'Trigger_sf(h_TrigSF,OPS_l2_pt,OPS_l2_eta)'
-    elif trigSFType == 'l1l2pt':
-        trigSF = 'Trigger_sf(h_TrigSF,OPS_l1_pt,OPS_l2_pt)'
-    elif trigSFType == 'l1l2eta':
-        trigSF = 'Trigger_sf(h_TrigSF,OPS_l1_eta,OPS_l2_eta)'
-    else:
-        raise ValueError(f'Wrong Trigger SF type:{trigSFType}')
+    if df.SF_mode ==2 or df.SF_mode==3:
+        if trigSFType == 'l1pteta':
+            trigSF = 'Trigger_sf(h_TrigSF,OPS_l1_pt,OPS_l1_eta)'
+        elif trigSFType == 'l2pteta':
+            trigSF = 'Trigger_sf(h_TrigSF,OPS_l2_pt,OPS_l2_eta)'
+        elif trigSFType == 'l1l2pt':
+            trigSF = 'Trigger_sf(h_TrigSF,OPS_l1_pt,OPS_l2_pt)'
+        elif trigSFType == 'l1l2eta':
+            trigSF = 'Trigger_sf(h_TrigSF,OPS_l1_eta,OPS_l2_eta)'
+        else:
+            raise ValueError(f'Wrong Trigger SF type:{trigSFType}')
     
     
     if df.nevents ==-1:
@@ -156,16 +153,16 @@ def Filtering(df:MyDataFrame,HistsSettings:dict,veto:bool,trigSFType:str):
     else:
         Tree = ROOT.RDataFrame('Events',df.File_Paths).Range(0,df.nevents)
     veto_Function = 'true'
-    if df.IsData:
-        if veto:
+    if veto:
+        if df.IsData:
             veto_Function = 'veto_hemregion(run,Jet_phi,Jet_eta)'
-    if not df.IsData:
-        if veto:
+        if not df.IsData:
             veto_Function =f'veto_hemregion_sim(prob(),Jet_phi,Jet_eta,{df.veto_prob_threshold})'
+        Tree=Tree.Filter(veto_Function)
     
-    Tree=Tree.Filter(veto_Function)\
-            .Filter(df.Trigger_Condition)\
-            .Filter(df.offline_selections)
+    #Tree=Tree.Filter(df.Trigger_Condition).Filter(df.offline_selections)
+    Tree = Tree.Filter(df.offline_selections)
+    Tree = Tree.Filter(df.Trigger_Condition)
     if not df.IsData:
         if df.SF_mode == 0:
             Tree = Tree.Define('trigger_SF','1.')
@@ -233,8 +230,8 @@ def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:float,SF_mode:int,channel=
     Histo['MC']['tzq'].SetFillColor(ROOT.kYellow-4)
     Histo['MC']['TT'].SetFillColor(ROOT.kBlue)
 
-    for MC in Histo['MC'].keys():
-        Histo['MC'][MC].Scale(lumi)
+    #for MC in Histo['MC'].keys():
+    #    Histo['MC'][MC].Scale(lumi)
     Histo['Data'].SetMarkerStyle(20)
     Histo['Data'].SetMarkerSize(0.85)
     Histo['Data'].SetMarkerColor(1)
@@ -245,7 +242,7 @@ def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:float,SF_mode:int,channel=
     for MC in Histo['MC'].keys():
         Yield['MC'][MC] = round(Histo['MC'][MC].Integral(),1)
     Yield['MC'] = OrderedDict(sorted(Yield['MC'].items(),key = lambda x: x[1],reverse=True))
-    Yield['Data'] = round(Histo['Data'].Integral())
+    Yield['Data'] = Histo['Data'].Integral()
 
     h_stack = ROOT.THStack()
     for MC in  Yield['MC'].keys():
@@ -376,7 +373,7 @@ def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:float,SF_mode:int,channel=
 
     c.Update()
 
-    with open(f'./data/year{year}/DrellYan/User.json','r') as f:
+    with open(f'./data/year{year}/TriggerSF/User.json','r') as f:
         UserName = json.load(f)['UserName']
 
     Dir = f'/eos/user/{UserName[0]}/{UserName}/ExtraYukawa/DrellYan/year{year}/{channel}/plots'

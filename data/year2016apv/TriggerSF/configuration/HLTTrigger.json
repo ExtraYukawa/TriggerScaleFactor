@@ -1,27 +1,170 @@
 {
-    "DoubleElectron": [
-        "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
-        "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
-        "HLT_passEle32WPTight",
-        "HLT_Ele35_WPLoose_Gsf"
-    ],
-    "DoubleMuon": [
-        "HLT_IsoMu27",
-        "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ"
-    ],
-    "ElectronMuon": [
-        "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",
-        "HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",
-        "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
-        "HLT_IsoMu27",
-        "HLT_passEle32WPTight",
-        "HLT_Ele35_WPLoose_Gsf"
-    ],
-    "MET": [
-        "HLT_PFMET120_PFMHT120_IDTight",
-        "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight",
-        "HLT_PFHT500_PFMET100_PFMHT100_IDTight",
-        "HLT_PFHT700_PFMET85_PFMHT85_IDTight",
-        "HLT_PFHT800_PFMET75_PFMHT75_IDTight"
-    ]
+    "MET": {
+        "Data": {
+            "B2": [
+                "HLT_MET200",
+                "HLT_PFMET120_PFMHT120_IDTight",
+                "HLT_PFMET300",
+                "HLT_PFHT300_PFMET110",
+                "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight"
+            ],
+            "C": [
+                "HLT_MET200",
+                "HLT_PFMET120_PFMHT120_IDTight",
+                "HLT_PFMET300",
+                "HLT_PFHT300_PFMET110",
+                "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight"
+            ],
+            "D": [
+                "HLT_MET200",
+                "HLT_PFMET120_PFMHT120_IDTight",
+                "HLT_PFMET300",
+                "HLT_PFHT300_PFMET110",
+                "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight"
+            ],
+            "E": [
+                "HLT_MET200",
+                "HLT_PFMET120_PFMHT120_IDTight",
+                "HLT_PFMET300",
+                "HLT_PFHT300_PFMET110",
+                "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight"
+            ],
+            "F": [
+                "HLT_MET200",
+                "HLT_PFMET120_PFMHT120_IDTight",
+                "HLT_PFMET300",
+                "HLT_PFHT300_PFMET110",
+                "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight"
+            ]
+        },
+        "MC": [
+            "HLT_PFMET300",
+            "HLT_MET200",
+            "HLT_PFHT300_PFMET110",
+            "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight",
+            "HLT_PFMET120_PFMHT120_IDTight"
+        ]
+    },
+    "DoubleElectron": {
+        "Data": {
+            "B2": [
+                "HLT_Ele27_WPTight_Gsf",
+                "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
+                "HLT_passEle32WPTight"
+            ],
+            "C": [
+                "HLT_Ele27_WPTight_Gsf",
+                "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
+                "HLT_passEle32WPTight"
+            ],
+            "D": [
+                "HLT_Ele27_WPTight_Gsf",
+                "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
+                "HLT_passEle32WPTight"
+            ],
+            "E": [
+                "HLT_Ele27_WPTight_Gsf",
+                "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
+                "HLT_passEle32WPTight"
+            ],
+            "F": [
+                "HLT_Ele27_WPTight_Gsf",
+                "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
+                "HLT_passEle32WPTight"
+            ]
+        },
+        "MC": [
+            "HLT_Ele27_WPTight_Gsf",
+            "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
+            "HLT_passEle32WPTight"
+        ]
+    },
+    "DoubleMuon": {
+        "Data": {
+            "B2": [
+                "HLT_IsoMu27",
+                "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL",
+                "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL"
+            ],
+            "C": [
+                "HLT_IsoMu27",
+                "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL",
+                "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL"
+            ],
+            "D": [
+                "HLT_IsoMu27",
+                "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL",
+                "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL"
+            ],
+            "E": [
+                "HLT_IsoMu27",
+                "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL",
+                "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL"
+            ],
+            "F": [
+                "HLT_IsoMu27",
+                "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL",
+                "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL"
+            ]
+        },
+        "MC": [
+            "HLT_IsoMu27",
+            "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL",
+            "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL"
+        ]
+    },
+    "ElectronMuon": {
+        "Data": {
+            "B2": [
+                "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL",
+                "HLT_Ele27_WPTight_Gsf",
+                "HLT_IsoTkMu24",
+                "HLT_passEle32WPTight",
+                "HLT_IsoMu27"
+            ],
+            "C": [
+                "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL",
+                "HLT_Ele27_WPTight_Gsf",
+                "HLT_IsoTkMu24",
+                "HLT_passEle32WPTight",
+                "HLT_IsoMu27"
+            ],
+            "D": [
+                "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL",
+                "HLT_Ele27_WPTight_Gsf",
+                "HLT_IsoTkMu24",
+                "HLT_passEle32WPTight",
+                "HLT_IsoMu27"
+            ],
+            "E": [
+                "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL",
+                "HLT_Ele27_WPTight_Gsf",
+                "HLT_IsoTkMu24",
+                "HLT_passEle32WPTight",
+                "HLT_IsoMu27"
+            ],
+            "F": [
+                "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
+                "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",
+                "HLT_Ele27_WPTight_Gsf",
+                "HLT_IsoTkMu24",
+                "HLT_passEle32WPTight",
+                "HLT_IsoMu27"
+            ]
+        },
+        "MC": [
+            "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
+            "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",
+            "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL",
+            "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL",
+            "HLT_Ele27_WPTight_Gsf",
+            "HLT_IsoTkMu24",
+            "HLT_passEle32WPTight",
+            "HLT_IsoMu27"
+        ]
+    }
 }

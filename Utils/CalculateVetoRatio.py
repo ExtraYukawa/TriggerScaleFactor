@@ -129,8 +129,50 @@ def Calculate_vetoHEM_retio(year:str):
 
 
 
+def Calculate_HEM_ratio(Dataset:str):
+    ROOT.gInterpreter.ProcessLine('#include "./include/HEM_veto.h"')
+    ROOT.gSystem.Load('./myLib/HEM_veto_cpp.so')
+    eras = ["A","B","C","D_0","D_1"] 
+    folder = "/eos/cms/store/group/phys_top/ExtraYukawa/2018/"
+    df = dict()
+    df_CD = dict() 
+    if Dataset == 'MET':
+        Fileout = './data/year2018/TriggerSF/configuration/MET_vetoHEM_rate.json'
+    else:
+        Fileout = f'./data/year2018/DrellYan/configuration/{Dataset}_vetoHEM_rate.json'
+        
+        
+        
+    total = 0
+    n_CD = 0
+    
+    
+    for era in eras:
+        FileIn_vecstr= ROOT.std.vector('string')()
+        print(f'{folder}/{Dataset}{era}.root')
+        FileIn_vecstr.push_back(f'{folder}/{Dataset}{era}.root')
+        df[era] = ROOT.RDataFrame("Events",FileIn_vecstr).Define('Count','1')
+        df_CD[era]=df[era].Filter('run >319077')
+        
+        total += df[era].Sum('Count').GetValue()
+        n_CD += df_CD[era].Sum('Count').GetValue()
+        
+    with open(Fileout,'w') as f:
+
+        json.dump(n_CD/total,f,indent=4)
+        
+Calculate_HEM_ratio('MET')
+Calculate_HEM_ratio('EGamma')  
+Calculate_HEM_ratio('DoubleMuon')  
+Calculate_HEM_ratio('SingleMuon')  
+Calculate_HEM_ratio('MuonEG')  
 
 
 
 
-Calculate_vetoHEM_retio('2018')
+
+
+
+
+
+#Calculate_vetoHEM_retio('2018')

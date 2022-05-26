@@ -1,6 +1,6 @@
 import ROOT,os
 import numpy as np
-
+from math import sqrt
 import sys
 import os 
 CURRENT_WORKDIR = os.getcwd()
@@ -91,6 +91,53 @@ def create_hist(infile:ROOT.TFile,tag:str):
     
     return histoname ,histotemp
 
+def Calculate_Eff(**settings):
+    if settings['year'] == '2018' and settings['veto']:
+        FileIn = {
+                'Data':ROOT.TFile.Open(os.path.join(settings['DirIn'],'EfficiencyForData_vetohemregion.root'),"READ"),
+                    'MC':ROOT.TFile.Open(os.path.join(settings['DirIn'],'EfficiencyForMC_vetohemregion.root'),"READ")
+                }
+    
+    else:
+        FileIn = {
+                'Data':ROOT.TFile.Open(os.path.join(settings['DirIn'],'EfficiencyForData.root'),"READ"),
+                    'MC':ROOT.TFile.Open(os.path.join(settings['DirIn'],'EfficiencyForMC.root'),"READ")
+                }
+    
+    Eff = dict() 
+    #
+    for key in FileIn.keys():
+        Eff[key]  = dict()
+
+        eff = FileIn[key].Get('Eff_Integrated')
+        Eff[key]['Integrated'] = dict()
+        Eff[key]['Integrated']['Central'] = eff.GetEfficiency(1)
+        Eff[key]['Integrated']['Uncertainty'] = max(eff.GetEfficiencyErrorLow(1),eff.GetEfficiencyErrorUp(1))
+        
+        lepeff = FileIn[key].Get('Eff_HLT_LEP')
+
+        lepeff_err = max(lepeff.GetEfficiencyErrorLow(1),lepeff.GetEfficiencyErrorUp(1))
+        meteff = FileIn[key].Get('Eff_HLT_MET')
+        meteff_err = max(meteff.GetEfficiencyErrorLow(1),meteff.GetEfficiencyErrorUp(1))
+        lepmeteff = FileIn[key].Get('Eff_HLT_LEPMET')
+        lepmeteff_err = max(lepmeteff.GetEfficiencyErrorLow(1),lepmeteff.GetEfficiencyErrorUp(1))
+        
+        lepeff = lepeff.GetEfficiency(1)
+        meteff = meteff.GetEfficiency(1)
+        lepmeteff = lepmeteff.GetEfficiency(1)
+        Eff[key]['alpha'] = dict()
+        Eff[key]['alpha']['Central'] = (lepeff*meteff)/lepmeteff
+        Eff[key]['alpha']['Uncertainty'] = sqrt(lepeff_err*lepeff_err*meteff*meteff + lepeff*lepeff*meteff_err*meteff_err + lepeff*lepeff*meteff*meteff*lepmeteff_err*lepmeteff_err/(lepmeteff*lepmeteff))/lepmeteff
+
+
+    with open(f'{settings["DirIn"]}/Efficiency_Info.json','w') as f:
+
+        json.dump(Eff,f,indent=4)        
+
+    
+    #print(Nr_LEP['LEP'].GetEfficiency(1))
+    #print(Nr_LEP['LEP'].GetEfficiencyErrorLow(1))
+    #print(Nr_LEP['LEP'].GetEfficiencyErrorUp(1))
 def plot_eff2d(tag:str,**settings):
     if settings['year'] == '2018' and settings['veto']:
         FileIn = {

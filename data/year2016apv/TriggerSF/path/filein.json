@@ -1,11 +1,21 @@
 {
-    "Data": [
-        "/eos/cms/store/group/phys_top/ExtraYukawa/2016apvMerged/MET_B2.root",
-        "/eos/cms/store/group/phys_top/ExtraYukawa/2016apvMerged/MET_C.root",
-        "/eos/cms/store/group/phys_top/ExtraYukawa/2016apvMerged/MET_D.root",
-        "/eos/cms/store/group/phys_top/ExtraYukawa/2016apvMerged/MET_E.root",
-        "/eos/cms/store/group/phys_top/ExtraYukawa/2016apvMerged/MET_F.root"
-    ],
+    "Data": {
+        "B2": [
+            "/eos/cms/store/group/phys_top/ExtraYukawa/2016apvMerged/MET_B2.root"
+        ],
+        "C": [
+            "/eos/cms/store/group/phys_top/ExtraYukawa/2016apvMerged/MET_C.root"
+        ],
+        "D": [
+            "/eos/cms/store/group/phys_top/ExtraYukawa/2016apvMerged/MET_D.root"
+        ],
+        "E": [
+            "/eos/cms/store/group/phys_top/ExtraYukawa/2016apvMerged/MET_E.root"
+        ],
+        "F": [
+            "/eos/cms/store/group/phys_top/ExtraYukawa/2016apvMerged/MET_F.root"
+        ]
+    },
     "MC": [
         "/eos/cms/store/group/phys_top/ExtraYukawa/2016apvMerged/TTTo2L2Nu.root"
     ]
