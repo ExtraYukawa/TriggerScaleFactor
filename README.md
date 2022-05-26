@@ -86,12 +86,13 @@ python3 ./WorkFlow/main.py -m BuildDir -t DrellYan --year 2017 --channels Double
 ### step3: Drell_Yan Process Reconstruction
 
 ```
-python3 ./WorkFlow/main.py -m DrellYanRECO -y 2017 -i DoubleElectron -n -1 --SF_mode 0
+python3 ./WorkFlow/main.py -m DrellYanRECO -y 2017 -i DoubleElectron -n -1 --SF_mode 0 -x 3
 ```
  arguments: 
  - [-n]: number of events, if specified to be -1, all the events will be loaded.
  - [-a/--trigSF_on]: Apply triggerSF on MC sample or not. If specified, triggerSF will be applied otherwise, the default is no triggerSF.
  - [-a/--SF_mode]: 0: Without any ScaleFactors|1:Only ID Scale Factor|2: Only Trigger Scale Factor | 3: (ID +Trigger) Scale Factor
+ - [-x/--trigSFType]: Specify type of trigScaleFactors. 0 : l1pteta| 1: l2pteta| 2 : l1l2pt | 3: l1l2eta
  - Running Time: 3000 sec ~ 5000 sec
 ## Steps to do Lepton Fake Rate calculation
 ### step1 : Initialization and Building Ourput directory
