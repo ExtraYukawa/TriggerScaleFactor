@@ -19,13 +19,16 @@ ROOT.gInterpreter.ProcessLine(Histogram_Definition['TrigSF'].format(l1_trigSF_Fi
 ROOT.gInterpreter.ProcessLine("std::cout<<Trigger_sf(h1_TrigSF,50,1.5)*Trigger_sf(h2_TrigSF,20,0.5)")
 '''
 
+#A = dict()
+
+#for i in range(10):
+#    A[i] = [i for i in range(i)]
+
+#print(A)
+
 A = dict()
+A['A'] = 1
 
-for i in range(10):
-    A[i] = [i for i in range(i)]
+B = f"{A['A']}"
 
-print(A)
-
-
-
-
+print(eval(f'{B}'))

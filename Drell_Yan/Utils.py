@@ -29,6 +29,9 @@ class MyDataFrame(object):
         self.__year = settings.get('year')
         self.__veto = settings.get('veto')
         self.__flag_Condition =' && '.join(settings.get('MET_Filters'))
+
+        #self.__DiLep_Conditions = settings.get('DiLep_Conditions')
+        #self.__DiLepton_Triggers = settings.get('DiLepton_Triggers')
         if not self.__Data:
             self.__veto_prob_threshold = 1.
             if self.__year == '2018':
@@ -67,7 +70,7 @@ class MyDataFrame(object):
         self.__df_tree = ROOT.RDataFrame
         self.__Hists = Manager().dict()
         
-        self.__Trigger_Condition = settings.get('DiLepton_Triggers')
+        #self.__Trigger_Condition = settings.get('DiLepton_Triggers')
         
         
         self.__nevents =  settings.get('nevents')       
@@ -90,8 +93,11 @@ class MyDataFrame(object):
     def channel(self,channel:str)->str:
         self.__channel = channel
     @property
-    def Trigger_Condition(self)->str:
-        return self.__Trigger_Condition
+    def DiLepton_Triggers(self)->dict:
+        return self.__DiLepton_Triggers
+    @property
+    def DiLep_Conditions(self)->dict:
+        return self.__DiLep_Conditions
     @property
     def lepton_RECO_SF(self) -> str:
         return self.__lepton_RECO_SF
@@ -130,7 +136,7 @@ class MyDataFrame(object):
     def veto_prob_threshold(self)->float:
         return self.__veto_prob_threshold
 
-def Filtering(df:MyDataFrame,HistsSettings:dict,veto:bool,trigSFType:str):
+def Filtering(df:MyDataFrame,HistsSettings:dict,veto:bool,trigSFType:str,DiLepton_Triggers_Condition:str,Run_List={}):
     '''
     veto_Function -> Only have true meaning for UL2018. A filter to veto whether there is any jet falling into HEM region.
     
@@ -162,8 +168,8 @@ def Filtering(df:MyDataFrame,HistsSettings:dict,veto:bool,trigSFType:str):
     
     #Tree=Tree.Filter(df.Trigger_Condition).Filter(df.offline_selections)
     Tree = Tree.Filter(df.offline_selections)
-    Tree = Tree.Filter(df.Trigger_Condition)
     if not df.IsData:
+        Tree = Tree.Filter(DiLepton_Triggers_Condition)
         if df.SF_mode == 0:
             Tree = Tree.Define('trigger_SF','1.')
             Tree = Tree.Define('Id_SF','1.')
@@ -179,6 +185,15 @@ def Filtering(df:MyDataFrame,HistsSettings:dict,veto:bool,trigSFType:str):
             Tree = Tree.Define('Id_SF','ID_sf_singlelepton(h1_IDSF,OPS_l1_pt,OPS_l1_eta)*ID_sf_singlelepton(h2_IDSF,OPS_l2_pt,OPS_l2_eta)')
         Tree = Tree.Define('genweight',f'{df.p_weight}*{df.lepton_RECO_SF}*(trigger_SF)*Id_SF*genWeight/abs(genWeight)')#*genWeight/abs(genWeight)
     
+    else:
+        DiLepton_slc_run = dict()
+        for Name in Run_List.keys():
+            DiLepton_slc_run[Name] = ROOT.std.vector('int')()
+            for i in Run_List[Name]:
+                DiLepton_slc_run[Name].push_back(i)
+        #print(eval(f"f\'{DiLepton_Triggers_Condition}\'"))
+        Tree = Tree.Filter(eval(f"f'{DiLepton_Triggers_Condition}'"))
+
     #df.Tree = Tree
     Hists =dict()
     for name in HistsSettings.keys():

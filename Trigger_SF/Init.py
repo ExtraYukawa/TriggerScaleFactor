@@ -1,7 +1,7 @@
 import os,json
 
 
-def GenPaths_HLTTrigger_File(year:str):
+def Gen_HLT_MET_File(year:str):
     '''
     
     Build JSON file to record trigger conditions for Each particular channels.
@@ -9,18 +9,11 @@ def GenPaths_HLTTrigger_File(year:str):
     '''
     trigger = dict()
 
-    trigger['MET'] = dict()
-    trigger['MET']['Data'] = dict()
-    trigger['DoubleElectron'] = dict()
-    trigger['DoubleElectron']['Data'] = dict()
-    trigger['DoubleMuon'] = dict()
-    trigger['DoubleMuon']['Data'] = dict()
-    trigger['ElectronMuon'] = dict()
-    trigger['ElectronMuon']['Data'] = dict()
+    trigger['Data'] = dict()
     if year=='2016apv':
         eras = ['B2','C','D','E','F']
         for era in eras:
-            trigger['MET']['Data'][era] = \
+            trigger['Data'][era] = \
                     ["HLT_MET200",
                     "HLT_PFMET120_PFMHT120_IDTight",
                     "HLT_PFMET300",
@@ -28,206 +21,65 @@ def GenPaths_HLTTrigger_File(year:str):
                     "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight"]
                     
 
-            trigger['DoubleElectron']['Data'][era] = [\
-                    "HLT_Ele27_WPTight_Gsf",\
-                    "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",\
-                    "HLT_passEle32WPTight"]
 
-            if era != "F":
-                trigger['ElectronMuon']['Data'][era] = \
-                        ["HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL",\
-                        "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL",\
-                        "HLT_Ele27_WPTight_Gsf",\
-                        "HLT_IsoTkMu24",\
-                        "HLT_passEle32WPTight",\
-                        "HLT_IsoMu27"]
-            else:
-                trigger['ElectronMuon']['Data'][era] = \
-                        ["HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",\
-                        "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",\
-                        "HLT_Ele27_WPTight_Gsf",\
-                        "HLT_IsoTkMu24",\
-                        "HLT_passEle32WPTight",\
-                        "HLT_IsoMu27"]
-
-            trigger['DoubleMuon']['Data'][era] = \
-                    ['HLT_IsoMu27',\
-                    'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL',\
-                    'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL']
-
-        trigger['MET']['MC']  =\
+        trigger['MC']  =\
                 ["HLT_PFMET300",\
                 "HLT_MET200",\
                 "HLT_PFHT300_PFMET110",\
                 "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight",\
                 "HLT_PFMET120_PFMHT120_IDTight"] \
 
-        trigger['DoubleElectron']['MC'] =[\
-                "HLT_Ele27_WPTight_Gsf",\
-                "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",\
-                "HLT_passEle32WPTight"]
-
-        trigger['DoubleMuon']['MC'] = \
-                ['HLT_IsoMu27',\
-                'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL',\
-                'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL'] 
-        
-        trigger['ElectronMuon']['MC'] =\
-                ["HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
-                "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",
-                "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL",
-                "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL",
-                "HLT_Ele27_WPTight_Gsf",
-                "HLT_IsoTkMu24",
-                "HLT_passEle32WPTight",
-                "HLT_IsoMu27"]
 
     elif year =='2016postapv':
         eras = ['F','G','H']
         for era in eras:
-            trigger['MET']['Data'][era] =\
+            trigger['Data'][era] =\
                     ["HLT_PFMET300",\
                     "HLT_MET200",\
                     "HLT_PFHT300_PFMET110",\
                     "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight",\
                     "HLT_PFMET120_PFMHT120_IDTight"]
 
-            trigger['DoubleElectron']['Data'][era] =[\
-                    "HLT_Ele27_WPTight_Gsf",\
-                    "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",\
-                    "HLT_passEle32WPTight"]
-            
-            trigger['ElectronMuon']['Data'][era] = \
-                    ["HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",\
-                    "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",\
-                    "HLT_Ele27_WPTight_Gsf",\
-                    "HLT_IsoTkMu24",\
-                    "HLT_passEle32WPTight",\
-                    "HLT_IsoMu27"]
-
-            trigger['DoubleMuon']['Data'][era] =\
-                    ['HLT_IsoMu27']
-            if era in ['F','G']:
-                trigger['DoubleMuon']['Data'][era].append('HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL')
-                trigger['DoubleMuon']['Data'][era].append('HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL')
-            elif era =='H':
-                trigger['DoubleMuon']['Data'][era].append('HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ')
-                trigger['DoubleMuon']['Data'][era].append('HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ')
-            else:
-                pass
         
         
-        trigger['MET']['MC']  = \
+        trigger['MC']  = \
                 ["HLT_PFMET300",\
                 "HLT_MET200",\
                 "HLT_PFHT300_PFMET110",\
                 "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight",\
                 "HLT_PFMET120_PFMHT120_IDTight"]
 
-        trigger['DoubleMuon']['MC'] = \
-                ['HLT_IsoMu27'] 
-
-        trigger['DoubleMuon']['MC'].append('HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ')
-        trigger['DoubleMuon']['MC'].append('HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ')
-        trigger['DoubleMuon']['MC'].append('HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL')
-        trigger['DoubleMuon']['MC'].append('HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL')
-
-        trigger['DoubleElectron']['MC'] = [\
-                "HLT_Ele27_WPTight_Gsf",\
-                "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",\
-                "HLT_passEle32WPTight"]
-
-        trigger['ElectronMuon']['MC'] = \
-                ["HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",\
-                "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",\
-                "HLT_Ele27_WPTight_Gsf",\
-                "HLT_IsoTkMu24",\
-                "HLT_passEle32WPTight",\
-                "HLT_IsoMu27"]
-
 
     elif year=='2017':
         eras = ['B','C','D','E','F']
         for era in eras:
-            trigger['MET']['Data'][era] = \
+            trigger['Data'][era] = \
                     ["HLT_PFMET120_PFMHT120_IDTight",\
                     "HLT_PFHT700_PFMET85_PFMHT85_IDTight",\
                     "HLT_PFMET250_HBHECleaned",\
                     "HLT_PFHT800_PFMET75_PFMHT75_IDTight",\
                     "HLT_PFHT500_PFMET100_PFMHT100_IDTight"]
             if era == 'B':
-                trigger['MET']['Data'][era] =\
+                trigger['Data'][era] =\
                     ["HLT_PFMET120_PFMHT120_IDTight",\
                     "HLT_PFHT700_PFMET85_PFMHT85_IDTight",\
                     "HLT_PFHT800_PFMET75_PFMHT75_IDTight",\
                     "HLT_PFHT500_PFMET100_PFMHT100_IDTight"]
 
-            trigger['DoubleElectron']['Data'][era] = \
-                    ["HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",\
-                    "HLT_passEle32WPTight",\
-                    "HLT_Ele35_WPTight_Gsf"]
-            
-            trigger['DoubleMuon']['Data'][era] = \
-                    ["HLT_IsoMu27",\
-                    "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8"]
-            
-            trigger["ElectronMuon"]['Data'][era] =\
-                    [\
-                    "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",\
-                    "HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",\
-                    "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",\
-                    "HLT_IsoMu27",\
-                    "HLT_Ele35_WPTight_Gsf",\
-                    "HLT_passEle32WPTight"]
-            if era =='B':
-                trigger['DoubleMuon']['Data'][era].append("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ")
-            if era in ["C","D","E","F"]:
-                trigger['DoubleMuon']['Data'][era].append("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8")
-                trigger["ElectronMuon"]['Data'][era].append("HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL")
-        
-            if era in ["D","E","F"]:
-                trigger["DoubleElectron"]["Data"][era].append("HLT_Ele32_WPTight_Gsf")
-                trigger["ElectronMuon"]["Data"][era].append("HLT_Ele32_WPTight_Gsf")
-            
-            else:
-                pass
-        trigger['MET']['MC'] = \
+        trigger['MC'] = \
                 ["HLT_PFMET120_PFMHT120_IDTight",\
                 "HLT_PFHT700_PFMET85_PFMHT85_IDTight",\
                 "HLT_PFMET250_HBHECleaned",\
                 "HLT_PFHT800_PFMET75_PFMHT75_IDTight",\
                 "HLT_PFHT500_PFMET100_PFMHT100_IDTight"]
 
-        trigger['DoubleElectron']['MC'] =\
-                ["HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",\
-                "HLT_passEle32WPTight",\
-                "HLT_Ele32_WPTight_Gsf",\
-                "HLT_Ele35_WPTight_Gsf"]
-        
-        trigger['ElectronMuon']['MC'] = \
-                [\
-                "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL",\
-                "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",\
-                "HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",\
-                "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",\
-                "HLT_IsoMu27",\
-                "HLT_Ele32_WPTight_Gsf",\
-                "HLT_Ele35_WPTight_Gsf",\
-                "HLT_passEle32WPTight"]
-
-        trigger['DoubleMuon']['MC'] = \
-                ["HLT_IsoMu27",\
-                "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8",\
-                "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ",\
-                "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8"]#\
-                #"HLT_IsoMu24_eta2p1"]
 
     elif year =='2018':
 
         eras = ['A','B','C','D_0','D_1']
         
         for era in eras:
-            trigger['MET']['Data'][era]  =\
+            trigger['Data'][era]  =\
                     ["HLT_PFMET200_HBHE_BeamHaloCleaned"\
                     ,"HLT_PFMETTypeOne200_HBHE_BeamHaloCleaned",\
                     "HLT_PFMET120_PFMHT120_IDTight",\
@@ -238,31 +90,9 @@ def GenPaths_HLTTrigger_File(year:str):
                     "HLT_PFHT700_PFMET85_PFMHT85_IDTight",\
                     "HLT_PFHT800_PFMET75_PFMHT75_IDTight"]
 
-            trigger['DoubleElectron']['Data'][era] =\
-                    [\
-                    "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",\
-                    "HLT_Ele32_WPTight_Gsf",\
-                    "HLT_passEle32WPTight",\
-                    "HLT_Ele35_WPTight_Gsf"\
-                    ]
-            trigger['DoubleMuon']['Data'][era] =\
-                    ["HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8",\
-                    "HLT_IsoMu27",\
-                    "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8"]#,\
-                    #"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8"]#,\
-                    #"HLT_IsoMu24"]
             
-            trigger['ElectronMuon']['Data'][era] =\
-                    ["HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL",\
-                    "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",\
-                    "HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",\
-                    "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",\
-                    "HLT_Ele32_WPTight_Gsf",\
-                    "HLT_IsoMu27",\
-                    "HLT_passEle32WPTight",\
-                    "HLT_Ele35_WPTight_Gsf"]
         
-        trigger['MET']['MC'] =\
+        trigger['MC'] =\
                     ["HLT_PFMET200_HBHE_BeamHaloCleaned"\
                     ,"HLT_PFMETTypeOne200_HBHE_BeamHaloCleaned",\
                     "HLT_PFMET120_PFMHT120_IDTight",\
@@ -272,46 +102,22 @@ def GenPaths_HLTTrigger_File(year:str):
                     "HLT_PFHT500_PFMET100_PFMHT100_IDTight",\
                     "HLT_PFHT700_PFMET85_PFMHT85_IDTight",\
                     "HLT_PFHT800_PFMET75_PFMHT75_IDTight"]
-        trigger['DoubleElectron']['MC']=\
-                    ["HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",\
-                    "HLT_Ele32_WPTight_Gsf",\
-                    "HLT_passEle32WPTight",\
-                    "HLT_Ele35_WPTight_Gsf"]
-
-        trigger['DoubleMuon']['MC']=\
-                    ["HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8",\
-                    "HLT_IsoMu27"]#,\
-                    #"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsVVL_DZ_Mass3p8"]#,\
-                    #"HLT_IsoMu24"]
-        trigger['ElectronMuon']['MC']=\
-                    ["HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL",\
-                    "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",\
-                    "HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",\
-                    "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",\
-                    "HLT_Ele32_WPTight_Gsf",\
-                    "HLT_IsoMu27"\
-                    ,"HLT_passEle32WPTight",\
-                    "HLT_Ele35_WPTight_Gsf"]
 
     else:
         raise ValueError("year{year} HLT Path has not been specified yet!")
-    with open(f'./data/year{year}/TriggerSF/configuration/HLTTrigger.json','w')  as f:
+    with open(f'./data/year{year}/TriggerSF/configuration/HLT_MET.json','w')  as f:
         json.dump(trigger,f,indent=4)
 
     
-    for channel in trigger.keys():
-
-        print(f'{channel}:')
-
-        print(f'Data:\n')
-        for era in trigger[channel]['Data'].keys():
-            print(f"Era:{era}")
-            for path in trigger[channel]['Data'][era]:
-                print(path)
-
-        print(f'MC:\n')
-        for path in trigger[channel]['MC']:
+    print(f'Data:\n')
+    for era in trigger['Data'].keys():
+        print(f"Era:{era}")
+        for path in trigger['Data'][era]:
             print(path)
+
+    print(f'MC:\n')
+    for path in trigger['MC']:
+        print(path)
 
 
 def GenTotalLuminosity(year:str):
@@ -458,7 +264,7 @@ def GenVariableNames_File(year:str):
     with open(f'./data/year{year}/TriggerSF/configuration/name.json','wt') as f:
         json.dump(property_name, f,indent=4)
 
-def GenGoodFlag_File(year:str):
+def Gen_MET_Filters_File(year:str):
     '''
     Build Json file which contents MET Filters Name.
     '''
@@ -508,7 +314,7 @@ def GenGoodFlag_File(year:str):
 
     else:
         raise ValueError("year{year} HLT Path has not been specified yet!")
-    with open(f'./data/year{year}/TriggerSF/configuration/flag.json','wt') as f :
+    with open(f'./data/year{year}/TriggerSF/configuration/MET_Filters.json','wt') as f :
         json.dump(Flags,f,indent=4)
 
     print('Data:')

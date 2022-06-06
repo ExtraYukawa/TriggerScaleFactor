@@ -16,8 +16,31 @@ def getNumberofEventsInDataSet(DataSet:list,FilterSet:list):
         Events = ftemp.Get('Events')
         print(Events.GetEntries())
 
+def LEP_Triggers(LEP_Trig,Type:str,verbo=False)->str:
+    HLT_LEP = []
+    HLT_LEP_str = []
+    if Type == 'Data':
+        print('Data')
+        for i in LEP_Trig.keys():
+            HLT_LEP_str.append(i)
+            Run_List = LEP_Trig[i]
+            
+            v = ROOT.std.vector('int')()
+            
+            for k in Run_List:
+                v.push_back(k)
+            HLT_LEP.append(f'Triggers(run,{i},{v})') 
+            #HLT_LEP.append(f'Triggers(run,{i})') 
+            print(i)
+    
+    elif Type == 'MC':
+        HLT_LEP = LEP_Trig
+        HLT_LEP_str = HLT_LEP
+    LEP_Triggers = ' || '.join(HLT_LEP)
+    if verbo:
+        print('High-Level Trigger For DiLepton Channel: '+' || '.join(HLT_LEP_str))
 
-
+    return LEP_Triggers
 def MakeDir(Root:str,ChildName:str):
 
     if not os.path.isdir(Root):

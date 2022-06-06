@@ -34,25 +34,23 @@
     "DoubleElectron": {
         "Data": {
             "F": [
+                "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
                 "HLT_Ele27_WPTight_Gsf",
-                "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
                 "HLT_passEle32WPTight"
             ],
             "G": [
+                "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
                 "HLT_Ele27_WPTight_Gsf",
-                "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
                 "HLT_passEle32WPTight"
             ],
             "H": [
+                "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
                 "HLT_Ele27_WPTight_Gsf",
-                "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
                 "HLT_passEle32WPTight"
             ]
         },
         "MC": [
-            "HLT_Ele27_WPTight_Gsf",
-            "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
-            "HLT_passEle32WPTight"
+            "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL"
         ]
     },
     "DoubleMuon": {

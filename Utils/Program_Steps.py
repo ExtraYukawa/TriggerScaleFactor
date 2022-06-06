@@ -89,8 +89,6 @@ def Drell_Yan_Reconstruction(args):
     
     settings['TriggerSF']=dict()
 
-    with open(f'./data/year{args.year}/DrellYan/configuration/HLTTriggerCondition.json','rb') as f:
-        settings['DiLepton_Triggers'] = json.load(f)
     with open(f'./data/year{args.year}/DrellYan/configuration/data_xs.json','rb') as f:
         structure = json.load(f)
         settings['xs'] = structure['xs']
@@ -107,8 +105,6 @@ def Drell_Yan_Reconstruction(args):
     with open(f'./data/year{args.year}/TriggerSF/path/LeptonsID_SF.json','rb') as f:
         settings['LepIDSF_File'] = json.load(f)[args.channel]
     
-    #with open(f'./data/year{args.year}/TriggerSF/configuration/flag.json','r') as f:
-    #    settings['FLAG'] = json.load(f)
     
     with open(f"./data/year{args.year}/DrellYan/configuration/MET_Filters.json","r") as f:
         settings['MET_Filters'] = json.load(f)
@@ -117,6 +113,14 @@ def Drell_Yan_Reconstruction(args):
     with open(f'./data/year{args.year}/DrellYan/configuration/data_xs.json','rb') as f:
         settings['Phys_Process'] = json.load(f)
 
+    with open(f'./data/year{args.year}/DrellYan/configuration/DiLepton_Trigger.json','rb')  as f:
+        settings['DiLep_Conditions'] = json.load(f)[args.channel]
+        
+    with open(f'./data/year{args.year}/TriggerSF/configuration/DiLeptonTriggers.json','rb')  as f:
+        settings['DiLepton_Triggers'] = json.load(f)['Data'][args.channel] # Implemented only in Data
+    ROOT.gInterpreter.ProcessLine('#include "./include/Triggers.h"')
+    ROOT.gSystem.Load('./myLib/Triggers_cpp.so')
+    print('./include/Triggers.h is Loaded.')
     if args.SF_mode==3 or args.SF_mode==2:
         if args.trigSFType == 0:
             trigSFType = 'l1pteta'
@@ -197,6 +201,9 @@ def Trig_Calc(args):
     ROOT.gInterpreter.ProcessLine('#include "./include/Lepton_Info.h"')
     ROOT.gSystem.Load('./myLib/Lepton_Info_cpp.so')
     print('./include/Lepton_Info.h is Loaded.')
+    ROOT.gInterpreter.ProcessLine('#include "./include/Triggers.h"')
+    ROOT.gSystem.Load('./myLib/Triggers_cpp.so')
+    print('./include/Triggers.h is Loaded.')
     if args.year is None:
         raise ValueError('Arguments [year] must be speicified.')
     if args.channel == None:
@@ -206,12 +213,12 @@ def Trig_Calc(args):
     if args.veto == True:
         print('Veto HEM region.\nRemind: The option[-v/--veto] is only valid for UL2018 Data.')
      
-    with open(f'./data/year{args.year}/TriggerSF/configuration/HLTTrigger.json','rb') as f:
-        HLT_Path = json.load(f)
+    with open(f'./data/year{args.year}/TriggerSF/configuration/HLT_MET.json','rb') as f:
+        HLT_MET = json.load(f)[args.Type]
     with open(f'./data/year{args.year}/TriggerSF/configuration/name.json','rb') as f :
         Leptons_Information = json.load(f)[args.channel]
-    with open(f'./data/year{args.year}/TriggerSF/configuration/flag.json','rb') as f :
-        Flag = json.load(f)[args.Type]
+    with open(f'./data/year{args.year}/TriggerSF/configuration/MET_Filters.json','rb') as f :
+        MET_Filters = json.load(f)[args.Type]
 
     with open(f'./data/year{args.year}/TriggerSF/path/filein.json','rb') as f:
         FileIn = json.load(f)[args.Type]
@@ -224,6 +231,9 @@ def Trig_Calc(args):
 
     with open(f'./data/year{args.year}/TriggerSF/configuration/weights.json','rb') as f:
         Condition_Weights = json.load(f)[args.Type]
+    
+    with open(f'./data/year{args.year}/TriggerSF/configuration/DiLeptonTriggers.json','rb')  as f:
+        DiLepton_Triggers = json.load(f)[args.Type][args.channel]
 
     
     setting={
@@ -231,7 +241,7 @@ def Trig_Calc(args):
         'channel' : args.channel,
         'DirOut' : DirOut,
         'FileIn' : FileIn,
-        'MET_Filters':Flag,
+        'MET_Filters':MET_Filters,
         'Type':args.Type,
         'LepSF_File':LepSF_File,
         'Year':'year'+args.year,
@@ -244,8 +254,8 @@ def Trig_Calc(args):
     Trig_DFs = dict() 
     if args.Type=='MC':
         setting['FileIn'] = FileIn
-        setting['HLT_MET'] = HLT_Path['MET']['MC']
-        setting['HLT_LEP'] = HLT_Path[args.channel]['MC']
+        setting['HLT_MET'] = HLT_MET
+        setting['HLT_LEP'] = DiLepton_Triggers#selection run list
         Trig_DFs['MC'] = TrigRDataFrame(setting)
         Trig_DFs['MC'].Run()
     else:
@@ -257,8 +267,8 @@ def Trig_Calc(args):
             print(eras)
         for era in eras:
             setting['FileIn'] = FileIn[era]
-            setting['HLT_MET'] = HLT_Path['MET']['Data'][era]
-            setting['HLT_LEP'] = HLT_Path[args.channel]['Data'][era]
+            setting['HLT_MET'] = HLT_MET[era]
+            setting['HLT_LEP'] = DiLepton_Triggers[era]#selection run list
             for filename in setting['FileIn']:
                 print('Data name with era: '+filename)
             Trig_DFs[era] = TrigRDataFrame(setting)

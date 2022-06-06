@@ -13,11 +13,16 @@ import warnings
 import Utils.plot_settings as plt_set
 from Utils.Header import Histogram_Definition
 
+
+
+
 class TrigRDataFrame(MyDataFrame):
     def __init__(self,settings:dict)->None:
         super().__init__(settings)
         self.__Leptons_Informations = settings.get('Leptons_Information',None)
-        self.__HLT_LEP = settings.get('HLT_LEP',None)
+        self.__HLT_LEP_slcRun_List = settings.get('HLT_LEP',None)
+        #self.__HLT_LEP = self.__HLT_LEP_slcRun_List.keys()
+        
         self.__HLT_MET = settings.get('HLT_MET',None)
         self.__MET_Filters = settings.get('MET_Filters',None)
         self.__Year = settings.get('Year',None) 
@@ -215,6 +220,7 @@ class TrigRDataFrame(MyDataFrame):
         
         #ttc_Flag -> Used to judge whether the region of events is ttc.
         #OPS_Flag -> Used to judge whetehr the region of events is OPS.
+        
 
         df_region_trig = df_flag_trig\
                 .Define("ttc_Flag",f'Region_FLAG(ttc_region,{self.__Leptons_Informations["region"]})')\
@@ -261,9 +267,9 @@ class TrigRDataFrame(MyDataFrame):
                     else if(ttc_Flag) return {self.__Condition_Weights}*{RECOWeight_LEP_TTC}*IDsf*genWeight/abs(genWeight);\
                     else if(OPS_Flag) return {self.__Condition_Weights}*IDsf*{RECOWeight_LEP_OPS}*genWeight/abs(genWeight);')
             #df_Offline_Selection = df_Offline_Selection.Define("weight",'1.')
-        print('High-Level Trigger For DiLepton Channel: '+' || '.join(self.__HLT_LEP)+'\n') 
+        #print('High-Level Trigger For DiLepton Channel: '+' || '.join(self.__HLT_LEP)+'\n') 
         df_HLT_LEP = df_Offline_Selection\
-                .Filter(' || '.join(self.__HLT_LEP))\
+                .Filter(LEP_Triggers(self.__HLT_LEP_slcRun_List,self.__Type,True))\
                 .Define('HLT_LEP_pass','0.5')
         print('High-Level Trigger For MET: '+' || '.join(self.__HLT_MET)+'\n')
         df_HLT_MET = df_Offline_Selection\
@@ -282,7 +288,7 @@ class TrigRDataFrame(MyDataFrame):
         df_HLT_MET_lowmet = df_HLT_MET\
                 .Filter('met <150','pre_low_met')
         df_HLT_LEPMET = df_HLT_MET\
-                .Filter(" || ".join(self.__HLT_LEP))\
+                .Filter(LEP_Triggers(self.__HLT_LEP_slcRun_List,self.__Type))\
                 .Define('HLT_LEPMET_pass','0.5')
         df_HLT_LEPMET_highjet = df_HLT_LEPMET\
                 .Filter('n_tight_jet >=3','high_jet')

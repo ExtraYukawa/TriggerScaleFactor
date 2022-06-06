@@ -47,6 +47,7 @@ class DrellYanRDataFrame():
         self.__nevents = settings['nevents'] ## of events for DataFrame to run through
 
         self.__DiLepton_Triggers = settings['DiLepton_Triggers']
+        self.__DiLep_Conditions = settings['DiLep_Conditions']
         self.__Cross_Section = settings['xs']
         self.__lumi = self.__Cross_Section['lumi']
         self.__NumberOfEvents = settings['NumberOfEvents']# # of events for Data
@@ -136,20 +137,20 @@ class DrellYanRDataFrame():
         #DataFrame For Data 
         
         for dataset in self.__DataPath.keys():
+            #if dataset == 'SingleEG':continue
             self.__dfs['Data'][dataset] = dict()
             for era in self.__DataPath[dataset].keys():
                 settings = {
                         'channel': self.__channel,
                         'weights' : self.__condition_weights['Data'],
                         'MET_Filters' :  self.__MET_Filters['Data'],
-                        'DiLepton_Triggers' : self.__DiLepton_Triggers['Data'][self.__channel][dataset][era],
+                        #'DiLepton_Triggers' : self.__DiLepton_Triggers['Data'][self.__channel][dataset][era],
                         'Data': True,
                         'File_Paths' : self.__DataPath[dataset][era],
                         'nevents' : self.__nevents,
                         'veto':self.__veto,
                         }
                 self.__dfs['Data'][dataset][era] = MyDataFrame(settings)
-        
         #DataFrame For Simulation Events
         for process in self.__MCPath.keys():
             self.__dfs['MC'][process] = dict()
@@ -158,7 +159,7 @@ class DrellYanRDataFrame():
                         'channel': self.__channel,
                         'Data' : False,
                         'MET_Filters' :  self.__MET_Filters['MC'][process][phys_name],
-                        'DiLepton_Triggers' : self.__DiLepton_Triggers['MC'][self.__channel][process][phys_name],
+                        #'DiLepton_Triggers' : self.__DiLepton_Triggers['MC'][self.__channel][process][phys_name],
                         'weights' : self.__condition_weights['MC'],
                         'File_Paths' : self.__MCPath[process][phys_name],
                         'nevents' : self.__nevents,
@@ -173,28 +174,29 @@ class DrellYanRDataFrame():
         for process in self.__MCPath.keys():
             for phys_name in self.__MCPath[process].keys():
                 print(f"{process}:{phys_name}:Filtering")
-                Filtering(self.__dfs['MC'][process][phys_name],HistSettings,self.__veto,trigSFType=trigSF_branchname)
+                Filtering(self.__dfs['MC'][process][phys_name],HistSettings,self.__veto,trigSF_branchname,self.__DiLep_Conditions['MC'])
                 print(f"{process}:{phys_name}:Filter equipped success")
-        for dataset in self.__DataPath.keys():
-            for era in self.__DataPath[dataset].keys():
+        for dataset in self.__dfs['Data'].keys():
+
+            for era in self.__dfs['Data'][dataset].keys():
                 print(f"{dataset}:{era}:Filtering")
-                Filtering(self.__dfs['Data'][dataset][era] , HistSettings,self.__veto,trigSFType=trigSF_branchname)
+                Filtering(self.__dfs['Data'][dataset][era] , HistSettings,self.__veto,trigSF_branchname,self.__DiLep_Conditions["Data"][era][dataset],self.__DiLepton_Triggers[era])
                 print(f"{dataset}:{era}:Filter equipped success")
         if not self.__debug:
             print('Starting to process...')
             for histname in HistSettings.keys():
                 HistoGrams = OrderedDict()
                 HistoGrams['MC'] = OrderedDict()
+                HistoGrams['Data'] = OrderedDict()
                 Temps = OrderedDict()
                 Temps['Data'] = OrderedDict()
                 Temps['MC'] = OrderedDict()
-                for idx1 ,dataset in enumerate(self.__DataPath.keys()):
+                for idx1 ,dataset in enumerate(self.__dfs['Data'].keys()):
                     Temps['Data'][dataset] = dict()
-                    for idx2, era in enumerate(self.__DataPath[dataset].keys()):
+                    print(dataset)
+                    for idx2, era in enumerate(self.__dfs['Data'][dataset].keys()):
                         h = self.__dfs['Data'][dataset][era].Hists[histname].GetValue()
                         h = overunder_flowbin(h)
-                        
-                        
                         Temps['Data'][dataset][era] = h
                         if idx1 == 0 and idx2 == 0:
                             HistoGrams['Data'] = Temps['Data'][dataset][era]

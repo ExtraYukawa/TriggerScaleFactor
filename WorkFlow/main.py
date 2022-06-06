@@ -47,14 +47,16 @@ if args.mode == 'Init':
     MakeDir(RootDIR,'path')
     if args.task == 'TriggerSF':
         from Trigger_SF.Init import *
-        GenPaths_HLTTrigger_File(args.year)
+        Gen_HLT_MET_File(args.year)
         GenTrigEffInput_File(args.year) 
         GenLeptonIDSF_File(args.year)
         GenMCWeightsName_File(args.year)
         GenVariableNames_File(args.year)
-        GenGoodFlag_File(args.year)
+        Gen_MET_Filters_File(args.year)
         GenTotalLuminosity(args.year)
-    
+        from Trigger_SF.GenTriggers import gen_triggers    
+        
+        gen_triggers(args.year)
     elif args.task == 'DrellYan':
         from Drell_Yan.Init import *
         from Drell_Yan.DiLeptonTrigger import *

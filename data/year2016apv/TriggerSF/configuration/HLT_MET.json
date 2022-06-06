@@ -1,0 +1,46 @@
+{
+    "Data": {
+        "B2": [
+            "HLT_MET200",
+            "HLT_PFMET120_PFMHT120_IDTight",
+            "HLT_PFMET300",
+            "HLT_PFHT300_PFMET110",
+            "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight"
+        ],
+        "C": [
+            "HLT_MET200",
+            "HLT_PFMET120_PFMHT120_IDTight",
+            "HLT_PFMET300",
+            "HLT_PFHT300_PFMET110",
+            "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight"
+        ],
+        "D": [
+            "HLT_MET200",
+            "HLT_PFMET120_PFMHT120_IDTight",
+            "HLT_PFMET300",
+            "HLT_PFHT300_PFMET110",
+            "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight"
+        ],
+        "E": [
+            "HLT_MET200",
+            "HLT_PFMET120_PFMHT120_IDTight",
+            "HLT_PFMET300",
+            "HLT_PFHT300_PFMET110",
+            "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight"
+        ],
+        "F": [
+            "HLT_MET200",
+            "HLT_PFMET120_PFMHT120_IDTight",
+            "HLT_PFMET300",
+            "HLT_PFHT300_PFMET110",
+            "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight"
+        ]
+    },
+    "MC": [
+        "HLT_PFMET300",
+        "HLT_MET200",
+        "HLT_PFHT300_PFMET110",
+        "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight",
+        "HLT_PFMET120_PFMHT120_IDTight"
+    ]
+}

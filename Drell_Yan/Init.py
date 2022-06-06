@@ -248,8 +248,6 @@ def GenProcessName(year:str):
     
     if year == '2017' or year == '2018':
 
-
-
         if year =='2017':
             Event['VV'].append('WZ_ew')
             Event['VV'].append('WZ_qcd')
