@@ -2,19 +2,19 @@
     "DoubleElectron": {
         "Data": {
             "F": {
-                "SingleEG": "!Triggers(run,HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ,{DiLepton_slc_run[\"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ\"]}) &&( Triggers(run , HLT_passEle32WPTight,{DiLepton_slc_run[\"HLT_passEle32WPTight\"]}) || Triggers(run,HLT_Ele27_WPTight_Gsf,{DiLepton_slc_run[\"HLT_Ele27_WPTight_Gsf\"]}))",
+                "SingleEG": "!Triggers(run,HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ,{DiLepton_slc_run[\"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ\"]}) &&( Triggers(run,HLT_Ele27_WPTight_Gsf,{DiLepton_slc_run[\"HLT_Ele27_WPTight_Gsf\"]}))",
                 "DoubleEG": "Triggers(run,HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ,{DiLepton_slc_run[\"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ\"]})"
             },
             "G": {
-                "SingleEG": "!Triggers(run,HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ,{DiLepton_slc_run[\"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ\"]}) &&( Triggers(run , HLT_passEle32WPTight,{DiLepton_slc_run[\"HLT_passEle32WPTight\"]}) || Triggers(run,HLT_Ele27_WPTight_Gsf,{DiLepton_slc_run[\"HLT_Ele27_WPTight_Gsf\"]}))",
+                "SingleEG": "!Triggers(run,HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ,{DiLepton_slc_run[\"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ\"]}) &&( Triggers(run,HLT_Ele27_WPTight_Gsf,{DiLepton_slc_run[\"HLT_Ele27_WPTight_Gsf\"]}))",
                 "DoubleEG": "Triggers(run,HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ,{DiLepton_slc_run[\"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ\"]})"
             },
             "H": {
-                "SingleEG": "!Triggers(run,HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ,{DiLepton_slc_run[\"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ\"]}) &&( Triggers(run , HLT_passEle32WPTight,{DiLepton_slc_run[\"HLT_passEle32WPTight\"]}) || Triggers(run,HLT_Ele27_WPTight_Gsf,{DiLepton_slc_run[\"HLT_Ele27_WPTight_Gsf\"]}))",
+                "SingleEG": "!Triggers(run,HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ,{DiLepton_slc_run[\"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ\"]}) &&( Triggers(run,HLT_Ele27_WPTight_Gsf,{DiLepton_slc_run[\"HLT_Ele27_WPTight_Gsf\"]}))",
                 "DoubleEG": "Triggers(run,HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ,{DiLepton_slc_run[\"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ\"]})"
             }
         },
-        "MC": "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ || HLT_passEle32WPTight || HLT_Ele27_WPTight_Gsf"
+        "MC": "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ || HLT_Ele27_WPTight_Gsf"
     },
     "DoubleMuon": {
         "Data": {
@@ -36,21 +36,21 @@
     "ElectronMuon": {
         "Data": {
             "F": {
-                "SingleEG": "! (Triggers(run,HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ,{DiLepton_slc_run[\"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ\"]}) || Triggers(run , HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ, {DiLepton_slc_run[\"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ\"]}) ) &&(Triggers(run,HLT_passEle32WPTight,{DiLepton_slc_run[\"HLT_passEle32WPTight\"]}) || Triggers(run , HLT_Ele27_WPTight_Gsf, {DiLepton_slc_run[\"HLT_Ele27_WPTight_Gsf\"]}))",
-                "SingleMuon": "! (Triggers(run,HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ,{DiLepton_slc_run[\"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ\"]}) || Triggers(run , HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ, {DiLepton_slc_run[\"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ\"]}) ) &&(Triggers(run,HLT_IsoMu27,{DiLepton_slc_run[\"HLT_IsoMu27\"]}))",
-                "MuonEG": "Triggers(run,HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ,{DiLepton_slc_run[\"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ\"]}) || Triggers(run , HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ,{DiLepton_slc_run[\"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ\"]}) || Triggers(run , HLT_IsoTkMu24, {DiLepton_slc_run[\"HLT_IsoTkMu24\"]})"
+                "SingleEG": "! (Triggers(run,HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ,{DiLepton_slc_run[\"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ\"]}) || Triggers(run , HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ, {DiLepton_slc_run[\"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ\"]}) ) &&(Triggers(run , HLT_Ele27_WPTight_Gsf, {DiLepton_slc_run[\"HLT_Ele27_WPTight_Gsf\"]}))",
+                "SingleMuon": "! (Triggers(run,HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ,{DiLepton_slc_run[\"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ\"]}) || Triggers(run , HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ, {DiLepton_slc_run[\"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ\"]}) ) &&(Triggers(run,HLT_IsoMu27,{DiLepton_slc_run[\"HLT_IsoMu27\"]}) || Triggers(run , HLT_IsoTkMu24, {DiLepton_slc_run[\"HLT_IsoTkMu24\"]}))",
+                "MuonEG": "Triggers(run,HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ,{DiLepton_slc_run[\"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ\"]}) || Triggers(run , HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ,{DiLepton_slc_run[\"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ\"]})"
             },
             "G": {
-                "SingleEG": "! (Triggers(run,HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ,{DiLepton_slc_run[\"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ\"]}) || Triggers(run , HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ, {DiLepton_slc_run[\"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ\"]}) ) &&(Triggers(run,HLT_passEle32WPTight,{DiLepton_slc_run[\"HLT_passEle32WPTight\"]}) || Triggers(run , HLT_Ele27_WPTight_Gsf, {DiLepton_slc_run[\"HLT_Ele27_WPTight_Gsf\"]}))",
-                "SingleMuon": "! (Triggers(run,HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ,{DiLepton_slc_run[\"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ\"]}) || Triggers(run , HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ, {DiLepton_slc_run[\"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ\"]}) ) &&(Triggers(run,HLT_IsoMu27,{DiLepton_slc_run[\"HLT_IsoMu27\"]}))",
-                "MuonEG": "Triggers(run,HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ,{DiLepton_slc_run[\"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ\"]}) || Triggers(run , HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ,{DiLepton_slc_run[\"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ\"]}) || Triggers(run , HLT_IsoTkMu24, {DiLepton_slc_run[\"HLT_IsoTkMu24\"]})"
+                "SingleEG": "! (Triggers(run,HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ,{DiLepton_slc_run[\"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ\"]}) || Triggers(run , HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ, {DiLepton_slc_run[\"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ\"]}) ) &&(Triggers(run , HLT_Ele27_WPTight_Gsf, {DiLepton_slc_run[\"HLT_Ele27_WPTight_Gsf\"]}))",
+                "SingleMuon": "! (Triggers(run,HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ,{DiLepton_slc_run[\"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ\"]}) || Triggers(run , HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ, {DiLepton_slc_run[\"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ\"]}) ) &&(Triggers(run,HLT_IsoMu27,{DiLepton_slc_run[\"HLT_IsoMu27\"]}) || Triggers(run , HLT_IsoTkMu24, {DiLepton_slc_run[\"HLT_IsoTkMu24\"]}))",
+                "MuonEG": "Triggers(run,HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ,{DiLepton_slc_run[\"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ\"]}) || Triggers(run , HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ,{DiLepton_slc_run[\"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ\"]})"
             },
             "H": {
-                "SingleEG": "! (Triggers(run,HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ,{DiLepton_slc_run[\"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ\"]}) || Triggers(run , HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ, {DiLepton_slc_run[\"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ\"]}) ) &&(Triggers(run,HLT_passEle32WPTight,{DiLepton_slc_run[\"HLT_passEle32WPTight\"]}) || Triggers(run , HLT_Ele27_WPTight_Gsf, {DiLepton_slc_run[\"HLT_Ele27_WPTight_Gsf\"]}))",
-                "SingleMuon": "! (Triggers(run,HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ,{DiLepton_slc_run[\"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ\"]}) || Triggers(run , HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ, {DiLepton_slc_run[\"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ\"]}) ) &&(Triggers(run,HLT_IsoMu27,{DiLepton_slc_run[\"HLT_IsoMu27\"]}))",
-                "MuonEG": "Triggers(run,HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ,{DiLepton_slc_run[\"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ\"]}) || Triggers(run , HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ,{DiLepton_slc_run[\"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ\"]}) || Triggers(run , HLT_IsoTkMu24, {DiLepton_slc_run[\"HLT_IsoTkMu24\"]})"
+                "SingleEG": "! (Triggers(run,HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ,{DiLepton_slc_run[\"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ\"]}) || Triggers(run , HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ, {DiLepton_slc_run[\"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ\"]}) ) &&(Triggers(run , HLT_Ele27_WPTight_Gsf, {DiLepton_slc_run[\"HLT_Ele27_WPTight_Gsf\"]}))",
+                "SingleMuon": "! (Triggers(run,HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ,{DiLepton_slc_run[\"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ\"]}) || Triggers(run , HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ, {DiLepton_slc_run[\"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ\"]}) ) &&(Triggers(run,HLT_IsoMu27,{DiLepton_slc_run[\"HLT_IsoMu27\"]}) || Triggers(run , HLT_IsoTkMu24, {DiLepton_slc_run[\"HLT_IsoTkMu24\"]}))",
+                "MuonEG": "Triggers(run,HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ,{DiLepton_slc_run[\"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ\"]}) || Triggers(run , HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ,{DiLepton_slc_run[\"HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ\"]})"
             }
         },
-        "MC": "HLT_IsoMu27||HLT_IsoTkMu24|| HLT_passEle32WPTight || HLT_Ele27_WPTight_Gsf || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ || HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ"
+        "MC": "HLT_IsoMu27||HLT_IsoTkMu24 || HLT_Ele27_WPTight_Gsf || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ || HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ"
     }
 }
