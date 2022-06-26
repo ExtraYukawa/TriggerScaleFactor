@@ -392,7 +392,7 @@ def GenXsValue_File(year:str):
         Event['xs']['ttXorXX']['ttWtoQQ'] = 0.3708
         Event['xs']['ttXorXX']['ttZ'] = 0.2589
         Event['xs']['ttXorXX']['ttZtoQQ'] = 0.6012
-        Event['xs']['ttXorXX']['ttH'] = 0.5269
+        Event['xs']['ttXorXX']['ttH'] = 0.213
         Event['xs']['ttXorXX']['ttWW'] = 0.007003
         Event['xs']['ttXorXX']['ttWZ'] = 0.002453
         Event['xs']['ttXorXX']['ttZZ'] = 0.001386
@@ -411,8 +411,8 @@ def GenXsValue_File(year:str):
         Event['xs']['DY']['DYnlo'] = 6077.22
         Event['xs']['WJets']['WJets'] = 61526.7
         Event['xs']['VV']['ww'] = 11.09
-        Event['xs']['VV']['wz_qcd'] =  65.5443
-        Event['xs']['VV']['zz2l'] = 15.8274
+        Event['xs']['VV']['wz_qcd'] =  5.213
+        Event['xs']['VV']['zz2l'] = 0.0086
         Event['xs']['VVV']['www1'] = 0.2086
         Event['xs']['VVV']['wwz1'] = 0.1707
         Event['xs']['VVV']['wzz1'] = 0.057109
@@ -420,7 +420,7 @@ def GenXsValue_File(year:str):
         Event['xs']['TT']['TTTo2L2Nu'] = 88.3419
         Event['xs']['TT']['TTTo1L'] = 365.4574
 
-        Event['xs']['ttXorXX']['ttH'] = 0.5269
+        Event['xs']['ttXorXX']['ttH'] =  0.213
         Event['xs']['ttXorXX']['ttW'] = 0.1792
         Event['xs']['ttXorXX']['ttWToQQ'] = 0.3708
         Event['xs']['ttXorXX']['ttZ'] =  0.2589

@@ -195,28 +195,36 @@ class TrigRDataFrame(MyDataFrame):
         
         df_flag_trig = df.Filter(' && '.join(self.__MET_Filters),"Flag Cut")
         if self.__channel == 'ElectronMuon': 
-            RECOWeight_LEP_TTC = 'Electron_RECO_SF[ttc_l2_id]'
-            RECOWeight_LEP_OPS = 'Electron_RECO_SF[OPS_l2_id]'
             
-            l1_IDSF_type = self.__LepSF_File['name']['Muon']
+            l1_IDSF_Name = self.__LepSF_File['name']['Muon'][0]
+            l1_RECO_Name = self.__LepSF_File['name']['Muon'][1]
+
             l1_IDSF_File = self.__LepSF_File['path']['Muon']
             
             l2_IDSF_type = self.__LepSF_File['name']['Electron']
             l2_IDSF_File = self.__LepSF_File['path']['Electron']
-            ROOT.gInterpreter.ProcessLine(Histogram_Definition['Diff_Type'].format(l1_IDSF_File,l2_IDSF_File,l1_IDSF_type,l2_IDSF_type))
-        else:
+            print(Histogram_Definition['ElectronMuon'].format(l1_IDSF_File,l2_IDSF_File,l1_IDSF_Name,l2_IDSF_type,l1_RECO_Name)) 
+            ROOT.gInterpreter.ProcessLine(Histogram_Definition['ElectronMuon'].format(l1_IDSF_File,l2_IDSF_File,l1_IDSF_Name,l2_IDSF_type,l1_RECO_Name))
+        elif self.__channel == 'DoubleElectron':
             l1_IDSF_type = self.__LepSF_File['name']
             l1_IDSF_File = self.__LepSF_File['path']
             
             l2_IDSF_type = l1_IDSF_type 
             l2_IDSF_File = ""
-            ROOT.gInterpreter.ProcessLine(Histogram_Definition['Same_Type'].format(l1_IDSF_File,l1_IDSF_type))
-            if self.__channel == 'DoubleElectron'  :
-                RECOWeight_LEP_TTC = 'Electron_RECO_SF[ttc_l1_id]*Electron_RECO_SF[ttc_l2_id]'
-                RECOWeight_LEP_OPS = 'Electron_RECO_SF[OPS_l1_id]*Electron_RECO_SF[OPS_l2_id]'
-            elif self.__channel == 'DoubleMuon':
-                RECOWeight_LEP_TTC = '1.'
-                RECOWeight_LEP_OPS = '1.'
+            ROOT.gInterpreter.ProcessLine(Histogram_Definition['DoubleElectron'].format(l1_IDSF_File,l1_IDSF_type))
+            
+        
+        elif self.__channel == 'DoubleMuon':
+            RECOWeight_LEP_TTC = '1.'
+            RECOWeight_LEP_OPS = '1.'
+            l1_IDSF_type = self.__LepSF_File['name'][0]
+            RECO_IDSF_type = self.__LepSF_File['name'][1]
+            l1_IDSF_File = self.__LepSF_File['path']
+            
+            l2_IDSF_type = l1_IDSF_type 
+            l2_IDSF_File = ""
+            ROOT.gInterpreter.ProcessLine(Histogram_Definition['DoubleMuon'].format(l1_IDSF_File,l1_IDSF_type,RECO_IDSF_type))
+        
         
         #ttc_Flag -> Used to judge whether the region of events is ttc.
         #OPS_Flag -> Used to judge whetehr the region of events is OPS.
@@ -236,18 +244,52 @@ class TrigRDataFrame(MyDataFrame):
                 ,{self.__Leptons_Informations["ttc_p4"]["l2"][3]},{self.__Leptons_Informations["OPS_p4"]["l2"][0]}\
                 ,{self.__Leptons_Informations["OPS_p4"]["l2"][1]},{self.__Leptons_Informations["OPS_p4"]["l2"][2]},\
                 {self.__Leptons_Informations["OPS_p4"]["l2"][3]})')\
-                .Define("l1pt_tmp","if (l1p4.Pt() < 200) return l1p4.Pt();else return 199.;")\
-                .Define("l2pt_tmp","if (l2p4.Pt() < 200) return l2p4.Pt();else return 199.;")\
-                .Define("l1pt","if(l1pt_tmp > l2pt_tmp) return l1pt_tmp;else return l2pt_tmp")\
-                .Define("l2pt","if(l1pt_tmp > l2pt_tmp) return l2pt_tmp;else return l1pt_tmp")\
-                .Define("l1eta","if(l1pt_tmp > l2pt_tmp) return l1p4.Eta();else return l2p4.Eta();")\
-                .Define("l2eta","if(l1pt_tmp > l2pt_tmp) return l2p4.Eta();else return l1p4.Eta();")\
-                .Define("l1_abseta","abs(l1eta)")\
-                .Define("l2_abseta","abs(l2eta)")\
-                .Define("IDsf",f'IDScaleFact("{self._channel}",h1,h2,l1pt,l2pt,l1eta,l2eta)')\
                 .Define("flag_2P0F",'if(ttc_Flag) return ttc_2P0F;else if(OPS_Flag) return OPS_2P0F;throw "Contraction Region!";')\
                 .Filter('flag_2P0F')
+                #.Define("IDsf",f'IDScaleFact("{self._channel}",h1_IDSF,h2_IDSF,l1pt,l2pt,l1eta,l2eta)')\
+        if self.__channel !='ElectronMuon':
+                df_region_trig=df_region_trig\
+                    .Define("l1pt_tmp","if (l1p4.Pt() < 200) return l1p4.Pt();else return 199.;")\
+                    .Define("l2pt_tmp","if (l2p4.Pt() < 200) return l2p4.Pt();else return 199.;")\
+                    .Define("l1pt","if(l1pt_tmp > l2pt_tmp) return l1pt_tmp;else return l2pt_tmp")\
+                    .Define("l2pt","if(l1pt_tmp > l2pt_tmp) return l2pt_tmp;else return l1pt_tmp")\
+                    .Define("l1eta","if(l1pt_tmp > l2pt_tmp) return l1p4.Eta();else return l2p4.Eta();")\
+                    .Define("l2eta","if(l1pt_tmp > l2pt_tmp) return l2p4.Eta();else return l1p4.Eta();")\
+                    .Define("l1_iD","if(ttc_Flag) return ttc_l1_id;else return OPS_l1_id;")\
+                    .Define("l2_iD","if(ttc_Flag) return ttc_l2_id;else return OPS_l2_id;")\
+                    .Define("l1_ID","if(l1pt_tmp > l2pt_tmp) return l1_iD;else return l2_iD;")\
+                    .Define("l2_ID","if(l1pt_tmp > l2pt_tmp) return l2_iD;else return l1_iD;")\
+                    .Define("l1_abseta","abs(l1eta)")\
+                    .Define("l2_abseta","abs(l2eta)")
+        else:
+                df_region_trig=df_region_trig\
+                    .Define("l1pt","l1p4.Pt()")\
+                    .Define("l2pt","l2p4.Pt()")\
+                    .Define("l1eta","l1p4.Eta()")\
+                    .Define("l2eta","l2p4.Eta()")\
+                    .Define("l1_ID","if(ttc_Flag) return ttc_l1_id;else return OPS_l1_id;")\
+                    .Define("l2_ID","if(ttc_Flag) return ttc_l2_id;else return OPS_l2_id;")\
+                    .Define("l1_abseta","abs(l1eta)")\
+                    .Define("l2_abseta","abs(l2eta)")
+
+
+
+
+        if self.__channel =='ElectronMuon':
+
+            df_region_trig = df_region_trig.Define("RECO_SFs","RECO_Muon_SF(h_RECOSF,l1pt,l1eta) * Electron_RECO_SF[l2_ID]")\
+                    .Define("IDsf","Muon_IDSF(h1_IDSF,l1pt,l1eta) * Electron_IDSF(h2_IDSF,l2pt,l2eta)")
+        elif self.__channel == 'DoubleElectron':
+
+            df_region_trig = df_region_trig.Define("RECO_SFs","Electron_RECO_SF[l1_ID]*Electron_RECO_SF[l2_ID]")\
+                    .Define("IDsf","Electron_IDSF(h1_IDSF,l1pt,l1eta) * Electron_IDSF(h2_IDSF,l2pt,l2eta)")
+        else:
+            df_region_trig = df_region_trig.Define("RECO_SFs","RECO_Muon_SF(h_RECOSF,l1pt,l1eta) * RECO_Muon_SF(h_RECOSF,l2pt,l2eta)")\
+                    .Define("IDsf","Muon_IDSF(h1_IDSF,l1pt,l1eta) * Muon_IDSF(h2_IDSF,l2pt,l2eta)")
+
+
         if self.__Type=='Data':
+
             MET = 'MET_T1_pt'
         else:
             MET = 'MET_T1Smear_pt'
@@ -263,9 +305,9 @@ class TrigRDataFrame(MyDataFrame):
         #RECOWeight_LEP_OPS -> Ele_RECO_SF[l1_id] * Ele_RECO_SF[l2_id] for double electron, 1 for double muon, Ele_RECO_SF[l2_id] for emu.
         else:
             df_Offline_Selection = df_Offline_Selection.\
-                    Define("weight",f'if(ttc_Flag && OPS_Flag) throw "Contraction Region!" ;\
-                    else if(ttc_Flag) return {self.__Condition_Weights}*{RECOWeight_LEP_TTC}*IDsf*genWeight/abs(genWeight);\
-                    else if(OPS_Flag) return {self.__Condition_Weights}*IDsf*{RECOWeight_LEP_OPS}*genWeight/abs(genWeight);')
+                    Define("weight",f'{self.__Condition_Weights}*RECO_SFs*genWeight/abs(genWeight)*IDsf')
+                   # else if(ttc_Flag) return {self.__Condition_Weights}*{RECOWeight_LEP_TTC}*IDsf*genWeight/abs(genWeight);\
+                   # else if(OPS_Flag) return {self.__Condition_Weights}*IDsf*{RECOWeight_LEP_OPS}*genWeight/abs(genWeight);')
             #df_Offline_Selection = df_Offline_Selection.Define("weight",'1.')
         #print('High-Level Trigger For DiLepton Channel: '+' || '.join(self.__HLT_LEP)+'\n') 
         df_HLT_LEP = df_Offline_Selection\

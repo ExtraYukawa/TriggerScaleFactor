@@ -61,7 +61,7 @@ class DrellYanRDataFrame():
         self.__Process = settings['Process']  # Sorts of Process, please see ./data/year{year}/DrellYan/path/datapath.json
         
         self.__TriggerSF= settings.get('TriggerSF',None)
-        self.__LepIDSF_File = settings['LepIDSF_File']
+        self.__LepSF_File = settings['LepIDSF_File']
         
         self.__histos = OrderedDict()
         self.__histos['MC'] = OrderedDict()
@@ -103,18 +103,34 @@ class DrellYanRDataFrame():
         #Define IDSF files path and branchname
         #Define TrigSF files path and branchname
         if self.__channel == 'ElectronMuon': 
-            l1_IDSF_type = self.__LepIDSF_File['name']['Muon']
-            l1_IDSF_File = self.__LepIDSF_File['path']['Muon']
             
-            l2_IDSF_type = self.__LepIDSF_File['name']['Electron']
-            l2_IDSF_File = self.__LepIDSF_File['path']['Electron']
+            l1_IDSF_Name = self.__LepSF_File['name']['Muon'][0]
+            l1_RECO_Name = self.__LepSF_File['name']['Muon'][1]
 
-
-            ROOT.gInterpreter.ProcessLine(Histogram_Definition['Diff_Type_IDSF'].format(l1_IDSF_File,l2_IDSF_File,l1_IDSF_type,l2_IDSF_type))
-        else:
-            IDSF_type = self.__LepIDSF_File['name']
-            IDSF_File = self.__LepIDSF_File['path']
-            ROOT.gInterpreter.ProcessLine(Histogram_Definition['Same_Type_IDSF'].format(IDSF_File,IDSF_type))
+            l1_IDSF_File = self.__LepSF_File['path']['Muon']
+            
+            l2_IDSF_type = self.__LepSF_File['name']['Electron']
+            l2_IDSF_File = self.__LepSF_File['path']['Electron']
+            ROOT.gInterpreter.ProcessLine(Histogram_Definition['ElectronMuon'].format(l1_IDSF_File,l2_IDSF_File,l1_IDSF_Name,l2_IDSF_type,l1_RECO_Name))
+        elif self.__channel == 'DoubleElectron':
+            l1_IDSF_type = self.__LepSF_File['name']
+            l1_IDSF_File = self.__LepSF_File['path']
+            
+            l2_IDSF_type = l1_IDSF_type 
+            l2_IDSF_File = ""
+            ROOT.gInterpreter.ProcessLine(Histogram_Definition['DoubleElectron'].format(l1_IDSF_File,l1_IDSF_type))
+            
+        
+        elif self.__channel == 'DoubleMuon':
+            RECOWeight_LEP_TTC = '1.'
+            RECOWeight_LEP_OPS = '1.'
+            l1_IDSF_type = self.__LepSF_File['name'][0]
+            RECO_IDSF_type = self.__LepSF_File['name'][1]
+            l1_IDSF_File = self.__LepSF_File['path']
+            
+            l2_IDSF_type = l1_IDSF_type 
+            l2_IDSF_File = ""
+            ROOT.gInterpreter.ProcessLine(Histogram_Definition['DoubleMuon'].format(l1_IDSF_File,l1_IDSF_type,RECO_IDSF_type))
         trigSF_branchname='Default' 
         if self.__SF_mode == 2 or self.__SF_mode ==3:
             trigSF_branchname = self.__TriggerSF['branchname']
@@ -129,7 +145,8 @@ class DrellYanRDataFrame():
             #    trigSF_File = self.__TriggerSF['veto'][self.__channel][trigSF_branchname]
             #else:
             #    trigSF_File = self.__TriggerSF['all'][self.__channel][trigSF_branchname]
-
+            
+            print(Histogram_Definition['TrigSF'].format(trigSF_File,trigSF_branchname))
             ROOT.gInterpreter.ProcessLine(Histogram_Definition['TrigSF'].format(trigSF_File,trigSF_branchname))
         
         #To Load IDSF function
@@ -174,7 +191,7 @@ class DrellYanRDataFrame():
         for process in self.__MCPath.keys():
             for phys_name in self.__MCPath[process].keys():
                 print(f"{process}:{phys_name}:Filtering")
-                Filtering(self.__dfs['MC'][process][phys_name],HistSettings,self.__veto,trigSF_branchname,self.__DiLep_Conditions['MC'])
+                Filtering(self.__dfs['MC'][process][phys_name],HistSettings,self.__veto,trigSF_branchname,self.__DiLep_Conditions['MC'],channel=self.__channel)
                 print(f"{process}:{phys_name}:Filter equipped success")
         for dataset in self.__dfs['Data'].keys():
 

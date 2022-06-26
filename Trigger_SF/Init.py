@@ -187,39 +187,38 @@ def GenMCWeightsName_File(year:str):
 def GenLeptonIDSF_File(year:str):
     if year=='2017' or year == '2018' or year =='2016apv' or year=='2016postapv':
         year_tmp = year
+        year_tmp1 = year
         if year=='2016postapv':
             year='2016'
             year_tmp = '2016postapv'
+            year_tmp1 = '2016'
+        elif year =='2016apv':
+            year = 'apv2016'
+            year_tmp = '2016apv'
+            year_tmp1 = '2016apv'
         else:
             pass
         path = {
                 'DoubleElectron':{ 
-                    'path':f'/afs/cern.ch/user/m/melu/public/EG_SF/{year}/{year}.root',
+                    'path':f'/afs/cern.ch/user/m/melu/public/EG_SF/{year_tmp1}/{year_tmp1}.root',
                         'name':'EleIDSF'},
                 'DoubleMuon':{
-                    'path':f'/eos/user/t/tihsu/share/muonID_SF/{year_tmp}UL/muonIdSF_{year_tmp}UL.root',
-                    'name':'muIdSF'
+                    'path':f'/eos/cms/store/group/phys_top/ExtraYukawa/ScaleFactor/muonID_SF/muonIdSF_{year_tmp}UL.root',
+                    'name':[f'muIdSF_{year}','NUM_Tight_DEN_TrackerMuons'],
                     },
                 'ElectronMuon':{
                     'path':{
-                        'Muon':f'/eos/user/t/tihsu/share/muonID_SF/{year_tmp}UL/muonIdSF_{year_tmp}UL.root',
-                        'Electron':f'/afs/cern.ch/user/m/melu/public/EG_SF/{year}/{year}.root'
+                        'Muon':f'/eos/cms/store/group/phys_top/ExtraYukawa/ScaleFactor/muonID_SF/muonIdSF_{year_tmp}UL.root',
+                        'Electron':f'/afs/cern.ch/user/m/melu/public/EG_SF/{year_tmp1}/{year_tmp1}.root'
                     },
                     'name':{
-                        'Muon':'muIdSF',
+                        'Muon':[f'muIdSF_{year}','NUM_Tight_DEN_TrackerMuons'],
                         'Electron':'EleIDSF'
                         }
 
                     }
         }
-        if year =='2016apv':
-            path['DoubleMuon']['name']= 'muIdSF_apv2016'
-            path['ElectronMuon']['name']['Muon']= 'muIdSF_apv2016'
-        if year_tmp =='2016postapv':
-            path['DoubleMuon']['name']= 'muIdSF_2016'
-            path['ElectronMuon']['name']['Muon']= 'muIdSF_2016'
-
-        if year =='2016':
+        if year =='2016' or year =='apv2016':
             year = year_tmp
     else:
         raise ValueError("year{year} HLT Path has not been specified yet!")

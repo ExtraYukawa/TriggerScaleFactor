@@ -4,16 +4,22 @@
         "name": "EleIDSF"
     },
     "DoubleMuon": {
-        "path": "/eos/user/t/tihsu/share/muonID_SF/2016postapvUL/muonIdSF_2016postapvUL.root",
-        "name": "muIdSF_2016"
+        "path": "/eos/cms/store/group/phys_top/ExtraYukawa/ScaleFactor/muonID_SF/muonIdSF_2016postapvUL.root",
+        "name": [
+            "muIdSF_2016",
+            "NUM_Tight_DEN_TrackerMuons"
+        ]
     },
     "ElectronMuon": {
         "path": {
-            "Muon": "/eos/user/t/tihsu/share/muonID_SF/2016postapvUL/muonIdSF_2016postapvUL.root",
+            "Muon": "/eos/cms/store/group/phys_top/ExtraYukawa/ScaleFactor/muonID_SF/muonIdSF_2016postapvUL.root",
             "Electron": "/afs/cern.ch/user/m/melu/public/EG_SF/2016/2016.root"
         },
         "name": {
-            "Muon": "muIdSF_2016",
+            "Muon": [
+                "muIdSF_2016",
+                "NUM_Tight_DEN_TrackerMuons"
+            ],
             "Electron": "EleIDSF"
         }
     }

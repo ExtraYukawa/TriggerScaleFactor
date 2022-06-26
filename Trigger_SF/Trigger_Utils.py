@@ -222,7 +222,9 @@ def ScaleFactors(nominal_name:str,**settings):
     SF_Central = Get_SF_Central(File=FileIn,nominal_name=nominal_name)
     SF_Corr_SystUncertainty = Get_SystematicUncertainty('Correlation Type',nominal_name)(Correlation_Err_Calc,**args)
     SF_Diff_SystUncertainty = Get_SystematicUncertainty('Criteria Difference Type',nominal_name)(CriteriaDiff_Err_Calc,**args)
-
+    
+    
+    
     SF_SystematicUncertainty = np.sqrt((SF_Corr_SystUncertainty * SF_Central)**2+ (SF_Diff_SystUncertainty* SF_Central)**2)
     
     if 'l1l2pt' == args['nominal_name'] :
@@ -255,13 +257,22 @@ def ScaleFactors(nominal_name:str,**settings):
     #SF_hist.SetTitle('')
     SF_hist.GetXaxis().SetTitle(xtitle)
     SF_hist.GetYaxis().SetTitle(ytitle)
+    x = SF_hist.GetNbinsX()
+    y = SF_hist.GetNbinsY()
+
     for i in range(SF_hist.GetNbinsX()):
         for j in range(SF_hist.GetNbinsY()):
             SF_hist.SetBinContent(i+1,j+1,SF_Central[i][j])
             SF_hist.SetBinError(i+1,j+1,SF_SystematicUncertainty[i][j])
+    
 
     with open(f'./data/year{settings["year"]}/TriggerSF/configuration/lumi.json',"r") as f:
         lumi = json.load(f)[f'{settings["year"]}']
+    R_SF_Central = SF_Diff_SystUncertainty.transpose()
+    print(x)
+    print(xbin)
+    print(args['nominal_name'])
+    print(f'{R_SF_Central[-1::-1,0:x:1]}')
     
     
     if settings['year'] == '2018' and settings['veto']:  

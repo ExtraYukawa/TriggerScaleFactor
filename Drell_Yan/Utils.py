@@ -136,20 +136,20 @@ class MyDataFrame(object):
     def veto_prob_threshold(self)->float:
         return self.__veto_prob_threshold
 
-def Filtering(df:MyDataFrame,HistsSettings:dict,veto:bool,trigSFType:str,DiLepton_Triggers_Condition:str,Run_List={}):
+def Filtering(df:MyDataFrame,HistsSettings:dict,veto:bool,trigSFType:str,DiLepton_Triggers_Condition:str,Run_List={},channel='default'):
     '''
     veto_Function -> Only have true meaning for UL2018. A filter to veto whether there is any jet falling into HEM region.
     
     '''
     if df.SF_mode ==2 or df.SF_mode==3:
         if trigSFType == 'l1pteta':
-            trigSF = 'Trigger_sf(h_TrigSF,OPS_l1_pt,OPS_l1_eta)'
+            trigSF = 'Trigger_sf_pteta(h_TrigSF,l1pt,l1eta)'
         elif trigSFType == 'l2pteta':
-            trigSF = 'Trigger_sf(h_TrigSF,OPS_l2_pt,OPS_l2_eta)'
+            trigSF = 'Trigger_sf_pteta(h_TrigSF,l2pt,l2eta)'
         elif trigSFType == 'l1l2pt':
-            trigSF = 'Trigger_sf(h_TrigSF,OPS_l1_pt,OPS_l2_pt)'
+            trigSF = 'Trigger_sf_l1l2pt(h_TrigSF,l1pt,l2pt)'
         elif trigSFType == 'l1l2eta':
-            trigSF = 'Trigger_sf(h_TrigSF,OPS_l1_eta,OPS_l2_eta)'
+            trigSF = 'Trigger_sf_l1l2eta(h_TrigSF,l1eta,l2eta)'
         else:
             raise ValueError(f'Wrong Trigger SF type:{trigSFType}')
     
@@ -168,22 +168,49 @@ def Filtering(df:MyDataFrame,HistsSettings:dict,veto:bool,trigSFType:str,DiLepto
     
     #Tree=Tree.Filter(df.Trigger_Condition).Filter(df.offline_selections)
     Tree = Tree.Filter(df.offline_selections)
+    
+    if channel != 'ElectronMuon':
+    
+        Tree = Tree.Define("l1pt","if (OPS_l1_pt > OPS_l2_pt) return OPS_l1_pt; else return OPS_l2_pt")\
+                .Define("l1eta","if(OPS_l1_pt > OPS_l2_pt) return OPS_l1_eta; else return OPS_l2_eta")\
+                .Define("l2pt","if(OPS_l1_pt > OPS_l2_pt) return OPS_l2_pt; else return OPS_l1_pt")\
+                .Define("l2eta","if(OPS_l1_pt > OPS_l2_pt) return OPS_l2_eta; else return OPS_l1_eta")
+    else:
+        Tree = Tree.Define("l1pt","OPS_l1_pt")\
+                .Define("l1eta","OPS_l1_eta")\
+                .Define("l2pt","OPS_l2_pt")\
+                .Define("l2eta","OPS_l2_eta")
+
+
     if not df.IsData:
-        Tree = Tree.Filter(DiLepton_Triggers_Condition)
+        if channel =='ElectronMuon':
+            Tree = Tree.Define("RECO_SFs","RECO_Muon_SF(h_RECOSF,l1pt,l1eta) * Electron_RECO_SF[OPS_l2_id]")
+        elif channel == 'DoubleElectron':
+            Tree = Tree.Define("RECO_SFs","Electron_RECO_SF[OPS_l1_id]*Electron_RECO_SF[OPS_l2_id]")
+        else:
+            Tree = Tree.Define("RECO_SFs","RECO_Muon_SF(h_RECOSF,l1pt,l1eta) * RECO_Muon_SF(h_RECOSF,l2pt,l2eta)")
         if df.SF_mode == 0:
             Tree = Tree.Define('trigger_SF','1.')
             Tree = Tree.Define('Id_SF','1.')
-        elif df.SF_mode ==1:
-            Tree = Tree.Define('trigger_SF','1.')
-            Tree = Tree.Define('Id_SF','ID_sf_singlelepton(h1_IDSF,OPS_l1_pt,OPS_l1_eta)*ID_sf_singlelepton(h2_IDSF,OPS_l2_pt,OPS_l2_eta)')
         elif df.SF_mode == 2:
             Tree = Tree.Define('trigger_SF',trigSF)
             Tree = Tree.Define('Id_SF','1.')
-        elif df.SF_mode == 3:
-            Tree = Tree.Define('trigger_SF',trigSF)
+        
+        elif df.SF_mode ==1 or df.SF_mode==3:
+            if df.SF_mode==1:
+                Tree = Tree.Define('trigger_SF','1.')
+            else: 
+                
+                Tree = Tree.Define('trigger_SF',trigSF)
             
-            Tree = Tree.Define('Id_SF','ID_sf_singlelepton(h1_IDSF,OPS_l1_pt,OPS_l1_eta)*ID_sf_singlelepton(h2_IDSF,OPS_l2_pt,OPS_l2_eta)')
-        Tree = Tree.Define('genweight',f'{df.p_weight}*{df.lepton_RECO_SF}*(trigger_SF)*Id_SF*genWeight/abs(genWeight)')#*genWeight/abs(genWeight)
+            if channel =='ElectronMuon':
+                Tree = Tree.Define("Id_SF","Electron_IDSF(h2_IDSF,l2pt,l2eta) * Muon_IDSF(h1_IDSF,l1pt,l1eta)")
+            elif channel == 'DoubleElectron':
+                Tree = Tree.Define("Id_SF","Electron_IDSF(h1_IDSF,l1pt,l1eta) * Electron_IDSF(h2_IDSF,l2pt,l2eta)")
+            else:
+                Tree = Tree.Define("Id_SF","Muon_IDSF(h1_IDSF,l1pt,l1eta) * Muon_IDSF(h2_IDSF,l2pt,l2eta)")
+        Tree = Tree.Filter(DiLepton_Triggers_Condition)
+        Tree = Tree.Define('genweight',f'{df.p_weight}*RECO_SFs*trigger_SF*Id_SF*genWeight/abs(genWeight)')#*genWeight/abs(genWeight)
     
     else:
         DiLepton_slc_run = dict()
