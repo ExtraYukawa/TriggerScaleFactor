@@ -7,22 +7,32 @@ import argparse
 import time
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-m','--mode',help='Program Modes',choices=['Init','BuildDir','TrigEff_Calc','TrigEff_Plot','TrigSF_Calc','DrellYanRECO','FakeRate'],type=str)
+parser.add_argument('-m','--mode',help='Program Modes',choices=['Init','BuildDir','TrigEff_Calc','TrigEff_Plot','TrigSF_Calc','DrellYanRECO','FakeRate','PhysProcessRECO'],type=str)
 
 parser.add_argument('-y','--year',help='year',choices=['2017','2018','2016apv','2016postapv'],type=str)
 
 parser.add_argument('-c','--channels',help='Channels, ex: DoubleElectron DoubleMuon',nargs='+')
 parser.add_argument('-i','--channel',choices=['DoubleElectron','DoubleMuon','ElectronMuon','Electron','Muon'],default=None)
 parser.add_argument('-o','--DirOut',help="Output Directory's Parent,ex: /eos/user/z/zhenggan",type=str)
-parser.add_argument('-t','--task',help="Task",type=str,choices=["TriggerSF","DrellYan","FakeRate"])
+parser.add_argument('-t','--task',help="Task",type=str,choices=["TriggerSF","DrellYan","FakeRate","PhysProcessRECO"])
 parser.add_argument('-f','--Type',help="MC/Data",type=str,choices=["MC","Data"])
 parser.add_argument('-n','--nevents',help="Number of Events. Only used in mode[TrigEff_Calc] at this moment. Default is set to -1.",type=int,default=-1)
-parser.add_argument('-a','--SF_mode',choices=[0,1,2,3],help="This option is to determine whether to apply TriggerSF on MC Sample",type=int,default=3)
 parser.add_argument('-v','--veto',action = "store_true",help="In 2018 Issue, veto the HEM region if specified.")
 parser.add_argument('-d','--debug',action="store_true",help="Debug mode")
 parser.add_argument('-s','--ylog',choices=[0,1],help="Set y scale to be log scale, only works for Control Region validation at this moment.",type=int,default = 0)
 parser.add_argument('-x','--trigSFType',choices=[0,1,2,3],help="Trigger Scale Factors Type. 0: l1pteta,1: l2pteta,2:l1l2pt,3:l1l2eta",type=int,default=-1)
-parser.add_argument('-e','--Era',type=str,help='Data Era',default=[''],nargs='+')
+parser.add_argument('-e','--Eras',type=str,help='Data Eras',default=[''],nargs='+')
+parser.add_argument('-r','--region',help="Physics Region Reconstruction",choices=['SignalRegion','DrellYan','TTBar'],type=str,default='DrellYan')
+parser.add_argument('--TrigSF',choices=[0,1,2,3,4],help="This option is to determine whether to apply TriggerSF on MC Sample",type=int,default=3)
+parser.add_argument('--IDSF',action="store_true",help="This option is to determine whether to apply Lepton's IDSF on MC Sample")
+parser.add_argument('--CFSF',action="store_true",help="This option is to determine whether to apply charge flip SFs on MC Sample")   
+parser.add_argument('--FakeRate',action="store_true",help="This option is to determine whether to apply fake rate esitmation on MC Sample")   
+parser.add_argument('--RECOSF',action="store_true",help="This option is to determine whether to apply Leptons' RECO SF on MC Sample")
+parser.add_argument('--CTaggerSF',action="store_true",help="This option is to determine whether to apply Leptons' CTagger SF on MC Sample")
+parser.add_argument('--lumi',help='Luminosity',type=int,default =-1)
+
+
+
 
 args = parser.parse_args()
 
@@ -71,6 +81,19 @@ if args.mode == 'Init':
         from Fake_Rate.Init import *
         FakeRateConfiguration(args.year)
         FakeRateFilesIn(args.year)
+    
+    elif args.task == 'PhysProcessRECO':
+        from PhysProcessRECO.Init import *
+        from PhysProcessRECO.DiLeptonTrigger import *
+        from PhysProcessRECO.MET_Filters import *
+        GenDataPath_File(args.year) ##
+        GenXsValue_File(args.year) ##
+        GenProcessName(args.year)
+        GenTriggerSF_Path(args.year)
+        GEN_METFilters(args.year)
+        GenPaths_HLTTriggerCondition_ForAnalyzer_File(args.year)
+        GenChargeFlipFiles(args.year)    
+    
     else:
         pass
 elif args.mode == 'BuildDir':
