@@ -1,0 +1,28 @@
+{
+    "file": {
+        "DoubleElectron": {
+            "l1pteta": "/eos/user/z/zhenggan/ExtraYukawa/TriggerSF/year2018/DoubleElectron/files/SF_l1pteta.root",
+            "l2pteta": "/eos/user/z/zhenggan/ExtraYukawa/TriggerSF/year2018/DoubleElectron/files/SF_l2pteta.root",
+            "l1l2pt": "/eos/user/z/zhenggan/ExtraYukawa/TriggerSF/year2018/DoubleElectron/files/SF_l1l2pt.root",
+            "l1l2eta": "/eos/user/z/zhenggan/ExtraYukawa/TriggerSF/year2018/DoubleElectron/files/SF_l1l2eta.root"
+        },
+        "DoubleMuon": {
+            "l1pteta": "/eos/user/z/zhenggan/ExtraYukawa/TriggerSF/year2018/DoubleMuon/files/SF_l1pteta.root",
+            "l2pteta": "/eos/user/z/zhenggan/ExtraYukawa/TriggerSF/year2018/DoubleMuon/files/SF_l2pteta.root",
+            "l1l2pt": "/eos/user/z/zhenggan/ExtraYukawa/TriggerSF/year2018/DoubleMuon/files/SF_l1l2pt.root",
+            "l1l2eta": "/eos/user/z/zhenggan/ExtraYukawa/TriggerSF/year2018/DoubleMuon/files/SF_l1l2eta.root"
+        },
+        "ElectronMuon": {
+            "l1pteta": "/eos/user/z/zhenggan/ExtraYukawa/TriggerSF/year2018/ElectronMuon/files/SF_l1pteta.root",
+            "l2pteta": "/eos/user/z/zhenggan/ExtraYukawa/TriggerSF/year2018/ElectronMuon/files/SF_l2pteta.root",
+            "l1l2pt": "/eos/user/z/zhenggan/ExtraYukawa/TriggerSF/year2018/ElectronMuon/files/SF_l1l2pt.root",
+            "l1l2eta": "/eos/user/z/zhenggan/ExtraYukawa/TriggerSF/year2018/ElectronMuon/files/SF_l1l2eta.root"
+        }
+    },
+    "branchname": {
+        "l1pteta": "l1pteta",
+        "l2pteta": "l2pteta",
+        "l1l2pt": "l1l2pt",
+        "l1l2eta": "l1l2eta"
+    }
+}

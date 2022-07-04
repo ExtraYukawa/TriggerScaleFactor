@@ -17,5 +17,8 @@ float Trigger_sf_pteta(TH2D *, float, float);
 float Trigger_sf_l1l2pt(TH2D *, float, float);
 float Trigger_sf_l1l2eta(TH2D *, float, float);
 
+int kinematic(bool activate, float l1_pt,float l2_pt ,float l1_eta , float l2_eta);
+float chargeflip_sf(TH2F *h , int kinematic_region , bool same_sign,float sigma);
+
 
 #endif

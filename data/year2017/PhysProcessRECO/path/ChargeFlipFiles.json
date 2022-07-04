@@ -1,0 +1,5 @@
+{
+    "prob_MLE": "/eos/user/z/zhenggan/ExtraYukawa/PhysProcessRECO/year2017/ChargeFlipProbability_2017_MLE.root",
+    "prob_chi2": "/eos/user/z/zhenggan/ExtraYukawa/PhysProcessRECO/year2017/ChargeFlipProbability_2017_chi2.root",
+    "SF": "/eos/user/z/zhenggan/ExtraYukawa/PhysProcessRECO/year2017/ChargeFlipSF_2017_MLE.root"
+}

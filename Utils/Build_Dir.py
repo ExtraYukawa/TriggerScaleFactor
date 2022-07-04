@@ -41,6 +41,11 @@ def Build_Dir(setting):
         if Task =='TriggerSF' or Task == 'FakeRate':
             MakeDir(Root = DirParName_tmp, ChildName = 'files')
             User['DirOut'][channel]['files'] = os.path.join(DirParName_tmp,'files')
+        if Task =='PhysProcessRECO':
+            DirParName_tmp = os.path.join(DirParName_tmp,'plots') 
+            MakeDir(Root = DirParName_tmp,ChildName ='SignalRegion')
+            MakeDir(Root = DirParName_tmp,ChildName ='DrellYan')
+            MakeDir(Root = DirParName_tmp,ChildName ='TTBar')
         else:
             pass
     User['UserName'] = DirParName.split("/")[4]

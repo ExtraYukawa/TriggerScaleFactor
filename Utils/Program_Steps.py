@@ -13,10 +13,12 @@ def RuntimeMeasure(args):
         func = Plot_efficiency
     elif args.mode == 'TrigSF_Calc':
         func = SF_Calc
-    elif args.mode == 'DrellYanRECO':
-        func = Drell_Yan_Reconstruction
+    #elif args.mode == 'DrellYanRECO':
+    #    func = Drell_Yan_Reconstruction
     elif  args.mode == 'FakeRate':
         func = FakeRateCalculation
+    elif args.mode =='PhysProcessRECO':
+        func = PhysProcessRECO
     else:
         raise ValueError(f'No such mode: {args.mode}')
     
@@ -66,8 +68,108 @@ def FakeRateCalculation(args):
     
     FakeRateAnalyzer(settings)
 
-from Drell_Yan.Analyzer import *
 
+def PhysProcessRECO(args):
+    from PhysProcessRECO.Analyzer import Analyzer 
+    if args.year is None:
+        raise ValueError('Arguments [year] must be speicified.')
+    if args.channel == 'None':
+        raise ValueError("Channel should be specified or The Specified Channel is Not in the list. ex:[-i/--channel DoubleElectron]")
+    if args.ylog == 1:
+        print('Setting y scale to be log scale...')
+
+    settings = dict()
+    settings['year'] = args.year
+    settings['channel'] = args.channel
+    settings['nevents'] = args.nevents
+    settings['veto'] = args.veto
+    settings['debug'] = args.debug
+    settings['ylog'] = args.ylog
+    settings['TrigSF']= args.TrigSF
+    settings['IDSF'] = args.IDSF
+    settings['RECOSF'] = args.RECOSF
+    settings['CFSF'] = args.CFSF
+    settings['Eras'] = args.Eras
+    settings['lumi'] = args.lumi
+    settings['region'] = args.region
+
+
+
+    with open(f'./data/year{args.year}/PhysProcessRECO/configuration/data_xs.json','rb') as f:
+        structure = json.load(f)
+        settings['xs'] = structure['xs']
+        settings['NumberOfEvents'] = structure['NumberOfEvents'] 
+        settings['Process'] = structure['Process']
+    with open(f'./data/year{args.year}/PhysProcessRECO/path/datapath.json','rb') as f :
+        settings['FilesIn'] = json.load(f)
+    
+    with open(f'./data/year{args.year}/PhysProcessRECO/path/triggerSF.json','rb') as f:
+        settings['trigSFInfo'] = json.load(f)
+
+    with open(f'./data/year{args.year}/TriggerSF/configuration/weights.json','rb') as f:
+        settings['Weights'] = json.load(f)
+    
+    with open(f'./data/year{args.year}/TriggerSF/path/LeptonsID_SF.json','rb') as f:
+        settings['LepIDSF_File'] = json.load(f)[args.channel]
+    
+    
+    with open(f"./data/year{args.year}/PhysProcessRECO/configuration/MET_Filters.json","r") as f:
+        settings['MET_Filters'] = json.load(f)
+    
+
+    with open(f'./data/year{args.year}/PhysProcessRECO/configuration/data_xs.json','rb') as f:
+
+        settings['Phys_Process'] = json.load(f)
+
+    with open(f'./data/year{args.year}/PhysProcessRECO/configuration/DiLepton_Trigger.json','rb')  as f:
+        settings['DiLep_Conditions'] = json.load(f)[args.channel]
+        
+    with open(f'./data/year{args.year}/TriggerSF/configuration/DiLeptonTriggers.json','rb')  as f:
+        settings['DiLepton_Triggers'] = json.load(f)['Data'][args.channel] # Implemented only in Data
+    ROOT.gInterpreter.ProcessLine('#include "./include/Triggers.h"')
+    ROOT.gSystem.Load('./myLib/Triggers_cpp.so')
+    print('./include/Triggers.h is Loaded.')
+    ROOT.gInterpreter.ProcessLine('#include "./include/ScaleFactor.h"')
+    print('./include/ScaleFactor.h is Loaded.')
+    ROOT.gSystem.Load('./myLib/ScaleFactor_cpp.so')
+    print('./myLib/myLib.so is Loaded.')
+
+
+
+    Az = Analyzer(settings)
+    Az.Run()
+
+
+
+    """
+    if args.SF_mode==3 or args.SF_mode==2:
+        if args.trigSFType == 0:
+            trigSFType = 'l1pteta'
+        elif args.trigSFType == 1:
+            trigSFType = 'l2pteta'
+        elif args.trigSFType == 2:
+            trigSFType = 'l1l2pt'
+        elif args.trigSFType==3 :
+            trigSFType = 'l1l2eta'
+        else:
+            raise ValueError('please specify trigSFType: [-x/--trigSFType "0,1,2,3"]')
+        print(f'Trigger Scale Factor Array: {trigSFType}')
+        '''
+        if args.year=='2018':
+            if args.veto:
+                settings['TriggerSF']['FileIn'] = trigSF['file']['veto'][args.channel][trigSFType]
+            else:
+                settings['TriggerSF']['FileIn'] = trigSF['file']['all'][args.channel][trigSFType]
+        else:
+        '''
+        settings['TriggerSF']['FileIn'] = trigSF['file'][args.channel][trigSFType]
+        settings['TriggerSF']['branchname'] = trigSF['branchname'][trigSFType]
+    else:
+        print("Warning: The control region will not involve the Trigger Scale Factor.")
+    """
+
+
+from Drell_Yan.Analyzer import *
 
 
 def Drell_Yan_Reconstruction(args):

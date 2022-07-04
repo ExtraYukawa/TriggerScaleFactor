@@ -1,0 +1,14 @@
+{
+    "DirOut": {
+        "DoubleElectron": {
+            "plots": "/eos/user/z/zhenggan/ExtraYukawa/PhysProcessRECO/year2016apv/DoubleElectron/plots"
+        },
+        "DoubleMuon": {
+            "plots": "/eos/user/z/zhenggan/ExtraYukawa/PhysProcessRECO/year2016apv/DoubleMuon/plots"
+        },
+        "ElectronMuon": {
+            "plots": "/eos/user/z/zhenggan/ExtraYukawa/PhysProcessRECO/year2016apv/ElectronMuon/plots"
+        }
+    },
+    "UserName": "zhenggan"
+}
