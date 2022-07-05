@@ -101,13 +101,12 @@ int kinematic(bool activate , float l1_pt, float l2_pt, float l1_eta, float l2_e
 }
 
 
-float chargeflip_sf(TH2F*h,int kinematic_region,bool same_sign, float sigma){
+float chargeflip_sf(TH2D*h,int kinematic_region,bool same_sign, float sigma){
 
     
     int index = kinematic_region+1;
     float sf = 1.0;
     float sign;
-    
     if(!same_sign){
         sign = -1;
     }
@@ -118,8 +117,68 @@ float chargeflip_sf(TH2F*h,int kinematic_region,bool same_sign, float sigma){
     float r_SF = h->GetBinContent(index);
     float r_sigma = h->GetBinError(index);
     sf = r_SF + sign*sigma * r_sigma;
-    if(sf < 0.) return 0.;
+    if(sf < 0.) sf=0.;
     return sf;
+}
+
+float fr_weight(TH2D* h_fr_l1, TH2D * h_fr_l2, bool Flag_1P1F, bool Flag_0P2F, bool l1_faketag, float l1_pt , float l1_eta, float l2_pt, float l2_eta, bool IsData){
+    float w_temp = 1.0;
+    float fakerate1 = 1.0;
+    float fakerate2 = 1.0;
+    int BinX = 0;
+    int BinY = 0;
+    
+
+    if(Flag_1P1F){
+        if(l1_faketag){
+            BinX = h_fr_l1->GetXaxis()->FindBin(TMath::Abs(l1_eta));
+            BinY = h_fr_l1->GetYaxis()->FindBin(l1_pt);
+            if(BinX > h_fr_l1->GetNbinsX()) BinX = h_fr_l1->GetNbinsX();
+            if(BinY > h_fr_l1->GetNbinsY()) BinY = h_fr_l1->GetNbinsY();
+            fakerate1 = h_fr_l1->GetBinContent(BinX,BinY);
+        
+        }
+        else{
+            BinX = h_fr_l2->GetXaxis()->FindBin(TMath::Abs(l2_eta));
+            BinY = h_fr_l2->GetYaxis()->FindBin(l2_pt);
+            if(BinX > h_fr_l2->GetNbinsX()) BinX = h_fr_l2->GetNbinsX();
+            if(BinY > h_fr_l2->GetNbinsY()) BinY = h_fr_l2->GetNbinsY();
+            fakerate2 = h_fr_l2->GetBinContent(BinX,BinY);
+        } 
+        if(IsData) {
+            w_temp = fakerate1/(1-fakerate1);
+
+            
+        }
+        else{
+        
+            w_temp = -1 *fakerate1/(1-fakerate1);
+        
+        }
+    }
+    if(Flag_0P2F){
+    
+        BinX = h_fr_l1->GetXaxis()->FindBin(TMath::Abs(l1_eta));
+        BinY = h_fr_l1->GetYaxis()->FindBin(l1_pt);
+        if(BinX > h_fr_l1->GetNbinsX()) BinX = h_fr_l1->GetNbinsX();
+        if(BinY > h_fr_l1->GetNbinsY()) BinY = h_fr_l1->GetNbinsY();
+        fakerate1 = h_fr_l1->GetBinContent(BinX,BinY);
+    
+    
+        BinX = h_fr_l2->GetXaxis()->FindBin(TMath::Abs(l2_eta));
+        BinY = h_fr_l2->GetYaxis()->FindBin(l2_pt);
+        if(BinX > h_fr_l2->GetNbinsX()) BinX = h_fr_l2->GetNbinsX();
+        if(BinY > h_fr_l2->GetNbinsY()) BinY = h_fr_l2->GetNbinsY();
+        fakerate2 = h_fr_l2->GetBinContent(BinX,BinY);
+    
+        if(IsData) {
+            w_temp = -1.0*fakerate1*fakerate2/((1-fakerate1)*(1-fakerate2));
+        }
+        else{
+            w_temp=fakerate1*fakerate2/((1-fakerate1)*(1-fakerate2));
+        }
+    }
+    return w_temp;
 }
 
 

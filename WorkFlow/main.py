@@ -22,7 +22,7 @@ parser.add_argument('-d','--debug',action="store_true",help="Debug mode")
 parser.add_argument('-s','--ylog',choices=[0,1],help="Set y scale to be log scale, only works for Control Region validation at this moment.",type=int,default = 0)
 parser.add_argument('-x','--trigSFType',choices=[0,1,2,3],help="Trigger Scale Factors Type. 0: l1pteta,1: l2pteta,2:l1l2pt,3:l1l2eta",type=int,default=-1)
 parser.add_argument('-e','--Eras',type=str,help='Data Eras',default=[''],nargs='+')
-parser.add_argument('-r','--region',help="Physics Region Reconstruction",choices=['SignalRegion','DrellYan','TTBar'],type=str,default='DrellYan')
+parser.add_argument('-r','--region',help="Physics Region Reconstruction",choices=['SignalRegion','DrellYan','TTBar','ChargeFlipRegion'],type=str,default='DrellYan')
 parser.add_argument('--TrigSF',choices=[0,1,2,3,4],help="This option is to determine whether to apply TriggerSF on MC Sample",type=int,default=3)
 parser.add_argument('--IDSF',action="store_true",help="This option is to determine whether to apply Lepton's IDSF on MC Sample")
 parser.add_argument('--CFSF',action="store_true",help="This option is to determine whether to apply charge flip SFs on MC Sample")   
@@ -93,6 +93,7 @@ if args.mode == 'Init':
         GEN_METFilters(args.year)
         GenPaths_HLTTriggerCondition_ForAnalyzer_File(args.year)
         GenChargeFlipFiles(args.year)    
+        GenFakeRateFiles(args.year)    
     
     else:
         pass

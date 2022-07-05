@@ -92,7 +92,7 @@ def PhysProcessRECO(args):
     settings['Eras'] = args.Eras
     settings['lumi'] = args.lumi
     settings['region'] = args.region
-
+    settings['FakeRate'] = args.FakeRate
 
 
     with open(f'./data/year{args.year}/PhysProcessRECO/configuration/data_xs.json','rb') as f:
@@ -112,6 +112,9 @@ def PhysProcessRECO(args):
     with open(f'./data/year{args.year}/TriggerSF/path/LeptonsID_SF.json','rb') as f:
         settings['LepIDSF_File'] = json.load(f)[args.channel]
     
+    with open(f'./data/year{args.year}/PhysProcessRECO/path/FakeRateFiles.json','rb') as f:
+        settings['FakeRateFiles'] = json.load(f)
+
     
     with open(f"./data/year{args.year}/PhysProcessRECO/configuration/MET_Filters.json","r") as f:
         settings['MET_Filters'] = json.load(f)

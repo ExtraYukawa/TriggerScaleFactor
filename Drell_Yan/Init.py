@@ -353,7 +353,7 @@ def GenXsValue_File(year:str):
             Event['xs']['VV']['WZ_ew'] = 0.0163
             Event['xs']['VV']['WZ_qcd'] = 5.213
         elif year =='2018':
-            Event['xs']['lumi'] = 59740.
+            Event['xs']['lumi'] = 59830.
             Event['xs']['VV']['WZ'] =  5.2293
         else:
             raise ValueError("year{year} HLT Path has not been specified yet!")
@@ -381,8 +381,8 @@ def GenXsValue_File(year:str):
         Event['xs']['VVV']['WZZ'] = 0.05709
         Event['xs']['VVV']['ZZZ'] = 0.01476
         
-        Event['xs']['TT']['TTTo2L'] = 88.3419
-        Event['xs']['TT']['TTTo1L'] = 365.4574
+        Event['xs']['TT']['TTTo2L'] = 88.29
+        Event['xs']['TT']['TTTo1L'] = 365.34
         
         
         Event['xs']['tzq']['tzq'] = 0.07561
@@ -392,7 +392,7 @@ def GenXsValue_File(year:str):
         Event['xs']['ttXorXX']['ttWtoQQ'] = 0.3708
         Event['xs']['ttXorXX']['ttZ'] = 0.2589
         Event['xs']['ttXorXX']['ttZtoQQ'] = 0.6012
-        Event['xs']['ttXorXX']['ttH'] = 0.213
+        Event['xs']['ttXorXX']['ttH'] = 0.5638
         Event['xs']['ttXorXX']['ttWW'] = 0.007003
         Event['xs']['ttXorXX']['ttWZ'] = 0.002453
         Event['xs']['ttXorXX']['ttZZ'] = 0.001386
@@ -405,9 +405,9 @@ def GenXsValue_File(year:str):
     elif year =='2016apv' or year =='2016postapv' :
         
         if year =='2016apv':
-            Event['xs']['lumi'] = 19500
+            Event['xs']['lumi'] = 19520
         else:
-            Event['xs']['lumi'] = 16800
+            Event['xs']['lumi'] = 16810
         Event['xs']['DY']['DYnlo'] = 6077.22
         Event['xs']['WJets']['WJets'] = 61526.7
         Event['xs']['VV']['ww'] = 11.09
@@ -415,12 +415,12 @@ def GenXsValue_File(year:str):
         Event['xs']['VV']['zz2l'] = 0.0086
         Event['xs']['VVV']['www1'] = 0.2086
         Event['xs']['VVV']['wwz1'] = 0.1707
-        Event['xs']['VVV']['wzz1'] = 0.057109
+        Event['xs']['VVV']['wzz1'] = 0.05709
         Event['xs']['VVV']['zzz1'] = 0.01476
-        Event['xs']['TT']['TTTo2L2Nu'] = 88.3419
-        Event['xs']['TT']['TTTo1L'] = 365.4574
+        Event['xs']['TT']['TTTo2L2Nu'] = 88.29
+        Event['xs']['TT']['TTTo1L'] = 365.34
 
-        Event['xs']['ttXorXX']['ttH'] =  0.213
+        Event['xs']['ttXorXX']['ttH'] =  0.5638
         Event['xs']['ttXorXX']['ttW'] = 0.1792
         Event['xs']['ttXorXX']['ttWToQQ'] = 0.3708
         Event['xs']['ttXorXX']['ttZ'] =  0.2589

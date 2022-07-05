@@ -32,6 +32,7 @@ Claim['IDSF']['ElectronMuon'] ='''
 
 #include "TFile.h"
 #include "TH2D.h"
+#include "TH2F.h"
 TFile *f1_IDSF = TFile::Open("{0}");
 TFile *f2_IDSF = TFile::Open("{1}");
 TH2D *h1_IDSF= (TH2D*)f1_IDSF->Get("{2}");
@@ -43,14 +44,40 @@ TH2F *h_RECOSF= (TH2F*)f1_IDSF->Get("{4}");
 
 Claim['ChargeFlipSF'] ='''
 
+#include "TFile.h"
+#include "TH2D.h"
 TFile*f_cf=TFile::Open("{0}");
-TH2F*h_OS=(TH2F*)f_cf->Get("OS_ChargeFlip_SF");
-TH2F*h_SS = (TH2F*)f_cf->Get("SS_ChargeFlip_SF_AllUnc"); 
+TH2D*h_OS=(TH2D*)f_cf->Get("OS_ChargeFlip_SF");
+TH2D*h_SS = (TH2D*)f_cf->Get("SS_ChargeFlip_SF_AllUnc"); 
 
 TFile*f_cfregion=TFile::Open("{1}");
-TH2F*h_data = (TH2F*) f_cfregion->Get("data_CFRate");
+TH2D*h_data = (TH2D*) f_cfregion->Get("data_CFRate");
 
 '''
+Claim['FakeRate']=dict()
 
 
+Claim['FakeRate']['DoubleElectron'] = '''
+#include "TFile.h"
+#include "TH2D.h"
+TFile *f1_fr = TFile::Open("{0}");
+TH2D *h_fr_1 = (TH2D*)f1_fr->Get("fakerate");
+TH2D *h_fr_2 = h_fr_1
+'''
+
+Claim['FakeRate']['DoubleMuon'] = '''
+#include "TFile.h"
+#include "TH2D.h"
+TFile *f1_fr = TFile::Open("{0}");
+TH2D *h_fr_1 = (TH2D*)f1_fr->Get("fakerate");
+TH2D *h_fr_2 = h_fr_1
+'''
+Claim['FakeRate']['ElectronMuon'] = '''
+#include "TFile.h"
+#include "TH2D.h"
+TFile *f1_fr = TFile::Open("{0}");
+TH2D *h_fr_1 = (TH2D*)f1_fr->Get("fakerate");
+TFile *f2_fr = TFile::Open("{1}");
+TH2D *h_fr_2 = (TH2D*)f2_fr->Get("fakerate");
+'''
 

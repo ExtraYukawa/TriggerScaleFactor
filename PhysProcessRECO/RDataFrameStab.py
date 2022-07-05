@@ -24,7 +24,11 @@ class RDataFrameStab(object):
         self.__MET_Filters =' && '.join(settings.get('MET_Filters'))
         
         self.__region = settings.get('region')
-        Nevents =  settings.get('nevents')       
+        Nevents =  settings.get('nevents')      
+
+        self.__IsFake = settings.get('IsFake')
+        self.__FakeRateOn = settings.get('FakeRateOn')
+
         
         if self.__channel == 'DoubleElectron':
             channel_phys_region = 3
@@ -36,7 +40,42 @@ class RDataFrameStab(object):
 
         if self.__region =='SignalRegion':
             self.__phys_region = 'ttc'
-            region_selection = f'ttc_region=={channel_phys_region} && ttc_2P0F && ttc_mll>60 && ttc_mll<120  && n_tight_jet < 3 && ttc_l1_pt>20 && ttc_l2_pt>20 && abs(ttc_l1_eta)<2.5 && abs(ttc_l2_eta)<2.5 && nHad_tau==0  && {self.__MET_Filters} '
+            
+            
+            if self.__IsFake:
+                if self.__IsData:
+                    if self.__channel == 'DoubleElectron':
+                        region_selection = f'ttc_jets&& ttc_region=={channel_phys_region} && (ttc_mll<60 || ttc_mll>120)&&ttc_mll >20&&ttc_2P0F   && ttc_l1_pt>30 && ttc_met>30 && ttc_drll > 0.3 && nHad_tau==0  && {self.__MET_Filters} '
+                    elif self.__channel == 'DoubleMuon':
+                        region_selection = f'ttc_jets&& ttc_region=={channel_phys_region} && ttc_mll >20&&ttc_2P0F   && ttc_l1_pt>30 && ttc_met>30 && ttc_drll > 0.3 && nHad_tau==0  && {self.__MET_Filters} '
+                    else:
+                        region_selection = f'ttc_jets&& ttc_region=={channel_phys_region} && ttc_2P0F  && (ttc_l1_pt>30||ttc_l2_pt>30) && ttc_met>30 && ttc_drll > 0.3 && nHad_tau==0  && {self.__MET_Filters} '
+                else: 
+                    if self.__channel == 'DoubleElectron':
+                        region_selection = f'ttc_jets &&lhe_nlepton>1&& ttc_region=={channel_phys_region} && ttc_2P0F && (ttc_mll<60 || ttc_mll>120) &&ttc_mll >20  && n_tight_jet < 3 && ttc_l1_pt>30 && ttc_met>30 && ttc_drll > 0.3 && nHad_tau==0  && {self.__MET_Filters} '
+                    if self.__channel == 'DoubleMuon':
+                        region_selection = f'ttc_jets &&lhe_nlepton>1&& ttc_region=={channel_phys_region} && ttc_2P0F  &&ttc_mll >20  && n_tight_jet < 3 && ttc_l1_pt>30 && ttc_met>30 && ttc_drll > 0.3 && nHad_tau==0  && {self.__MET_Filters} '
+                    else:
+                        region_selection = f'ttc_jets &&lhe_nlepton>1&& ttc_region=={channel_phys_region} && ttc_2P0F && (ttc_l1_pt>30||ttc_l2_pt>30) && ttc_met>30 && ttc_drll > 0.3 && nHad_tau==0  && {self.__MET_Filters}  && ttc_mll>20'
+            else:
+
+                if self.__IsData:
+                    if self.__channel != 'ElectronMuon':
+                        region_selection = f'ttc_jets&& ttc_region=={channel_phys_region} && (ttc_1P1F || ttc_0P2F) && (ttc_mll<60 || ttc_mll>120)&&ttc_mll >20 && ttc_l1_pt>30 && ttc_met>30 && ttc_drll > 0.3 && nHad_tau==0  && {self.__MET_Filters} '
+                    else:
+                        region_selection = f'ttc_jets&& ttc_region=={channel_phys_region} && (ttc_1P1F || ttc_0P2F) && (ttc_l1_pt>30||ttc_l2_pt>30) && ttc_met>30 && ttc_drll > 0.3 && nHad_tau==0  && {self.__MET_Filters} && ttc_mll>20 '
+                else: 
+                    if self.__channel != 'ElectronMuon':
+                        region_selection = f'ttc_jets &&lhe_nlepton>1&& ttc_region=={channel_phys_region} && (ttc_1P1F || ttc_0P2F) && (ttc_mll<60 || ttc_mll>120)&&ttc_mll >20 && n_tight_jet < 3 && ttc_l1_pt>30 && ttc_met>30 && ttc_drll > 0.3 && nHad_tau==0  && {self.__MET_Filters} '
+                    else:
+                        region_selection = f'ttc_jets &&lhe_nlepton>1&& ttc_region=={channel_phys_region} && (ttc_1P1F || ttc_0P2F) && n_tight_jet < 3 && (ttc_l1_pt>30||ttc_l2_pt>30) && ttc_met>30 && ttc_drll > 0.3 && nHad_tau==0  && {self.__MET_Filters} '
+        elif self.__region =='ChargeFlipRegion':
+            self.__phys_region = 'ttc'
+            if self.__IsData:
+                region_selection = f'ttc_region=={channel_phys_region} && ttc_2P0F && ttc_mll>60 && ttc_mll<120&&MET_T1_pt >50  && n_tight_jet < 3 && ttc_l1_pt>20 && ttc_l2_pt>20 && abs(ttc_l1_eta)<2.5 && abs(ttc_l2_eta)<2.5 && nHad_tau==0  && {self.__MET_Filters} && ttc_drll>0.3'
+            else:
+                region_selection = f'ttc_region=={channel_phys_region} && ttc_2P0F && ttc_mll>60 && ttc_mll<120&&MET_T1Smear_pt >50  && n_tight_jet < 3 && ttc_l1_pt>20 && ttc_l2_pt>20 && abs(ttc_l1_eta)<2.5 && abs(ttc_l2_eta)<2.5 && nHad_tau==0  && {self.__MET_Filters} '
+
         elif self.__region =='DrellYan':
             self.__phys_region ='OPS'
             region_selection = f'OPS_region=={channel_phys_region} && OPS_z_mass > 60 && OPS_z_mass<120 && OPS_2P0F &&( OPS_l1_pt>30 ||  OPS_l2_pt>20) && OPS_drll>0.3 && {self.__MET_Filters} && nHad_tau==0 '
@@ -116,6 +155,8 @@ def Millstone(DF:RDataFrameStab,HistSettings:dict,SF_Config:dict,DiLepton_Trigge
             for i in Run_List[Name]:
                 DiLepton_slc_run[Name].push_back(i)
         df = df.Filter(eval(f"f'{DiLepton_Triggers_Condition}'"))
+        df = df.Define('fr_w',f"{FakeRate(activate=SF_Config['FakeRate']['activate'], IsData=True,IsFake=SF_Config['FakeRate']['IsFake'],phys_region=PR,channel=DF.channel)}")
+
 
     else:
         df = df.Define('DiLeptons_TrigSF',f"{TrigSF(activate= SF_Config['TrigSF']['activate'],Type = SF_Config['TrigSF']['Type'])}")\
@@ -124,7 +165,21 @@ def Millstone(DF:RDataFrameStab,HistSettings:dict,SF_Config:dict,DiLepton_Trigge
                 .Define('PreFireWeight',f"{PreFireWeight(activate=SF_Config['PreFireWeight']['activate'],year =DF.year)}")\
                 .Define('K_region',f"kinematic({SF_Config['kinematic']['activate']},l1pt,l2pt,l1eta,l2eta)")\
                 .Define('ChargeFlipSF',f"{ChargeFlipSF(activate= SF_Config['cf_SF']['activate'],channel=DF.channel,Same_Sign=SF_Config['cf_SF']['Same_Sign'],sigma = SF_Config['cf_SF']['sigma'])}")\
-                .Define('genweight','genWeight/abs(genWeight) * DiLeptons_TrigSF * DiLeptons_IDSF * puWeight*PreFireWeight * DiLeptons_RECOSF * ChargeFlipSF')
+                .Define('fr_w',f"{FakeRate(activate=SF_Config['FakeRate']['activate'], IsData=False,IsFake=SF_Config['FakeRate']['IsFake'],phys_region=PR,channel=DF.channel)}")\
+                .Define('genweight','genWeight/abs(genWeight) * DiLeptons_TrigSF * DiLeptons_IDSF * puWeight*PreFireWeight * DiLeptons_RECOSF * ChargeFlipSF * fr_w')
+
+    if DF.Region =='SignalRegion':
+        pass 
+       # df= df.Define('j1_FlavCvL','(tightJets_id_in24[0]!=-1) ? Jet_btagDeepFlavCvL[tightJets_id_in24[0]] : -1')\
+       #         .Define("j1_FlavCvB","(tightJets_id_in24[0]!=-1) ? Jet_btagDeepFlavCvB[tightJets_id_in24[0]] : -1")\
+       #         .Define("j1_FlavB","(tightJets_id_in24[0]!=-1) ? Jet_btagDeepFlavB[tightJets_id_in24[0]]: -1")\
+       #         .Define('j2_FlavCvL','(tightJets_id_in24[1]!=-1) ? Jet_btagDeepFlavCvL[tightJets_id_in24[1]] : -1')\
+       #         .Define("j2_FlavCvB","(tightJets_id_in24[1]!=-1) ? Jet_btagDeepFlavCvB[tightJets_id_in24[1]] : -1")\
+       #         .Define("j2_FlavB","(tightJets_id_in24[1]!=-1) ? Jet_btagDeepFlavB[tightJets_id_in24[1]]: -1")\
+       #         .Define('j3_FlavCvL','(tightJets_id_in24[2]!=-1) ? Jet_btagDeepFlavCvL[tightJets_id_in24[2]] : -1')\
+       #         .Define("j3_FlavCvB","(tightJets_id_in24[2]!=-1) ? Jet_btagDeepFlavCvB[tightJets_id_in24[2]] : -1")\
+       #         .Define("j3_FlavB","(tightJets_id_in24[2]!=-1) ? Jet_btagDeepFlavB[tightJets_id_in24[2]]: -1")
+
 
 
     Hists =dict()
@@ -132,7 +187,7 @@ def Millstone(DF:RDataFrameStab,HistSettings:dict,SF_Config:dict,DiLepton_Trigge
         setting = HistSettings[DF.Region][name]
         if DF.IsData != None:
             if DF.IsData :
-                Hists[name] = df.Histo1D((setting['name'],'',setting['nbins'],setting['lowedge'],setting['highedge']),setting['name'])
+                Hists[name] = df.Histo1D((setting['name'],'',setting['nbins'],setting['lowedge'],setting['highedge']),setting['name'],'fr_w')
             else:
                 Hists[name] = df.Histo1D((setting['name'],'',setting['nbins'],setting['lowedge'],setting['highedge']),setting['name'],'genweight')
         else:

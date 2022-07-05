@@ -57,7 +57,9 @@ class MyDataFrame(object):
         elif self.__channel != None:
             if self.__channel == 'DoubleElectron':
                 DY_region = 3
+                #self.__lepton_RECO_SF = 'Electron_RECO_SF[ttc_l1_id]*Electron_RECO_SF[ttc_l2_id]'
                 self.__lepton_RECO_SF = 'Electron_RECO_SF[OPS_l1_id]*Electron_RECO_SF[OPS_l2_id]'
+                #self.__offline_selections = f'ttc_region==3 && ttc_2P0F && ttc_mll>60 && ttc_mll<120  && n_tight_jet < 3 && ttc_l1_pt>20 && ttc_l2_pt>20 && abs(ttc_l1_eta)<2.5 && abs(ttc_l2_eta)<2.5 && nHad_tau==0  && {self.__flag_Condition} '
                 self.__offline_selections = f'OPS_region=={DY_region} && OPS_2P0F && OPS_z_mass > 60 && OPS_z_mass<120 && OPS_l1_pt>30 && OPS_l2_pt>20 && OPS_drll>0.3 && nHad_tau==0&& {self.__flag_Condition} && nHad_tau==0 '
             elif self.__channel == 'DoubleMuon':
                 DY_region = 1
@@ -357,7 +359,15 @@ def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:float,SF_mode:int,channel=
     if 'DY_l2_pt' in x_name:set_axis(h_stack,'x', 'pt of subleading lepton', True)
     if 'DY_l2_eta' in x_name:set_axis(h_stack,'x', '#eta of subleading lepton', False)
     if 'DY_l2_phi' in x_name:set_axis(h_stack,'x', 'phi of subleading lepton', False)
-    if 'DY_z_mass' in x_name:set_axis(h_stack,'x', 'Z mass', True)
+    if 'DY_mll' in x_name:set_axis(h_stack,'x', 'Z mass', True)
+    if 'ttc_l1_pt' in x_name:set_axis(h_stack,'x', 'pt of leading lepton', True)
+    if 'ttc_l1_eta' in x_name:set_axis(h_stack,'x', '#eta of leading lepton', False)
+    if 'ttc_l1_phi' in x_name:
+        set_axis(h_stack,'x', 'phi of leading lepton', False)
+    if 'ttc_l2_pt' in x_name:set_axis(h_stack,'x', 'pt of subleading lepton', True)
+    if 'ttc_l2_eta' in x_name:set_axis(h_stack,'x', '#eta of subleading lepton', False)
+    if 'ttc_l2_phi' in x_name:set_axis(h_stack,'x', 'phi of subleading lepton', False)
+    if 'ttc_mll' in x_name:set_axis(h_stack,'x', 'Invariant Mass of Dilepton System', True)
     set_axis(h_stack,'y', 'Event/Bin', False)
     
     import Utils.CMSstyle as CMSstyle

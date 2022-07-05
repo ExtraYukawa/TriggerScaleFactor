@@ -5,6 +5,8 @@
 #include "TFile.h"
 #include <stdexcept>
 #include "TMath.h"
+#include <iostream>
+
 
 float IDScaleFact(const char *, TH2D*,TH2D*,float ,float , float , float );
 
@@ -18,7 +20,7 @@ float Trigger_sf_l1l2pt(TH2D *, float, float);
 float Trigger_sf_l1l2eta(TH2D *, float, float);
 
 int kinematic(bool activate, float l1_pt,float l2_pt ,float l1_eta , float l2_eta);
-float chargeflip_sf(TH2F *h , int kinematic_region , bool same_sign,float sigma);
-
+float chargeflip_sf(TH2D *h , int kinematic_region , bool same_sign,float sigma);
+float fr_weight(TH2D* h_fr_l1, TH2D * h_fr_l2, bool Flag_1P1F, bool Flag_0P2F, bool l1_faketag, float l1_pt , float l1_eta, float l2_pt, float l2_eta, bool IsData);
 
 #endif

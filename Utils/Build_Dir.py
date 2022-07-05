@@ -44,6 +44,7 @@ def Build_Dir(setting):
         if Task =='PhysProcessRECO':
             DirParName_tmp = os.path.join(DirParName_tmp,'plots') 
             MakeDir(Root = DirParName_tmp,ChildName ='SignalRegion')
+            MakeDir(Root = DirParName_tmp,ChildName ='ChargeFlipRegion')
             MakeDir(Root = DirParName_tmp,ChildName ='DrellYan')
             MakeDir(Root = DirParName_tmp,ChildName ='TTBar')
         else:

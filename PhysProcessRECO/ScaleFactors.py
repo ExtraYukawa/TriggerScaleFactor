@@ -73,13 +73,42 @@ def ChargeFlipSF(activate:bool,channel:str,Same_Sign:bool,sigma:float):
 
     if activate:
         if channel=='DoubleElectron':
-            if Same_Sign == None:
-                raise ValueError('You should Specify the charges condition of two leptons.')
-            elif Same_Sign:
+            if Same_Sign:
                 return f'chargeflip_sf(h_SS,K_region,true,{sigma})'
             elif not Same_Sign:
                 return f'chargeflip_sf(h_OS,K_region,false,{sigma})'
+            else:    
+                raise ValueError('You should Specify the charges condition of two leptons.')
         else:
-            return '1'
+            return '1.'
     else:
         return '1.'
+
+def FakeRate(activate:bool, IsData:bool,IsFake:bool,phys_region:str,channel:str)->str:
+    
+    if activate:
+        if channel == 'ElectronMuon':
+            l1pt = 'muon_conePt[l1_id]'
+            l2pt = 'electron_conePt[l2_id]'
+        elif channel == 'DoubleElectron':
+            l1pt = 'electron_conePt[l1_id]'
+            l2pt = 'electron_conePt[l2_id]'
+        else:
+            l1pt = 'muon_conePt[l1_id]'
+            l2pt = 'muon_conePt[l2_id]'
+
+        if IsFake:
+            if IsData:
+                return f'fr_weight(h_fr_1,h_fr_2,{phys_region}_1P1F,{phys_region}_0P2F,{phys_region}_lep1_faketag,{l1pt},l1eta,{l2pt},l2eta,true)'
+            else:
+                return f'fr_weight(h_fr_1,h_fr_2,{phys_region}_1P1F,{phys_region}_0P2F,{phys_region}_lep1_faketag,{l1pt},l1eta,{l2pt},l2eta,false)'
+        else:
+            return '1.'
+    else:
+        return '1.'
+
+
+
+
+
+

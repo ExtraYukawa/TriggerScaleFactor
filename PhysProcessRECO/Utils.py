@@ -40,15 +40,19 @@ def set_axis(histo,coordinate:str,title:str,is_energy:bool):
         axis.SetTitle(title)
 
 from collections import OrderedDict
-def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:float,channel='DoubleElectron',veto=False,ylog=0,TrigSF_On=3,IDSF_On=True,RECOSF_On=False,CFSF_On=False,eras=[],region=''):
+def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:float,channel='DoubleElectron',veto=False,ylog=0,TrigSF_On=3,IDSF_On=True,RECOSF_On=False,CFSF_On=False,eras=[],FakeRate_On=False,region=''):
     Histo['MC']['DY'].SetFillColor(ROOT.kRed)
-    Histo['MC']['WJets'].SetFillColor(ROOT.kBlue - 7)
     Histo['MC']['VV'].SetFillColor(ROOT.kCyan - 9)
     Histo['MC']['VVV'].SetFillColor(ROOT.kSpring - 9)
     Histo['MC']['SingleTop'].SetFillColor(ROOT.kGray)
     Histo['MC']['ttXorXX'].SetFillColor(ROOT.kViolet-4)
     Histo['MC']['tzq'].SetFillColor(ROOT.kYellow-4)
     Histo['MC']['TT'].SetFillColor(ROOT.kBlue)
+    
+    if FakeRate_On:
+        Histo['FakeRate'].SetFillColor(ROOT.kBlue-7)
+    else:
+        Histo['MC']['WJets'].SetFillColor(ROOT.kBlue - 7)
 
     #for MC in Histo['MC'].keys():
     #    Histo['MC'][MC].Scale(lumi)
@@ -63,10 +67,14 @@ def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:float,channel='DoubleElect
         Yield['MC'][MC] = round(Histo['MC'][MC].Integral(),1)
     Yield['MC'] = OrderedDict(sorted(Yield['MC'].items(),key = lambda x: x[1],reverse=True))
     Yield['Data'] = Histo['Data'].Integral()
+    
 
     h_stack = ROOT.THStack()
     for MC in  Yield['MC'].keys():
         h_stack.Add(Histo['MC'][MC])
+    if FakeRate_On:
+        Yield['FakeRate'] =round(Histo['FakeRate'].Integral(),1)
+        h_stack.Add(Histo['FakeRate'])
     Nbins = h_stack.GetStack().Last().GetNbinsX()
     
     max_yields = 0
@@ -136,6 +144,7 @@ def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:float,channel='DoubleElect
     if 'DY_l2_eta' in x_name:set_axis(h_stack,'x', '#eta of subleading lepton', False)
     if 'DY_l2_phi' in x_name:set_axis(h_stack,'x', 'phi of subleading lepton', False)
     if 'DY_mll' in x_name:set_axis(h_stack,'x', 'Z mass', True)
+
     if 'ttc_l1_pt' in x_name:set_axis(h_stack,'x', 'pt of leading lepton', True)
     if 'ttc_l1_eta' in x_name:set_axis(h_stack,'x', '#eta of leading lepton', False)
     if 'ttc_l1_phi' in x_name:
@@ -144,6 +153,23 @@ def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:float,channel='DoubleElect
     if 'ttc_l2_eta' in x_name:set_axis(h_stack,'x', '#eta of subleading lepton', False)
     if 'ttc_l2_phi' in x_name:set_axis(h_stack,'x', 'phi of subleading lepton', False)
     if 'ttc_mll' in x_name:set_axis(h_stack,'x', 'Invariant Mass of Dilepton System', True)
+    if 'ttc_mllj1' in x_name:set_axis(h_stack,'x','ttc_mllj1',True)
+    if 'ttc_mllj2' in x_name:set_axis(h_stack,'x','ttc_mllj2',True)
+    if 'ttc_mllj3' in x_name:set_axis(h_stack,'x','ttc_mllj3',True)
+    if 'ttc_met' in x_name:set_axis(h_stack,'x','ttc_met',True)
+    if 'HT' in x_name:set_axis(h_stack,'x','HT',False)
+    if 'ttc_met_phi' in x_name:set_axis(h_stack,'x','ttc_met_phi',False)
+    if 'j1_FlavB' in x_name:set_axis(h_stack,'x','j1_FlavB',False)
+    if 'j2_FlavB' in x_name:set_axis(h_stack,'x','j2_FlavB',False)
+    if 'j3_FlavB' in x_name:set_axis(h_stack,'x','j3_FlavB',False)
+    if 'j1_FlavCvL' in x_name:set_axis(h_stack,'x','j1_FlavCvL',False)
+    if 'j2_FlavCvL' in x_name:set_axis(h_stack,'x','j2_FlavCvL',False)
+    if 'j3_FlavCvL' in x_name:set_axis(h_stack,'x','j3_FlavCvL',False)
+    if 'j1_FlavCvB' in x_name:set_axis(h_stack,'x','j1_FlavCvB',False)
+    if 'j2_FlavCvB' in x_name:set_axis(h_stack,'x','j2_FlavCvB',False)
+    if 'j3_FlavCvB' in x_name:set_axis(h_stack,'x','j3_FlavCvB',False)
+    
+    
     set_axis(h_stack,'y', 'Event/Bin', False)
     
     import Utils.CMSstyle as CMSstyle
@@ -162,7 +188,11 @@ def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:float,channel='DoubleElect
     leg3.AddEntry(Histo['Data'],'Data ['+str(Yield['Data'])+']','pe')
 
     leg2.AddEntry(Histo['MC']['TT'],'TT ['+str(Yield['MC']['TT'])+']','f')
-    leg2.AddEntry(Histo['MC']['WJets'],'WJets ['+str(Yield['MC']['WJets'])+']','f')
+    
+    if FakeRate_On:
+        leg2.AddEntry(Histo['FakeRate'],'FakeLep ['+str(Yield['FakeRate'])+']','f')
+    else:
+        leg2.AddEntry(Histo['MC']['WJets'],'WJets ['+str(Yield['MC']['WJets'])+']','f')
     leg2.AddEntry(Histo['MC']['VV'],'VV ['+str(Yield['MC']['VV'])+']','f')
 
     leg1.AddEntry(Histo['MC']['VVV'],'VVV ['+str(Yield['MC']['VVV'])+']','f')
@@ -234,15 +264,19 @@ def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:float,channel='DoubleElect
         CFSF_postfix = '_CFSF'
     else:
         CFSF_postfix =''
-    
+    if FakeRate_On:
+        FakeRate_postfix = '_FakeRate'
+    else:
+        FakeRate_postfix =''
+
     era_post_fix = ''
     for a in eras:
         era_post_fix+='_'+a
     
     
     
-    c.SaveAs(os.path.join(Dir,x_name+TrigSF_postfix+IDSF_postfix+RECOSF_postfix+CFSF_postfix+y_post_fix+'.pdf'))
-    c.SaveAs(os.path.join(Dir,x_name+TrigSF_postfix+IDSF_postfix+RECOSF_postfix+CFSF_postfix+y_post_fix+'.png'))
+    c.SaveAs(os.path.join(Dir,x_name+TrigSF_postfix+IDSF_postfix+RECOSF_postfix+CFSF_postfix+y_post_fix+FakeRate_postfix+'.pdf'))
+    c.SaveAs(os.path.join(Dir,x_name+TrigSF_postfix+IDSF_postfix+RECOSF_postfix+CFSF_postfix+y_post_fix+FakeRate_postfix+'.png'))
     
     c.Close()
     #pad1.Close()

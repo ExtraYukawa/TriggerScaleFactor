@@ -73,6 +73,9 @@ class Analyzer():
         self.__TriggerSF= settings.get('TriggerSF',None)
         self.__LepSF_File = settings['LepIDSF_File']
         
+        self.__FakeRateFiles = settings['FakeRateFiles']
+
+
         self.__histos = OrderedDict()
         self.__histos['MC'] = OrderedDict()
         self.__histos['Data'] = OrderedDict()
@@ -103,6 +106,13 @@ class Analyzer():
             print('Charge Flip Scale Factors: Activate')
         else:
             print('Charge Flip Scale Factors: Deactivate')
+        self.__FakeRate = settings['FakeRate']
+        if self.__FakeRate:
+            print('Fake Rate Estimation: Activate')
+        else:
+            print('Fake Rate Estimation: Deactivate')
+
+
         #self.__condition_weights = settings['Weights']
         self.__MET_Filters = settings['MET_Filters']
         #self.__Phys_Process = settings['Phys_Process']
@@ -125,45 +135,60 @@ class Analyzer():
         #Define IDSF files path and branchname
         #Define TrigSF files path and branchname
         if self.__channel == 'ElectronMuon': 
+            if self.__FakeRate:
+                ROOT.gInterpreter.ProcessLine(Claim['FakeRate']['ElectronMuon'].format(self.__FakeRateFiles['muon'],self.__FakeRateFiles['electron']))
             
-            l1_IDSF_Name = self.__LepSF_File['name']['Muon'][0]
-            l1_RECO_Name = self.__LepSF_File['name']['Muon'][1]
+            if self.__IDSF:
+            
+            
+                l1_IDSF_Name = self.__LepSF_File['name']['Muon'][0]
+                l1_RECO_Name = self.__LepSF_File['name']['Muon'][1]
 
-            l1_IDSF_File = self.__LepSF_File['path']['Muon']
-            
-            l2_IDSF_type = self.__LepSF_File['name']['Electron']
-            l2_IDSF_File = self.__LepSF_File['path']['Electron']
-            
-            ROOT.gInterpreter.ProcessLine(Claim['IDSF']['ElectronMuon'].format(l1_IDSF_File,l2_IDSF_File,l1_IDSF_Name,l2_IDSF_type,l1_RECO_Name))
+                l1_IDSF_File = self.__LepSF_File['path']['Muon']
+                
+                l2_IDSF_type = self.__LepSF_File['name']['Electron']
+                l2_IDSF_File = self.__LepSF_File['path']['Electron']
+                
+                ROOT.gInterpreter.ProcessLine(Claim['IDSF']['ElectronMuon'].format(l1_IDSF_File,l2_IDSF_File,l1_IDSF_Name,l2_IDSF_type,l1_RECO_Name))
             
             
             #ROOT.gInterpreter.ProcessLine(Histogram_Definition['ElectronMuon'].format(l1_IDSF_File,l2_IDSF_File,l1_IDSF_Name,l2_IDSF_type,l1_RECO_Name))
         elif self.__channel == 'DoubleElectron':
-            l1_IDSF_type = self.__LepSF_File['name']
-            l1_IDSF_File = self.__LepSF_File['path']
+            if self.__FakeRate:
+                ROOT.gInterpreter.ProcessLine(Claim['FakeRate']['DoubleElectron'].format(self.__FakeRateFiles['electron']))
             
-            l2_IDSF_type = l1_IDSF_type 
-            l2_IDSF_File = ""
-            #ROOT.gInterpreter.ProcessLine(Histogram_Definition['DoubleElectron'].format(l1_IDSF_File,l1_IDSF_type))
-            ROOT.gInterpreter.ProcessLine(Claim['IDSF']['DoubleElectron'].format(l1_IDSF_File,l1_IDSF_type))
+            if self.__IDSF:
+                l1_IDSF_type = self.__LepSF_File['name']
+                l1_IDSF_File = self.__LepSF_File['path']
+                
+                l2_IDSF_type = l1_IDSF_type 
+                l2_IDSF_File = ""
+                #ROOT.gInterpreter.ProcessLine(Histogram_Definition['DoubleElectron'].format(l1_IDSF_File,l1_IDSF_type))
+                ROOT.gInterpreter.ProcessLine(Claim['IDSF']['DoubleElectron'].format(l1_IDSF_File,l1_IDSF_type))
 
 
-            with open(f'./data/year{self.__year}/PhysProcessRECO/path/ChargeFlipFiles.json','r') as f:
-                cf_Info = json.load(f)
-            ROOT.gInterpreter.ProcessLine(Claim['ChargeFlipSF'].format(cf_Info['prob_MLE'],cf_Info['SF']))
+                with open(f'./data/year{self.__year}/PhysProcessRECO/path/ChargeFlipFiles.json','r') as f:
+                    cf_Info = json.load(f)
+            
+            if self.__CFSF:
+                #print(Claim['ChargeFlipSF'].format(cf_Info['prob_MLE'],cf_Info['SF']))
+                ROOT.gInterpreter.ProcessLine(Claim['ChargeFlipSF'].format(cf_Info['SF'],cf_Info['prob_MLE']))
 
 
 
         elif self.__channel == 'DoubleMuon':
-            RECOWeight_LEP_TTC = '1.'
-            RECOWeight_LEP_OPS = '1.'
-            l1_IDSF_type = self.__LepSF_File['name'][0]
-            RECO_IDSF_type = self.__LepSF_File['name'][1]
-            l1_IDSF_File = self.__LepSF_File['path']
-            
-            l2_IDSF_type = l1_IDSF_type 
-            l2_IDSF_File = ""
-            ROOT.gInterpreter.ProcessLine(Claim['IDSF']['DoubleMuon'].format(l1_IDSF_File,l1_IDSF_type,RECO_IDSF_type)) 
+            #RECOWeight_LEP_TTC = '1.'
+            #RECOWeight_LEP_OPS = '1.'
+            if self.__FakeRate:
+                ROOT.gInterpreter.ProcessLine(Claim['FakeRate']['DoubleElectron'].format(self.__FakeRateFiles['muon']))
+            if self.__IDSF:
+                l1_IDSF_type = self.__LepSF_File['name'][0]
+                RECO_IDSF_type = self.__LepSF_File['name'][1]
+                l1_IDSF_File = self.__LepSF_File['path']
+                
+                l2_IDSF_type = l1_IDSF_type 
+                l2_IDSF_File = ""
+                ROOT.gInterpreter.ProcessLine(Claim['IDSF']['DoubleMuon'].format(l1_IDSF_File,l1_IDSF_type,RECO_IDSF_type)) 
         if self.__TrigSF != 0:
             if self.__TrigSF==1:
                 branchName = 'l1pteta'
@@ -192,21 +217,6 @@ class Analyzer():
                 self.__Eras = self.__DataPath[i].keys()
                 break 
 
-        for era in self.__Eras:
-            self.__dfs['Data'][era] = dict()
-            for dataset in self.__DataPath.keys():
-                settings = {
-                        'channel': self.__channel,
-                        'MET_Filters' :  self.__MET_Filters['Data'],
-                        'IsData': True,
-                        'File_Paths' : self.__DataPath[dataset][era],
-                        'nevents' : self.__nevents,
-                        'veto':self.__veto,
-                        'year':self.__year,
-                        'region':self.__region,
-                        }
-        
-                self.__dfs['Data'][era][dataset] = RDataFrameStab(settings)
          
         
         #DataFrame For Simulation Events
@@ -224,10 +234,22 @@ class Analyzer():
                         'region':self.__region,
                         }
                 
-                self.__dfs['MC'][process][phys_name]= RDataFrameStab(settings)
+                if self.__FakeRate:
+                    if phys_name =='TTTo1L' or phys_name=='WJets':
+                        continue
+                    else:
+                    
+                        self.__dfs['MC'][process][phys_name]= dict()
+                        settings['FakeRateOn'] = True
+                        settings['IsFake'] = True
+                        self.__dfs['MC'][process][phys_name]['IsFake']= RDataFrameStab(settings)
+                        settings['IsFake'] = False
+                        self.__dfs['MC'][process][phys_name]['NotFake']= RDataFrameStab(settings)
+                else:
+                    self.__dfs['MC'][process][phys_name]= RDataFrameStab(settings)
+
         for process in self.__MCPath.keys():
             for phys_name in self.__MCPath[process].keys():
-                print(f"{process}:{phys_name}:Filtering")
                 SF_Config = dict()
                 
                 SF_Config['TrigSF'] = dict()
@@ -246,16 +268,19 @@ class Analyzer():
                     SF_Config['RECOSF']['activate'] = True
                 else:
                     SF_Config['RECOSF']['activate'] = False
+                
                 if self.__CFSF:
-                    SF_Config['cf_SF']['sigma'] = 0
-                    SF_Config['kinematic']['activate'] = 'true'
                     if phys_name =='TTTo1L':
+                        SF_Config['cf_SF']['sigma'] = 0
                         SF_Config['cf_SF']['activate'] = False
+                        SF_Config['kinematic']['activate'] = 'false'
 
                     else:
+                        SF_Config['cf_SF']['sigma'] = 0
+                        SF_Config['kinematic']['activate'] = 'false'
                         SF_Config['cf_SF']['activate'] = True
                     
-                    if self.__region == 'SignalRegion': 
+                    if self.__region == 'SignalRegion' or self.__region =='ChargeFlipRegion': 
                         SF_Config['cf_SF']['Same_Sign'] = True
                     else:
                         SF_Config['cf_SF']['Same_Sign'] = False
@@ -272,19 +297,71 @@ class Analyzer():
                 SF_Config['TrigSF']['Type']  = self.__TrigSF
                 SF_Config['PreFireWeight']['activate']   = True 
 
+                SF_Config['FakeRate'] = dict()
 
-
-                #print(self.__DiLep_Conditions['MC'])
-                Millstone(self.__dfs['MC'][process][phys_name],HistSettings=HistSettings,SF_Config=SF_Config,DiLepton_Triggers_Condition = self.__DiLep_Conditions['MC'],Run_List=[])
+                if self.__FakeRate:
+            
+                    SF_Config['FakeRate']['activate']= True
+                    if phys_name =='TTTo1L' or phys_name=='WJets':
+                        continue
+                    SF_Config['FakeRate']['IsFake'] =True
+                    print(f"{process}:{phys_name}:Filtering")
+                    Millstone(self.__dfs['MC'][process][phys_name]['IsFake'],HistSettings=HistSettings,SF_Config=SF_Config,DiLepton_Triggers_Condition = self.__DiLep_Conditions['MC'],Run_List=[])
+                    SF_Config['FakeRate']['IsFake'] =False
+                    Millstone(self.__dfs['MC'][process][phys_name]['NotFake'],HistSettings=HistSettings,SF_Config=SF_Config,DiLepton_Triggers_Condition = self.__DiLep_Conditions['MC'],Run_List=[])
+                else:
+                    SF_Config['FakeRate']['activate']= False
+                    SF_Config['FakeRate']['IsFake'] =False
                 
+                    print(f"{process}:{phys_name}:Filtering")
+                    Millstone(self.__dfs['MC'][process][phys_name],HistSettings=HistSettings,SF_Config=SF_Config,DiLepton_Triggers_Condition = self.__DiLep_Conditions['MC'],Run_List=[])
+
+                    
+                    #print(self.__DiLep_Conditions['MC'])
+                    
                 print(f"{process}:{phys_name}:Filter equipped success")
         
+        for era in self.__Eras:
+            self.__dfs['Data'][era] = dict()
+            for dataset in self.__DataPath.keys():
+                settings = {
+                        'channel': self.__channel,
+                        'MET_Filters' :  self.__MET_Filters['Data'],
+                        'IsData': True,
+                        'File_Paths' : self.__DataPath[dataset][era],
+                        'nevents' : self.__nevents,
+                        'veto':self.__veto,
+                        'year':self.__year,
+                        'region':self.__region,
+                        }
+        
+                if self.__FakeRate:
+                    self.__dfs['Data'][era][dataset] =dict()
+                    settings['FakeRateOn'] = True
+                    settings['IsFake'] = True
+                    self.__dfs['Data'][era][dataset]['IsFake'] = RDataFrameStab(settings)
+                    settings['IsFake'] = False
+                    self.__dfs['Data'][era][dataset]['NotFake'] = RDataFrameStab(settings)
+                else:
+                    self.__dfs['Data'][era][dataset] = RDataFrameStab(settings)
         
         for era in self.__Eras:
             for dataset in self.__DataPath.keys():
                 SF_Config = dict()
+                SF_Config['FakeRate'] = dict()
+
+
                 print(f"{dataset}:{era}:Filtering")
-                Millstone(self.__dfs['Data'][era][dataset] , HistSettings=HistSettings,SF_Config=SF_Config,DiLepton_Triggers_Condition =self.__DiLep_Conditions["Data"][era][dataset],Run_List =self.__DiLepton_Triggers[era])
+                if self.__FakeRate:
+                    SF_Config['FakeRate']['activate']= True
+                    SF_Config['FakeRate']['IsFake'] = True
+                    Millstone(self.__dfs['Data'][era][dataset]['IsFake'] , HistSettings=HistSettings,SF_Config=SF_Config,DiLepton_Triggers_Condition =self.__DiLep_Conditions["Data"][era][dataset],Run_List =self.__DiLepton_Triggers[era])
+                    SF_Config['FakeRate']['IsFake'] = False
+                    Millstone(self.__dfs['Data'][era][dataset]['NotFake'] , HistSettings=HistSettings,SF_Config=SF_Config,DiLepton_Triggers_Condition =self.__DiLep_Conditions["Data"][era][dataset],Run_List =self.__DiLepton_Triggers[era])
+                else:
+                    SF_Config['FakeRate']['activate']= False
+                    SF_Config['FakeRate']['IsFake'] = False
+                    Millstone(self.__dfs['Data'][era][dataset] , HistSettings=HistSettings,SF_Config=SF_Config,DiLepton_Triggers_Condition =self.__DiLep_Conditions["Data"][era][dataset],Run_List =self.__DiLepton_Triggers[era])
                 print(f"{dataset}:{era}:Filter equipped success")
         if not self.__debug:
             print('Starting to plotting...')
@@ -292,30 +369,63 @@ class Analyzer():
                 HistoGrams = OrderedDict()
                 HistoGrams['MC'] = OrderedDict()
                 HistoGrams['Data'] = OrderedDict()
+                    
                 Temps = OrderedDict()
                 Temps['Data'] = OrderedDict()
                 Temps['MC'] = OrderedDict()
+                if self.__FakeRate:
+                    HistoGrams['FakeRate'] = OrderedDict()
                 for idx1 ,era in enumerate(self.__dfs['Data'].keys()):
-                    Temps['Data'][era] = dict()
-                    for idx2, dataset in enumerate(self.__dfs['Data'][era].keys()):
-                        h = self.__dfs['Data'][era][dataset].Hists[histname].GetValue()
-                        h = overunder_flowbin(h)
-                        Temps['Data'][era][dataset] = h
-                        if idx1 == 0 and idx2 == 0:
-                            HistoGrams['Data'] = Temps['Data'][era][dataset]
+                    for idx2 , dataset in enumerate(self.__dfs['Data'][era].keys()):
+                        print(era,dataset)
+                        if self.__FakeRate:
+                            h = self.__dfs['Data'][era][dataset]['NotFake'].Hists[histname].GetValue()
+                            h = overunder_flowbin(h)
+                            h2 = self.__dfs['Data'][era][dataset]['IsFake'].Hists[histname].GetValue()
+                            h2 = overunder_flowbin(h2)
+                            if idx1 == 0 and idx2 == 0:
+                                HistoGrams['Data'] = h
+                                HistoGrams['FakeRate']= h2 
+                            else:
+                                HistoGrams['Data'].Add(h)
+                                HistoGrams['FakeRate'].Add(h2)
+
                         else:
-                            HistoGrams['Data'].Add(Temps['Data'][era][dataset])
-          
+                            h = self.__dfs['Data'][era][dataset].Hists[histname].GetValue()
+                            h = overunder_flowbin(h)
+                            if idx1 == 0 and idx2 == 0:
+                                HistoGrams['Data'] = h
+                            else:
+                                HistoGrams['Data'].Add(h)
                 for process in self.__MCPath.keys():
                     for phys_name in self.__MCPath[process].keys():
-                
                         #self.__dfs['MC'][MC].Hists[histname].Draw()
-                        h = self.__dfs['MC'][process][phys_name].Hists[histname].GetValue()
-                        h.Scale((self.__Cross_Section[process][phys_name]*self.__lumi)/float(self.__NumberOfEvents[process][phys_name]))
-                        Temps['MC'][phys_name] = overunder_flowbin(h)
+                        
+                        if self.__FakeRate:
+                            if phys_name=='TTTo1L' or phys_name=='WJets':continue
+                            h = self.__dfs['MC'][process][phys_name]['IsFake'].Hists[histname].GetValue()
+                            h.Scale((self.__Cross_Section[process][phys_name]*self.__lumi)/float(self.__NumberOfEvents[process][phys_name]))
+                            h = overunder_flowbin(h)
+                            HistoGrams['FakeRate'].Add(h)
+                            
+                            h = self.__dfs['MC'][process][phys_name]['NotFake'].Hists[histname].GetValue()
+                            h.Scale((self.__Cross_Section[process][phys_name]*self.__lumi)/float(self.__NumberOfEvents[process][phys_name]))
+                            Temps['MC'][phys_name] = overunder_flowbin(h)
+                        else:
+                            h = self.__dfs['MC'][process][phys_name].Hists[histname].GetValue()
+                            h.Scale((self.__Cross_Section[process][phys_name]*self.__lumi)/float(self.__NumberOfEvents[process][phys_name]))
+                            Temps['MC'][phys_name] = overunder_flowbin(h)
+                        print(phys_name)
+
+
                 ####
                 HistoGrams['MC']['DY'] = Temps['MC']['DYnlo']
-                HistoGrams['MC']['WJets'] = Temps['MC']['WJets']
+                
+                if not self.__FakeRate:
+                    HistoGrams['MC']['WJets'] = Temps['MC']['WJets']
+                
+                #HistoGrams['MC']['FakeLep'] = Temps['MC']['FakeLep']
+
 
                 if self.__year =='2018' or self.__year == '2017':
                     HistoGrams['MC']['VV'] = Temps['MC']['osWW']
@@ -358,8 +468,11 @@ class Analyzer():
                
                     HistoGrams['MC']['tzq'] = Temps['MC']['tzq']
 
-                    HistoGrams['MC']['TT'] = Temps['MC']['TTTo1L']
-                    HistoGrams['MC']['TT'].Add(Temps['MC']['TTTo2L'])
+                    HistoGrams['MC']['TT'] = Temps['MC']['TTTo2L']
+                    if self.__FakeRate:
+                        pass
+                    else:
+                        HistoGrams['MC']['TT'].Add(Temps['MC']['TTTo1L'])
                 else:
                     HistoGrams['MC']['VV'] = Temps['MC']['ww']
                     HistoGrams['MC']['VV'].Add(Temps['MC']['wz_qcd'])
@@ -388,6 +501,9 @@ class Analyzer():
                     HistoGrams['MC']['tzq'] = Temps['MC']['tZq']
 
                     HistoGrams['MC']['TT'] = Temps['MC']['TTTo2L2Nu']
-                    HistoGrams['MC']['TT'].Add(Temps['MC']['TTTo1L'])
+                    if self.__FakeRate:
+                        pass
+                    else:
+                        HistoGrams['MC']['TT'].Add(Temps['MC']['TTTo1L'])
 
-                Plot(HistoGrams,x_name=histname ,lumi=self.__lumi,channel=self.__channel,year=self.__year,ylog=self.__ylog,TrigSF_On = self.__TrigSF, IDSF_On= self.__IDSF,RECOSF_On =self.__RECOSF,CFSF_On =self.__CFSF,eras = self.__Eras,region=self.__region)
+                Plot(HistoGrams,x_name=histname ,lumi=self.__lumi,channel=self.__channel,year=self.__year,ylog=self.__ylog,TrigSF_On = self.__TrigSF, IDSF_On= self.__IDSF,RECOSF_On =self.__RECOSF,CFSF_On =self.__CFSF,eras = self.__Eras,region=self.__region,FakeRate_On = self.__FakeRate)

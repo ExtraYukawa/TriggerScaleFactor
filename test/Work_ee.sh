@@ -1,25 +1,7 @@
-python3 ./WorkFlow/main.py -m DrellYanRECO -y 2016apv -i DoubleElectron -a 0 ; 
-python3 ./WorkFlow/main.py -m DrellYanRECO -y 2016apv -i DoubleElectron -a 1 ; 
-python3 ./WorkFlow/main.py -m DrellYanRECO -y 2016apv -i DoubleElectron -a 3 -x 0 ; 
-python3 ./WorkFlow/main.py -m DrellYanRECO -y 2016apv -i DoubleElectron -a 3 -x 1 ; 
-python3 ./WorkFlow/main.py -m DrellYanRECO -y 2016apv -i DoubleElectron -a 3 -x 2 ; 
-python3 ./WorkFlow/main.py -m DrellYanRECO -y 2016apv -i DoubleElectron -a 3 -x 3 ;
-python3 ./WorkFlow/main.py -m DrellYanRECO -y 2016postapv -i DoubleElectron -a 0 ; 
-python3 ./WorkFlow/main.py -m DrellYanRECO -y 2016postapv -i DoubleElectron -a 1 ; 
-python3 ./WorkFlow/main.py -m DrellYanRECO -y 2016postapv -i DoubleElectron -a 3 -x 0 ; 
-python3 ./WorkFlow/main.py -m DrellYanRECO -y 2016postapv -i DoubleElectron -a 3 -x 1 ; 
-python3 ./WorkFlow/main.py -m DrellYanRECO -y 2016postapv -i DoubleElectron -a 3 -x 2 ; 
-python3 ./WorkFlow/main.py -m DrellYanRECO -y 2016postapv -i DoubleElectron -a 3 -x 3 ; 
-python3 ./WorkFlow/main.py -m DrellYanRECO -y 2017 -i DoubleElectron -a 0 ; 
-python3 ./WorkFlow/main.py -m DrellYanRECO -y 2017 -i DoubleElectron -a 1 ; 
-python3 ./WorkFlow/main.py -m DrellYanRECO -y 2017 -i DoubleElectron -a 3 -x 0 ; 
-python3 ./WorkFlow/main.py -m DrellYanRECO -y 2017 -i DoubleElectron -a 3 -x 1 ; 
-python3 ./WorkFlow/main.py -m DrellYanRECO -y 2017 -i DoubleElectron -a 3 -x 2 ; 
-python3 ./WorkFlow/main.py -m DrellYanRECO -y 2017 -i DoubleElectron -a 3 -x 3 ; 
-python3 ./WorkFlow/main.py -m DrellYanRECO -y 2018 -i DoubleElectron -a 0 ; 
-python3 ./WorkFlow/main.py -m DrellYanRECO -y 2018 -i DoubleElectron -a 1 ; 
-python3 ./WorkFlow/main.py -m DrellYanRECO -y 2018 -i DoubleElectron -a 3 -x 0 ; 
-python3 ./WorkFlow/main.py -m DrellYanRECO -y 2018 -i DoubleElectron -a 3 -x 1 ; 
-python3 ./WorkFlow/main.py -m DrellYanRECO -y 2018 -i DoubleElectron -a 3 -x 2 ; 
-python3 ./WorkFlow/main.py -m DrellYanRECO -y 2018 -i DoubleElectron -a 3 -x 3 ; 
-
+python3 ./WorkFlow/main.py -m PhysProcessRECO -y 2016postapv -i DoubleElectron -r DrellYan --TrigSF 0 
+python3 ./WorkFlow/main.py -m PhysProcessRECO -y 2016postapv -i DoubleElectron -r DrellYan --TrigSF 0  --RECOSF 
+python3 ./WorkFlow/main.py -m PhysProcessRECO -y 2016postapv -i DoubleElectron -r DrellYan --TrigSF 0  --RECOSF  --IDSF
+python3 ./WorkFlow/main.py -m PhysProcessRECO -y 2016postapv -i DoubleElectron -r DrellYan --IDSF --RECOSF --TrigSF 1 
+python3 ./WorkFlow/main.py -m PhysProcessRECO -y 2016postapv -i DoubleElectron -r DrellYan --IDSF --RECOSF --TrigSF 2 
+python3 ./WorkFlow/main.py -m PhysProcessRECO -y 2016postapv -i DoubleElectron -r DrellYan --IDSF --RECOSF --TrigSF 3 
+python3 ./WorkFlow/main.py -m PhysProcessRECO -y 2016postapv -i DoubleElectron -r DrellYan --IDSF --RECOSF --TrigSF 4 

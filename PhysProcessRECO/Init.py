@@ -463,5 +463,22 @@ def GenChargeFlipFiles(year:str):
     with open(f'./data/year{year}/PhysProcessRECO/path/ChargeFlipFiles.json','wt') as f:
         json.dump(PATH,f,indent =4 )
 
+def GenFakeRateFiles(year:str):
+    if year =='2016apv':
+        year_ = '2016APV'
+    elif year =='2016postapv':
+        year_ = '2016postAPV'
+    else:
+        year_ = year
+    PATH =dict()
+    PATH['electron'] = f'/eos/user/z/zhenggan/ExtraYukawa/PhysProcessRECO/year{year}/fr_data_mu_{year_}.root'
+    PATH['muon'] = f'/eos/user/z/zhenggan/ExtraYukawa/PhysProcessRECO/year{year}/fr_data_ele_{year_}.root'
+
+
+    with open(f'./data/year{year}/PhysProcessRECO/path/FakeRateFiles.json','wt') as f:
+        json.dump(PATH,f,indent=4)
+
+
+
 
 
