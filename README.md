@@ -97,7 +97,7 @@ python3 ./WorkFlow/main.py -m PhysProcessRECO -y 2017 -i DoubleElectron -r Signa
  - [--RECOSF]: Activate Reconstruction scale factor if specified.
  - [--FakeRate]: Activate nonprompt background estimation if specified.
  - [--CFSF]: Activate charge flip scale factor if specified.
- - [--Era]: Only consider certain eras of data. Generally, this option accompanies with [--lumi] 
+ - [--Era]: Only consider certain eras of data. Generally, this option accompanies with [lumi] 
  - [--lumi]: Luminosity.
  - [-i/--channel]: Channel, choices: [DoubleElectron/DoubleMuon/ElectronMuon]. Note: You should make sure whether you make the corresponding output folders for your favour channel!
  - Running Time: 3000 sec ~ 5000 sec for 2017/2018, 1000 sec for 2016apv/2016postapv
