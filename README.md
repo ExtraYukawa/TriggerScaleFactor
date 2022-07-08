@@ -64,60 +64,40 @@ After the program is done, you can see trigSF plots and files in your /eos/user/
 Plots for efficiencies and trigger scale factors: [link](https://cernbox.cern.ch/index.php/s/C2DsnT2SjqiApBL)
 
 
-## Steps to do Drell-Yan Process Reconstruction
+## Steps to do physics process reconstruction
 
 ### step1: preparation
-Firstly you should make some paths to Input Files(Data and MC respectively) and triggerSF files.
-Also, make some files to contain the crossection and number of events of MC sample.
+Firstly you have to utilize the already existed json files production function to produce the necessary information files.
+Since each year data will face different scenerio, likes PrefireWeight or different lepton IDSFs etc. You need to do this sperately. 
 
-e.g.
+e.g. to produce needed files for 2016apv
 ```
-python3 ./WorkFlow/main.py -m Init -t DrellYan --year 2017 
+python3 ./WorkFlow/main.py -m Init -t PhysProcessRECO --year 2016 
 ```
 ### step2: Make Output Directory under EOS space and save this path.
 
-In this step, the directories which will be used to contain the plots of DrellYan-related would be constructed.
+In this step, you would make the output directories to store the plots.
 Also, the json files which contain the paths to these directories will be also made.
 
 e.g.
 ```
-python3 ./WorkFlow/main.py -m BuildDir -t DrellYan --year 2017 --channels DoubleElectron DoubleMuon ElectronMuon 
+python3 ./WorkFlow/main.py -m BuildDir -t PhysProcessRECO --year 2016 --channels DoubleElectron DoubleMuon ElectronMuon 
 ```
-### step3: Drell_Yan Process Reconstruction
+Note: It's up to you to feed number of channels to the channels options, but there are only these three channels for sure.  
 
+### step3: Physics Process Reconstruction
+Region Option: Signal Region, Drell-Yan process enriched region, Charge Flip derivation region.
+A typical command to produce the signal region associated plots are like:
 ```
-python3 ./WorkFlow/main.py -m DrellYanRECO -y 2017 -i DoubleElectron -n -1 --SF_mode 0 -x 3
+python3 ./WorkFlow/main.py -m PhysProcessRECO -y 2017 -i DoubleElectron -r SignalRegion --TrigSF 3 --IDSF --RECOSF --CFSF --FakeRate 
 ```
  arguments: 
- - [-n]: number of events, if specified to be -1, all the events will be loaded.
- - [-a/--trigSF_on]: Apply triggerSF on MC sample or not. If specified, triggerSF will be applied otherwise, the default is no triggerSF.
- - [-a/--SF_mode]: 0: Without any ScaleFactors|1:Only ID Scale Factor|2: Only Trigger Scale Factor | 3: (ID +Trigger) Scale Factor
- - [-x/--trigSFType]: Specify type of trigScaleFactors. 0 : l1pteta| 1: l2pteta| 2 : l1l2pt | 3: l1l2eta
- - Running Time: 3000 sec ~ 5000 sec
-## Steps to do Lepton Fake Rate calculation
-### step1 : Initialization and Building Ourput directory
-
-```
-python3 ./WorkFlow/main.py -m Init -t FakeRate -y 2017
-python3 ./WorkFlow/main.py -m BuildDir -t FakeRate -y 2017 --channels Electron Muon 
-```
-
-The similar data output and FilesInput Info. json files structure as previous steps will present.
-
-### step2 : FakeRate Calculation
-
-```
-python3 ./WorkFlow/main.py -m FakeRate -y 2017 --channel Electron -t FakeRate -n -1 -a
-```
-Note:
-argument [ -a/--trigSF_on] determine whether the trigSF should be applied or not.
-
-## Veto Issue:
-You need to execute 
-```
-python3 ./Utils/CalculateVetoRatio.py
-```
-to obtain the corresponding ratio of HEM region to Full region and the ratio of valid region to veto HEM.
-### To-Do List:
-- [ ] FakeRate 
-
+ - [--TrigSF]: Activate trigger scale factor if specify 1/2/3/4. [1->l1pteta,2->l2pteta,3->l1l2pt,4->l1l2eta]. Deactivate if specify 0. 
+ - [--IDSF]: Activate identification scale factor if specified.
+ - [--RECOSF]: Activate Reconstruction scale factor if specified.
+ - [--FakeRate]: Activate nonprompt background estimation if specified.
+ - [--CFSF]: Activate charge flip scale factor if specified.
+ - [--Era]: Only consider certain eras of data. Generally, this option accompanies with \[lumi\]
+ - [--lumi]: Luminosity.
+ - [-i/--channel]: Channel, choices: [DoubleElectron/DoubleMuon/ElectronMuon]. Note: You should make sure whether you make the corresponding output folders for your favour channel!
+ - Running Time: 3000 sec ~ 5000 sec for 2017/2018, 1000 sec for 2016apv/2016postapv
