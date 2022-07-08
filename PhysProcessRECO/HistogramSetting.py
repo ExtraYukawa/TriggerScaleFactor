@@ -72,85 +72,85 @@ HistSettings['DrellYan']['DY_z_mass']['highedge'] = 120
 
 HistSettings['SignalRegion']['ttc_l1_pt'] = manager.dict()
 HistSettings['SignalRegion']['ttc_l1_pt']['name'] = 'ttc_l1_pt'
-HistSettings['SignalRegion']['ttc_l1_pt']['nbins'] = 40
+HistSettings['SignalRegion']['ttc_l1_pt']['nbins'] = 14
 HistSettings['SignalRegion']['ttc_l1_pt']['lowedge'] = 0
-HistSettings['SignalRegion']['ttc_l1_pt']['highedge'] = 200
+HistSettings['SignalRegion']['ttc_l1_pt']['highedge'] = 210
 
 
 HistSettings['SignalRegion']['ttc_l1_eta'] = manager.dict()
 HistSettings['SignalRegion']['ttc_l1_eta']['name'] = 'ttc_l1_eta'
-HistSettings['SignalRegion']['ttc_l1_eta']['nbins'] = 30
+HistSettings['SignalRegion']['ttc_l1_eta']['nbins'] = 15
 HistSettings['SignalRegion']['ttc_l1_eta']['lowedge'] = -3
 HistSettings['SignalRegion']['ttc_l1_eta']['highedge'] = 3
 
 HistSettings['SignalRegion']['ttc_l1_phi'] = manager.dict()
 HistSettings['SignalRegion']['ttc_l1_phi']['name'] = 'ttc_l1_phi'
-HistSettings['SignalRegion']['ttc_l1_phi']['nbins'] = 20
+HistSettings['SignalRegion']['ttc_l1_phi']['nbins'] = 10
 HistSettings['SignalRegion']['ttc_l1_phi']['lowedge'] = -4
 HistSettings['SignalRegion']['ttc_l1_phi']['highedge'] = 4
 
 HistSettings['SignalRegion']['ttc_l2_pt'] = manager.dict()
 HistSettings['SignalRegion']['ttc_l2_pt']['name'] = 'ttc_l2_pt'
-HistSettings['SignalRegion']['ttc_l2_pt']['nbins'] = 40
+HistSettings['SignalRegion']['ttc_l2_pt']['nbins'] = 10
 HistSettings['SignalRegion']['ttc_l2_pt']['lowedge'] = 0
 HistSettings['SignalRegion']['ttc_l2_pt']['highedge'] = 100
 
 HistSettings['SignalRegion']['ttc_l2_eta'] = manager.dict()
 HistSettings['SignalRegion']['ttc_l2_eta']['name'] = 'ttc_l2_eta'
-HistSettings['SignalRegion']['ttc_l2_eta']['nbins'] = 30
+HistSettings['SignalRegion']['ttc_l2_eta']['nbins'] = 15
 HistSettings['SignalRegion']['ttc_l2_eta']['lowedge'] = -3
 HistSettings['SignalRegion']['ttc_l2_eta']['highedge'] = 3
 
 HistSettings['SignalRegion']['ttc_l2_phi'] = manager.dict()
 HistSettings['SignalRegion']['ttc_l2_phi']['name'] = 'ttc_l2_phi'
-HistSettings['SignalRegion']['ttc_l2_phi']['nbins'] = 20
+HistSettings['SignalRegion']['ttc_l2_phi']['nbins'] = 10
 HistSettings['SignalRegion']['ttc_l2_phi']['lowedge'] = -4
 HistSettings['SignalRegion']['ttc_l2_phi']['highedge'] = 4
 
 
 HistSettings['SignalRegion']['ttc_mll'] = manager.dict()
 HistSettings['SignalRegion']['ttc_mll']['name'] = 'ttc_mll'
-HistSettings['SignalRegion']['ttc_mll']['nbins'] = 60
-HistSettings['SignalRegion']['ttc_mll']['lowedge'] = 60
-HistSettings['SignalRegion']['ttc_mll']['highedge'] = 120
+HistSettings['SignalRegion']['ttc_mll']['nbins'] = 14
+HistSettings['SignalRegion']['ttc_mll']['lowedge'] = 0
+HistSettings['SignalRegion']['ttc_mll']['highedge'] = 280
 
 
 HistSettings['SignalRegion']['ttc_mllj1'] = manager.dict()
 HistSettings['SignalRegion']['ttc_mllj1']['name'] = 'ttc_mllj1'
-HistSettings['SignalRegion']['ttc_mllj1']['nbins'] = 20
+HistSettings['SignalRegion']['ttc_mllj1']['nbins'] = 10
 HistSettings['SignalRegion']['ttc_mllj1']['lowedge'] = 0
 HistSettings['SignalRegion']['ttc_mllj1']['highedge'] = 1000
 
 HistSettings['SignalRegion']['ttc_mllj2'] = manager.dict()
 HistSettings['SignalRegion']['ttc_mllj2']['name'] = 'ttc_mllj2'
-HistSettings['SignalRegion']['ttc_mllj2']['nbins'] = 22
+HistSettings['SignalRegion']['ttc_mllj2']['nbins'] = 11
 HistSettings['SignalRegion']['ttc_mllj2']['lowedge'] = 0
 HistSettings['SignalRegion']['ttc_mllj2']['highedge'] = 1100
 
 
 HistSettings['SignalRegion']['ttc_mllj3'] = manager.dict()
 HistSettings['SignalRegion']['ttc_mllj3']['name'] = 'ttc_mllj3'
-HistSettings['SignalRegion']['ttc_mllj3']['nbins'] = 20
+HistSettings['SignalRegion']['ttc_mllj3']['nbins'] = 10
 HistSettings['SignalRegion']['ttc_mllj3']['lowedge'] = 0
 HistSettings['SignalRegion']['ttc_mllj3']['highedge'] = 1000
 
 HistSettings['SignalRegion']['ttc_met_phi'] = manager.dict()
 HistSettings['SignalRegion']['ttc_met_phi']['name'] = 'ttc_met_phi'
-HistSettings['SignalRegion']['ttc_met_phi']['nbins'] = 20
+HistSettings['SignalRegion']['ttc_met_phi']['nbins'] = 10
 HistSettings['SignalRegion']['ttc_met_phi']['lowedge'] = -4
 HistSettings['SignalRegion']['ttc_met_phi']['highedge'] = 4
 
 HistSettings['SignalRegion']['ttc_met'] = manager.dict()
 HistSettings['SignalRegion']['ttc_met']['name'] = 'ttc_met'
-HistSettings['SignalRegion']['ttc_met']['nbins'] = 20
+HistSettings['SignalRegion']['ttc_met']['nbins'] = 15
 HistSettings['SignalRegion']['ttc_met']['lowedge'] = 0
-HistSettings['SignalRegion']['ttc_met']['highedge'] = 200
+HistSettings['SignalRegion']['ttc_met']['highedge'] = 210
 
 HistSettings['SignalRegion']['HT'] = manager.dict()
 HistSettings['SignalRegion']['HT']['name'] = 'HT'
-HistSettings['SignalRegion']['HT']['nbins'] =25
+HistSettings['SignalRegion']['HT']['nbins'] = 10
 HistSettings['SignalRegion']['HT']['lowedge'] = 0
-HistSettings['SignalRegion']['HT']['highedge'] = 250
+HistSettings['SignalRegion']['HT']['highedge'] = 500
 
 '''
 HistSettings['SignalRegion']['j1_FlavCvL'] = manager.dict()

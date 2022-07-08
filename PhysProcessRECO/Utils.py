@@ -48,9 +48,9 @@ def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:float,channel='DoubleElect
     Histo['MC']['ttXorXX'].SetFillColor(ROOT.kViolet-4)
     Histo['MC']['tzq'].SetFillColor(ROOT.kYellow-4)
     Histo['MC']['TT'].SetFillColor(ROOT.kBlue)
-    
+     
     if FakeRate_On:
-        Histo['FakeRate'].SetFillColor(ROOT.kBlue-7)
+        Histo['MC']['FakeRate'].SetFillColor(ROOT.kBlue-7)
     else:
         Histo['MC']['WJets'].SetFillColor(ROOT.kBlue - 7)
 
@@ -60,34 +60,36 @@ def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:float,channel='DoubleElect
     Histo['Data'].SetMarkerSize(0.85)
     Histo['Data'].SetMarkerColor(1)
     Histo['Data'].SetLineWidth(1)
-
+    
+    print('Yield Calculation')
+    print('---------------------------')
     Yield =dict()
     Yield['MC'] =dict()
+    
     for MC in Histo['MC'].keys():
         Yield['MC'][MC] = round(Histo['MC'][MC].Integral(),1)
+        print(f"MC sample({MC}):{Yield['MC'][MC]}")
+
     Yield['MC'] = OrderedDict(sorted(Yield['MC'].items(),key = lambda x: x[1],reverse=True))
-    Yield['Data'] = Histo['Data'].Integral()
-    
 
     h_stack = ROOT.THStack()
+    Yield['Data'] = Histo['Data'].Integral()
+    print(f"Data:{Yield['Data']}")
+    print('---------------------------')
     for MC in  Yield['MC'].keys():
         h_stack.Add(Histo['MC'][MC])
-    if FakeRate_On:
-        Yield['FakeRate'] =round(Histo['FakeRate'].Integral(),1)
-        h_stack.Add(Histo['FakeRate'])
     Nbins = h_stack.GetStack().Last().GetNbinsX()
     
     max_yields = 0
     for i in range(1,Nbins+1):
         max_yields_temp = h_stack.GetStack().Last().GetBinContent(i)
         if max_yields_temp>max_yields:max_yields=max_yields_temp
-
     max_yields_data = 0
 
+    
     for i in range(1,Nbins+1):
         max_yields_data_temp = Histo['Data'].GetBinContent(i)
         if max_yields_data_temp>max_yields_data:max_yields_data=max_yields_data_temp
-
     if ylog==0:
         y_post_fix =''
         h_stack.SetMaximum(max(max_yields,max_yields_data)*1.8)
@@ -95,26 +97,43 @@ def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:float,channel='DoubleElect
         y_post_fix = '_ylog'
         h_stack.SetMaximum(max(max_yields,max_yields_data)*100)
 
-
     h_error = h_stack.GetStack().Last()
     h_error.SetBinErrorOption(ROOT.TH1.kPoisson)
-
     binsize = h_error.GetSize()-2
     x = []
     y = []
     xerror = []
     yerror_u = []
     yerror_d = []
+    xerror_l = []
+    xerror_r = []
+    y_pad2 = []
+    y_pad2_error_u = []
+    y_pad2_error_d = []
 
+    
+    
+    
+    
     for i in range(0,binsize):
         x.append(h_error.GetBinCenter(i+1))
         y.append(h_error.GetBinContent(i+1))
-        xerror.append(0.5*h_error.GetBinWidth(i+1))
-        yerror_u.append(0.5*h_error.GetBinErrorUp(i+1))
-        yerror_d.append(0.5*h_error.GetBinErrorLow(i+1))
+        y_pad2.append(1.0)
+        xerror_l.append(0.5 * h_error.GetBinWidth(i+1))
+        xerror_r.append(0.5 * h_error.GetBinWidth(i+1))
+        yerror_u.append(h_error.GetBinErrorUp(i+1))
+        yerror_d.append(h_error.GetBinErrorLow(i+1))
+        if h_error.GetBinContent(i+1)<=0:
+            y_pad2_error_u.append(0)
+            y_pad2_error_d.append(0)
+        else:
+            y_pad2_error_u.append(h_error.GetBinErrorUp(i+1)/(h_error.GetBinContent(i+1)))
+            y_pad2_error_d.append(h_error.GetBinErrorLow(i+1)/(h_error.GetBinContent(i+1)))
 
-    gr = ROOT.TGraphAsymmErrors(len(x), np.array(x), np.array(y),np.array(xerror),np.array(xerror), np.array(yerror_d), np.array(yerror_u))
 
+
+    gr = ROOT.TGraphAsymmErrors(len(x), np.array(x), np.array(y),np.array(xerror_l),np.array(xerror_r), np.array(yerror_d), np.array(yerror_u))
+    gr_pad2 = ROOT.TGraphAsymmErrors(len(x), np.array(x), np.array(y_pad2),np.array(xerror_l),np.array(xerror_r), np.array(y_pad2_error_d), np.array(y_pad2_error_u))
     
 
     from  Utils.CMSTDRStyle import setTDRStyle
@@ -136,6 +155,7 @@ def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:float,channel='DoubleElect
     gr.SetFillColor(1)
     gr.SetFillStyle(3005)
     gr.Draw("SAME 2")
+    print('Set X axis Name')
     if 'DY_l1_pt' in x_name:set_axis(h_stack,'x', 'pt of leading lepton', True)
     if 'DY_l1_eta' in x_name:set_axis(h_stack,'x', '#eta of leading lepton', False)
     if 'DY_l1_phi' in x_name:
@@ -147,8 +167,7 @@ def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:float,channel='DoubleElect
 
     if 'ttc_l1_pt' in x_name:set_axis(h_stack,'x', 'pt of leading lepton', True)
     if 'ttc_l1_eta' in x_name:set_axis(h_stack,'x', '#eta of leading lepton', False)
-    if 'ttc_l1_phi' in x_name:
-        set_axis(h_stack,'x', 'phi of leading lepton', False)
+    if 'ttc_l1_phi' in x_name:set_axis(h_stack,'x', 'phi of leading lepton', False)
     if 'ttc_l2_pt' in x_name:set_axis(h_stack,'x', 'pt of subleading lepton', True)
     if 'ttc_l2_eta' in x_name:set_axis(h_stack,'x', '#eta of subleading lepton', False)
     if 'ttc_l2_phi' in x_name:set_axis(h_stack,'x', 'phi of subleading lepton', False)
@@ -176,29 +195,40 @@ def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:float,channel='DoubleElect
     CMSstyle.SetStyle(pad1,year,lumi=lumi,ylog=ylog)
 
    #legend
+    print('Histogram Setting')
     leg1 = ROOT.TLegend(0.66, 0.75, 0.94, 0.88)
     leg2 = ROOT.TLegend(0.44, 0.75, 0.64, 0.88)
     leg3 = ROOT.TLegend(0.17, 0.75, 0.40, 0.88)
     leg1.SetMargin(0.4)
     leg2.SetMargin(0.4)
     leg3.SetMargin(0.4)
-
+    print('Legend Entry:DY')
     leg3.AddEntry(Histo['MC']['DY'],'DY ['+str(Yield['MC']['DY'])+']','f')
+    print('Legend Entry:stat. unc')
     leg3.AddEntry(gr,'Stat. unc','f')
+    print('Legend Entry:Data')
     leg3.AddEntry(Histo['Data'],'Data ['+str(Yield['Data'])+']','pe')
-
+    print('Legend Entry:TT')
     leg2.AddEntry(Histo['MC']['TT'],'TT ['+str(Yield['MC']['TT'])+']','f')
     
     if FakeRate_On:
-        leg2.AddEntry(Histo['FakeRate'],'FakeLep ['+str(Yield['FakeRate'])+']','f')
+        print('Legend Entry:FakeRate')
+        leg2.AddEntry(Histo['MC']['FakeRate'],'FakeLep ['+str(Yield['MC']['FakeRate'])+']','f')
     else:
+        print('Legend Entry:WJets')
         leg2.AddEntry(Histo['MC']['WJets'],'WJets ['+str(Yield['MC']['WJets'])+']','f')
+    print('Legend Entry:VV')
     leg2.AddEntry(Histo['MC']['VV'],'VV ['+str(Yield['MC']['VV'])+']','f')
 
+    print('Legend Entry:VVV')
     leg1.AddEntry(Histo['MC']['VVV'],'VVV ['+str(Yield['MC']['VVV'])+']','f')
+    print('Legend Entry:SingleTop')
     leg1.AddEntry(Histo['MC']['SingleTop'],'SingleTop ['+str(Yield['MC']['SingleTop'])+']','f')
+    print('Legend Entry:ttXorXX')
     leg1.AddEntry(Histo['MC']['ttXorXX'],'ttXorXX ['+str(Yield['MC']['ttXorXX'])+']','f')
+    print('Legend Entry:tzq')
     leg1.AddEntry(Histo['MC']['tzq'],'tzq ['+str(Yield['MC']['tzq'])+']','f')
+    print('Legend Setting')
     leg1.SetFillColor(ROOT.kWhite)
     leg1.Draw('same')
     leg2.SetFillColor(ROOT.kWhite)
@@ -208,7 +238,10 @@ def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:float,channel='DoubleElect
 
     pad2.cd()
 
+    print('pred/MC. plots setting')
     hMC = h_stack.GetStack().Last()
+    
+    
     hData =Histo['Data'].Clone()
     hData.Divide(hMC)
     hData.SetMarkerStyle(20)
@@ -219,15 +252,19 @@ def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:float,channel='DoubleElect
     hData.GetYaxis().SetTitle("Data/MC")
     hData.GetXaxis().SetTitle(h_stack.GetXaxis().GetTitle())
     hData.GetYaxis().CenterTitle()
-    hData.SetMaximum(1.5)
-    hData.SetMinimum(0.5)
+    hData.SetMaximum(2.0)
+    hData.SetMinimum(0.0)
     hData.GetYaxis().SetNdivisions(4,kFALSE)
     hData.GetYaxis().SetTitleOffset(0.3)
-    hData.GetYaxis().SetTitleSize(0.14)
+    hData.GetYaxis().SetTitleSize(0.13)
     hData.GetYaxis().SetLabelSize(0.1)
     hData.GetXaxis().SetTitleSize(0.14)
     hData.GetXaxis().SetLabelSize(0.1)
     hData.Draw()
+
+    gr_pad2.SetFillColor(1)
+    gr_pad2.SetFillStyle(3005)
+    gr_pad2.Draw("SAME 2")
 
     c.Update()
 
@@ -272,11 +309,11 @@ def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:float,channel='DoubleElect
     era_post_fix = ''
     for a in eras:
         era_post_fix+='_'+a
+    print('Save Plots') 
     
     
-    
-    c.SaveAs(os.path.join(Dir,x_name+TrigSF_postfix+IDSF_postfix+RECOSF_postfix+CFSF_postfix+y_post_fix+FakeRate_postfix+'.pdf'))
-    c.SaveAs(os.path.join(Dir,x_name+TrigSF_postfix+IDSF_postfix+RECOSF_postfix+CFSF_postfix+y_post_fix+FakeRate_postfix+'.png'))
+    c.SaveAs(os.path.join(Dir,x_name+TrigSF_postfix+IDSF_postfix+RECOSF_postfix+CFSF_postfix+y_post_fix+FakeRate_postfix+era_post_fix+'.pdf'))
+    c.SaveAs(os.path.join(Dir,x_name+TrigSF_postfix+IDSF_postfix+RECOSF_postfix+CFSF_postfix+y_post_fix+FakeRate_postfix+era_post_fix+'.png'))
     
     c.Close()
     #pad1.Close()
