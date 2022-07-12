@@ -40,8 +40,6 @@ class RDataFrameStab(object):
         
         if self.__region =='SignalRegion':
             self.__phys_region = 'ttc'
-            
-            
             if not self.__IsFake:
                 if self.__IsData:
                     if self.__channel == 'DoubleElectron':
@@ -174,20 +172,28 @@ def Millstone(DF:RDataFrameStab,HistSettings:dict,SF_Config:dict,DiLepton_Trigge
     else:
         df = df.Filter(DiLepton_Triggers_Condition)
         if DF.IsFake:
-            df = df.Define('PreFireWeight',f"{PreFireWeight(activate=SF_Config['PreFireWeight']['activate'],year =DF.year)}")\
-                    .Define('fr_w',f"{FakeRate(activate=SF_Config['FakeRate']['activate'], IsData=False,IsFake=SF_Config['FakeRate']['IsFake'],phys_region=PR,channel=DF.channel)}")\
-                    .Define('genweight','genWeight/abs(genWeight) *  puWeight *PreFireWeight * fr_w')
-        else:
-            df = df.Define('DiLeptons_TrigSF',f"{TrigSF(activate= SF_Config['TrigSF']['activate'],Type = SF_Config['TrigSF']['Type'])}")\
-                    .Define('DiLeptons_IDSF',f"{DiLeptons_IDSF(activate = SF_Config['IDSF']['activate'],channel =DF.channel)}")\
-                    .Define('DiLeptons_RECOSF',f"{DiLeptons_RECOSF(activate = SF_Config['RECOSF']['activate'],channel =DF.channel)}")\
+            df =df.Define('fr_w',f"{FakeRate(activate=SF_Config['FakeRate']['activate'], IsData=False,IsFake=SF_Config['FakeRate']['IsFake'],phys_region=PR,channel=DF.channel)}")\
+                .Define('PreFireWeight',f"{PreFireWeight(activate=SF_Config['PreFireWeight']['activate'],year =DF.year)}")\
+                .Define('genweight','genWeight/abs(genWeight) *puWeight*PreFireWeight*fr_w')
+        
+        else: 
+            df = df.Define('DiLeptons_TrigSF',f"{TrigSF(activate= SF_Config['TrigSF']['activate'],Type = SF_Config['TrigSF']['Type'],IsFake=DF.IsFake)}")\
+                    .Define('DiLeptons_IDSF',f"{DiLeptons_IDSF(activate = SF_Config['IDSF']['activate'],channel =DF.channel,IsFake=DF.IsFake)}")\
+                    .Define('DiLeptons_RECOSF',f"{DiLeptons_RECOSF(activate = SF_Config['RECOSF']['activate'],channel =DF.channel,IsFake=DF.IsFake)}")\
                     .Define('PreFireWeight',f"{PreFireWeight(activate=SF_Config['PreFireWeight']['activate'],year =DF.year)}")\
                     .Define('K_region',f"kinematic({SF_Config['kinematic']['activate']},l1pt,l2pt,l1eta,l2eta)")\
-                    .Define('ChargeFlipSF',f"{ChargeFlipSF(activate= SF_Config['cf_SF']['activate'],channel=DF.channel,Same_Sign=SF_Config['cf_SF']['Same_Sign'],sigma = SF_Config['cf_SF']['sigma'])}")\
+                    .Define('ChargeFlipSF',f"{ChargeFlipSF(activate= SF_Config['cf_SF']['activate'],channel=DF.channel,Same_Sign=SF_Config['cf_SF']['Same_Sign'],sigma = SF_Config['cf_SF']['sigma'],IsFake=DF.IsFake)}")\
                     .Define('genweight','genWeight/abs(genWeight) * DiLeptons_TrigSF * DiLeptons_IDSF * puWeight*PreFireWeight * DiLeptons_RECOSF * ChargeFlipSF')
-
-
-
+    if DF.Region == 'SignalRegion':
+        df = df.Define("j1_FlavCvL","(tightJets_id_in24[0]!=-1) ? Jet_btagDeepFlavCvL[tightJets_id_in24[0]] : -1")\
+                .Define("j1_FlavCvB","(tightJets_id_in24[0]!=-1) ? Jet_btagDeepFlavCvB[tightJets_id_in24[0]] : -1")\
+                .Define("j1_FlavB","(tightJets_id_in24[0]!=-1) ? Jet_btagDeepFlavB[tightJets_id_in24[0]] : -1")\
+                .Define("j2_FlavCvL","(tightJets_id_in24[1]!=-1) ? Jet_btagDeepFlavCvL[tightJets_id_in24[1]] : -1")\
+                .Define("j2_FlavCvB","(tightJets_id_in24[1]!=-1) ? Jet_btagDeepFlavCvB[tightJets_id_in24[1]] : -1")\
+                .Define("j2_FlavB","(tightJets_id_in24[1]!=-1) ? Jet_btagDeepFlavB[tightJets_id_in24[1]] : -1")\
+                .Define("j3_FlavCvL","(tightJets_id_in24[2]!=-1) ? Jet_btagDeepFlavCvL[tightJets_id_in24[2]] : -1")\
+                .Define("j3_FlavCvB","(tightJets_id_in24[2]!=-1) ? Jet_btagDeepFlavCvB[tightJets_id_in24[2]] : -1")\
+                .Define("j3_FlavB","(tightJets_id_in24[2]!=-1) ? Jet_btagDeepFlavB[tightJets_id_in24[2]] : -1")\
 
 
     Hists =dict()

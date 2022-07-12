@@ -7,7 +7,7 @@ import argparse
 import time
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-m','--mode',help='Program Modes',choices=['Init','BuildDir','TrigEff_Calc','TrigEff_Plot','TrigSF_Calc','DrellYanRECO','FakeRate','PhysProcessRECO'],type=str)
+parser.add_argument('-m','--mode',help='Program Modes',choices=['Init','BuildDir','TrigEff_Calc','TrigEff_Plot','TrigSF_Calc','DrellYanRECO','FakeRate','PhysProcessRECO','NEventsCount'],type=str)
 
 parser.add_argument('-y','--year',help='year',choices=['2017','2018','2016apv','2016postapv'],type=str)
 

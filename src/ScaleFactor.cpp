@@ -1,7 +1,7 @@
 #include "ScaleFactor.h"
 
 
-float IDScaleFact(const char *channel="", TH2D*h1=NULL,TH2D*h2=NULL,float l1pt=0,float l2pt=0, float l1eta=0, float l2eta=0){
+double IDScaleFact(const char *channel="", TH2D*h1=NULL,TH2D*h2=NULL,float l1pt=0,float l2pt=0, float l1eta=0, float l2eta=0){
     
     if(strcmp(channel,"DoubleElectron") ==0 ||strcmp(channel,"DoubleMuon")==0 ){
         return Lepton_IDSF(h1,l1pt,l1eta)*Lepton_IDSF(h1,l2pt,l2eta);
@@ -16,17 +16,17 @@ float IDScaleFact(const char *channel="", TH2D*h1=NULL,TH2D*h2=NULL,float l1pt=0
 
 }
 
-float Muon_IDSF(TH2D *h, float pt, float eta){
+double Muon_IDSF(TH2D *h, float pt, float eta){
 
     if( pt > 120)
         pt = 119;       
     if(eta < 0)
         eta = -eta;
-    return h->GetBinContent(h->FindBin(eta,pt));
+    return h->GetBinContent(h->FindBin(static_cast<double>(eta),static_cast<double>(pt)));
 
 }
 
-float Electron_IDSF(TH2D *h, float pt, float eta){
+double Electron_IDSF(TH2D *h, float pt, float eta){
 
     if( pt > 500)
         pt = 499;       
@@ -36,13 +36,13 @@ float Electron_IDSF(TH2D *h, float pt, float eta){
 
 }
 
-float RECO_Muon_SF(TH2F *h, float pt, float eta){
+double RECO_Muon_SF(TH2F *h, float pt, float eta){
 
     if(pt>40) pt=39;
-    return h->GetBinContent(h->FindBin(TMath::Abs(eta),pt));
+    return static_cast<double>(h->GetBinContent(h->FindBin(TMath::Abs(eta),pt)));
 
 }
-float Trigger_sf_l1l2pt(TH2D *h, float value1, float value2){
+double Trigger_sf_l1l2pt(TH2D *h, float value1, float value2){
 
     if (value1 >200)
         value1 =199;
@@ -50,32 +50,31 @@ float Trigger_sf_l1l2pt(TH2D *h, float value1, float value2){
         value2 =199;
     
     if(value1 > value2){
-        return h->GetBinContent(h->FindBin(value1,value2));
+        return h->GetBinContent(h->FindBin(static_cast<double>(value1),static_cast<double>(value2)));
     }
 
     else{
-        return h->GetBinContent(h->FindBin(value2,value1));
+        return h->GetBinContent(h->FindBin(static_cast<double>(value2),static_cast<double>(value1)));
     }
 
 
 }
 
-float Trigger_sf_l1l2eta(TH2D *h, float value1, float value2){
+double Trigger_sf_l1l2eta(TH2D *h, float value1, float value2){
     return h->GetBinContent(h->FindBin(TMath::Abs(value1),TMath::Abs(value2)));
 }
 
-float Trigger_sf_pteta(TH2D *h, float value1, float value2){
+double Trigger_sf_pteta(TH2D *h, float value1, float value2){
     
     if (value1 >200)
         value1 =199;
 
-    return h->GetBinContent(h->FindBin(value1,TMath::Abs(value2)));
+    return h->GetBinContent(h->FindBin(static_cast<double>(value1),static_cast<double>(TMath::Abs(value2))));
 }
 
 int kinematic(bool activate , float l1_pt, float l2_pt, float l1_eta, float l2_eta){
     
     if (activate){
-
         std::vector<Float_t> pt_region  = {20., 40., 60., 100., 100000000000.};
         std::vector<Float_t> eta_region = {0.,  0.8, 1.479, 2.5};
         int pt_bins  = pt_region.size() - 1;
@@ -101,7 +100,7 @@ int kinematic(bool activate , float l1_pt, float l2_pt, float l1_eta, float l2_e
 }
 
 
-float chargeflip_sf(TH2D*h,int kinematic_region,bool same_sign, float sigma){
+double chargeflip_sf(TH2D*h,int kinematic_region,bool same_sign, float sigma){
 
     
     int index = kinematic_region+1;
@@ -118,10 +117,10 @@ float chargeflip_sf(TH2D*h,int kinematic_region,bool same_sign, float sigma){
     float r_sigma = h->GetBinError(index);
     sf = r_SF + sign*sigma * r_sigma;
     if(sf < 0.) sf=0.;
-    return sf;
+    return static_cast<double>(sf);
 }
 
-float fr_weight(TH2D* h_fr_l1, TH2D * h_fr_l2, bool Flag_1P1F, bool Flag_0P2F, bool l1_faketag, float l1_pt , float l1_eta, float l2_pt, float l2_eta, bool IsData){
+double fr_weight(TH2D* h_fr_l1, TH2D * h_fr_l2, bool Flag_1P1F, bool Flag_0P2F, bool l1_faketag, float l1_pt , float l1_eta, float l2_pt, float l2_eta, bool IsData){
     float w_temp = 1.0;
     float fakerate1 = 1.0;
     float fakerate2 = 1.0;
@@ -143,12 +142,10 @@ float fr_weight(TH2D* h_fr_l1, TH2D * h_fr_l2, bool Flag_1P1F, bool Flag_0P2F, b
             BinY = h_fr_l2->GetYaxis()->FindBin(l2_pt);
             if(BinX > h_fr_l2->GetNbinsX()) BinX = h_fr_l2->GetNbinsX();
             if(BinY > h_fr_l2->GetNbinsY()) BinY = h_fr_l2->GetNbinsY();
-            fakerate2 = h_fr_l2->GetBinContent(BinX,BinY);
+            fakerate1 = h_fr_l2->GetBinContent(BinX,BinY);
         } 
         if(IsData) {
             w_temp = fakerate1/(1-fakerate1);
-
-            
         }
         else{
         
@@ -178,7 +175,7 @@ float fr_weight(TH2D* h_fr_l1, TH2D * h_fr_l2, bool Flag_1P1F, bool Flag_0P2F, b
             w_temp=fakerate1*fakerate2/((1-fakerate1)*(1-fakerate2));
         }
     }
-    return w_temp;
+    return static_cast<double>(w_temp);
 }
 
 

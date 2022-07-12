@@ -14,6 +14,7 @@ from Utils.General_Tool import overunder_flowbin
 from Utils.Header import Histogram_Definition
 
 from PhysProcessRECO.ReadScaleFactors import Claim
+from PhysProcessRECO.Skip_MCSample import Skip_MC
 #import multiprocessing
 #from multiprocessing import Queue, Process, Manager, Pool
 
@@ -228,7 +229,7 @@ class Analyzer():
                         }
                 
                 if self.__FakeRate:
-                    if phys_name =='TTTo1L' or phys_name=='WJets':
+                    if Skip_MC(phys_name,self.__year,Skip_Sample=True):
                         continue
                     else:
                     
@@ -239,11 +240,12 @@ class Analyzer():
                         settings['IsFake'] = False
                         self.__dfs['MC'][process][phys_name]['NotFake']= RDataFrameStab(settings)
                 else:
+                    settings['IsFake'] = False
                     self.__dfs['MC'][process][phys_name]= RDataFrameStab(settings)
 
         for process in self.__MCPath.keys():
             for phys_name in self.__MCPath[process].keys():
-                if (phys_name =='TTTo1L' or  phys_name=='WJets' ) and self.__FakeRate:
+                if Skip_MC(phys_name,self.__year,Skip_Sample=True) and self.__FakeRate:
                     continue
                 SF_Config = dict()
                 
@@ -329,6 +331,7 @@ class Analyzer():
                     settings['IsFake'] = False
                     self.__dfs['Data'][era][dataset]['NotFake'] = RDataFrameStab(settings)
                 else:
+                    settings['IsFake'] = False
                     self.__dfs['Data'][era][dataset] = RDataFrameStab(settings)
         
         for era in self.__Eras:
@@ -362,7 +365,7 @@ class Analyzer():
                         #self.__dfs['MC'][MC].Hists[histname].Draw()
                         
                         if self.__FakeRate:
-                            if phys_name=='TTTo1L' or phys_name=='WJets':continue
+                            if Skip_MC(phys_name,self.__year,Skip_Sample=True):continue
                             print(phys_name)
                             h = self.__dfs['MC'][process][phys_name]['IsFake'].Hists[histname].GetValue()
                             h.Scale((self.__Cross_Section[process][phys_name]*self.__lumi)/float(self.__NumberOfEvents[process][phys_name]))
@@ -415,14 +418,16 @@ class Analyzer():
                 
                 if self.__year =='2018' or self.__year == '2017':
                     HistoGrams['MC']['VV'] = Temps['MC']['osWW']
-                    HistoGrams['MC']['VV'].Add( Temps['MC']['ssWW'])
+                    if self.__region != 'SignalRegion':
+                        HistoGrams['MC']['VV'].Add( Temps['MC']['ssWW'])
+                        HistoGrams['MC']['VV'].Add(Temps['MC']['ZG_ew'])
                     HistoGrams['MC']['VV'].Add(Temps['MC']['WWdps'])
-                    HistoGrams['MC']['VV'].Add(Temps['MC']['ZG_ew'])
                     HistoGrams['MC']['VV'].Add(Temps['MC']['ZZ'])
                     if self.__year == '2018':
                         HistoGrams['MC']['VV'].Add(Temps['MC']['WZ'])
                     else:
-                        HistoGrams['MC']['VV'].Add(Temps['MC']['WZ_ew'])
+                        if self.__region != 'SignalRegion':
+                            HistoGrams['MC']['VV'].Add(Temps['MC']['WZ_ew'])
                         HistoGrams['MC']['VV'].Add(Temps['MC']['WZ_qcd'])
                     HistoGrams['MC']['SingleTop'] = Temps['MC']['tsch']
                     HistoGrams['MC']['SingleTop'].Add(Temps['MC']['t_tch'])

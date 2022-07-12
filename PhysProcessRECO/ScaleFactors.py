@@ -1,59 +1,63 @@
 
-
-
-def TrigSF( activate : bool, Type: int ):
+def TrigSF( activate : bool, Type: int ,IsFake = False):
     
-    if activate:
-        if Type==1:
-            return 'Trigger_sf_pteta(h_TrigSF,l1pt,l1eta)'
-        elif Type ==2:
-            return 'Trigger_sf_pteta(h_TrigSF,l2pt,l2eta)'
-        elif Type ==3:
-            return 'Trigger_sf_l1l2pt(h_TrigSF,l1pt,l2pt)'
-        elif Type ==4:
-            return 'Trigger_sf_l1l2eta(h_TrigSF,l1eta,l2eta)'
-        elif Type == 0:
+    if not IsFake:
+        if activate:
+            if Type==1:
+                return 'Trigger_sf_pteta(h_TrigSF,l1pt,l1eta)'
+            elif Type ==2:
+                return 'Trigger_sf_pteta(h_TrigSF,l2pt,l2eta)'
+            elif Type ==3:
+                return 'Trigger_sf_l1l2pt(h_TrigSF,l1pt,l2pt)'
+            elif Type ==4:
+                return 'Trigger_sf_l1l2eta(h_TrigSF,l1eta,l2eta)'
+            elif Type == 0:
+                return '1.'
+            else:
+                raise ValueError(f'No such Trigger Scale Factors Type: {Type}!')
+        else:
             return '1.'
-        else:
-            raise ValueError(f'No such Trigger Scale Factors Type: {Type}!')
     else:
         return '1.'
 
-def DiLeptons_IDSF( activate : bool , channel: str):
+def DiLeptons_IDSF( activate : bool , channel: str,IsFake=False):
 
-    if activate:
-        if channel =='DoubleElectron':
-            return 'Electron_IDSF(h_IDSF,l1pt,l1eta) * Electron_IDSF(h_IDSF,l2pt,l2eta)'
-        elif channel =='DoubleMuon':
-            return 'Muon_IDSF(h_IDSF,l1pt,l1eta) * Muon_IDSF(h_IDSF,l2pt,l2eta)'
-        elif channel =='ElectronMuon':
-            return 'Muon_IDSF(h1_IDSF,l1pt,l1eta) * Electron_IDSF(h2_IDSF,l2pt,l2eta)'
+    if not IsFake:
+        if activate:
+            if channel =='DoubleElectron':
+                return 'Electron_IDSF(h_IDSF,l1pt,l1eta) * Electron_IDSF(h_IDSF,l2pt,l2eta)'
+            elif channel =='DoubleMuon':
+                return 'Muon_IDSF(h_IDSF,l1pt,l1eta) * Muon_IDSF(h_IDSF,l2pt,l2eta)'
+            elif channel =='ElectronMuon':
+                return 'Muon_IDSF(h1_IDSF,l1pt,l1eta) * Electron_IDSF(h2_IDSF,l2pt,l2eta)'
 
+            else:
+                raise ValueError(f'No such channel: {channel}')
         else:
-            raise ValueError(f'No such channel: {channel}')
+            return '1.'
     else:
         return '1.'
 
 
 
 
-def DiLeptons_RECOSF(activate:bool , channel:str):
+def DiLeptons_RECOSF(activate:bool , channel:str,IsFake=False):
     
-    if activate:
-
-        if channel == 'DoubleElectron':
-            return 'Electron_RECO_SF[l1_id]*Electron_RECO_SF[l2_id]'
-        elif channel =='DoubleMuon':
-            return 'RECO_Muon_SF(h_RECOSF,l1pt,l1eta) * RECO_Muon_SF(h_RECOSF,l2pt,l2eta)'
-        elif channel =='ElectronMuon':
-            return 'RECO_Muon_SF(h_RECOSF,l1pt,l1eta)*Electron_RECO_SF[l2_id]'
+    if not IsFake:
+        if activate:
+            if channel == 'DoubleElectron':
+                return 'Electron_RECO_SF[l1_id]*Electron_RECO_SF[l2_id]'
+            elif channel =='DoubleMuon':
+                return 'RECO_Muon_SF(h_RECOSF,l1pt,l1eta) * RECO_Muon_SF(h_RECOSF,l2pt,l2eta)'
+            elif channel =='ElectronMuon':
+                return 'RECO_Muon_SF(h_RECOSF,l1pt,l1eta)*Electron_RECO_SF[l2_id]'
+            else:
+                raise ValueError(f'No such channel: {channel}')
         else:
-            raise ValueError(f'No such channel: {channel}')
-
+            return '1.'
+        
     else:
         return '1.'
-        
-
 
 
 def PreFireWeight(activate:bool, year:str):
@@ -69,16 +73,19 @@ def PreFireWeight(activate:bool, year:str):
         return '1.'
 
 
-def ChargeFlipSF(activate:bool,channel:str,Same_Sign:bool,sigma:float):
+def ChargeFlipSF(activate:bool,channel:str,Same_Sign:bool,sigma:float,IsFake=False):
 
-    if activate:
-        if channel=='DoubleElectron':
-            if Same_Sign:
-                return f'chargeflip_sf(h_SS,K_region,true,{sigma})'
-            elif not Same_Sign:
-                return f'chargeflip_sf(h_OS,K_region,false,{sigma})'
-            else:    
-                raise ValueError('You should Specify the charges condition of two leptons.')
+    if not IsFake:
+        if activate:
+            if channel=='DoubleElectron':
+                if Same_Sign:
+                    return f'chargeflip_sf(h_SS,K_region,true,{sigma})'
+                elif not Same_Sign:
+                    return f'chargeflip_sf(h_OS,K_region,false,{sigma})'
+                else:    
+                    raise ValueError('You should Specify the charges condition of two leptons.')
+            else:
+                return '1.'
         else:
             return '1.'
     else:

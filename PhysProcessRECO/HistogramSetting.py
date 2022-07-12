@@ -152,7 +152,6 @@ HistSettings['SignalRegion']['HT']['nbins'] = 10
 HistSettings['SignalRegion']['HT']['lowedge'] = 0
 HistSettings['SignalRegion']['HT']['highedge'] = 500
 
-'''
 HistSettings['SignalRegion']['j1_FlavCvL'] = manager.dict()
 HistSettings['SignalRegion']['j1_FlavCvL']['name'] = 'j1_FlavCvL'
 HistSettings['SignalRegion']['j1_FlavCvL']['nbins'] = 50
@@ -209,7 +208,7 @@ HistSettings['SignalRegion']['j3_FlavCvB']['name'] = 'j3_FlavCvB'
 HistSettings['SignalRegion']['j3_FlavCvB']['nbins'] = 50
 HistSettings['SignalRegion']['j3_FlavCvB']['lowedge'] = 0
 HistSettings['SignalRegion']['j3_FlavCvB']['highedge'] = 1
-'''
+
 HistSettings['ChargeFlipRegion']['ttc_l1_pt'] = manager.dict()
 HistSettings['ChargeFlipRegion']['ttc_l1_pt']['name'] = 'ttc_l1_pt'
 HistSettings['ChargeFlipRegion']['ttc_l1_pt']['nbins'] = 40
