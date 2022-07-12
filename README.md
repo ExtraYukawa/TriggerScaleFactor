@@ -100,4 +100,20 @@ python3 ./WorkFlow/main.py -m PhysProcessRECO -y 2017 -i DoubleElectron -r Signa
  - [--Era]: Only consider certain eras of data. Generally, this option accompanies with \[lumi\]
  - [--lumi]: Luminosity.
  - [-i/--channel]: Channel, choices: [DoubleElectron/DoubleMuon/ElectronMuon]. Note: You should make sure whether you make the corresponding output folders for your favour channel!
- - Running Time: 3000 sec ~ 5000 sec for 2017/2018, 1000 sec for 2016apv/2016postapv
+ Running Time: 3000 sec ~ 5000 sec for 2017/2018, 1000 sec for 2016apv/2016postapv
+ 
+ ##Steps to calculate the number of events(Data) or yields(MC) under cutflow
+ Currently, the SignalRegion is the only provided option for [--region].
+ The command to do the computation,for example, ElectronMuon in year2017 is:
+ ```
+ python3 ./WorkFlow/main.py -m NEventsCount -y 2017 -i ElectronMuon -r SignalRegion --IDSF --RECOSF --TrigSF 3 --FakeRate --CFSF > NEvent_result.log
+ ```
+ - [--TrigSF]: Activate trigger scale factor if specify 1/2/3/4. [1->l1pteta,2->l2pteta,3->l1l2pt,4->l1l2eta]. Deactivate if specify 0.
+ - [--IDSF]: Activate identification scale factor if specified.
+ - [--RECOSF]: Activate Reconstruction scale factor if specified.
+ - [--FakeRate]: Activate nonprompt background estimation if specified.
+ - [--CFSF]: Activate charge flip scale factor if specified.
+ - [--Era]: Only consider certain eras of data. Generally, this option accompanies with \[lumi\]
+ - [--lumi]: Luminosity.
+ - [-i/--channel]: Channel, choices: [DoubleElectron/DoubleMuon/ElectronMuon]. Note: You should make sure whether you make the corresponding output folders for your favour channel!
+- Running time: ~7200 sec for 2017 Data.
