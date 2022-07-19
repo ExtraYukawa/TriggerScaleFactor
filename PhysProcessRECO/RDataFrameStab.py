@@ -103,7 +103,9 @@ class RDataFrameStab(object):
         else: 
             self.__df = ROOT.RDataFrame('Events',self.__File_Paths)
         
-        self.__df = self.__df.Filter(region_selection) 
+        self.__df = self.__df.Filter(region_selection)
+        self.__genweight_shape = 0
+        self.__genweight = 0
     @property
     def year(self)->str:
         return self.__year
@@ -138,6 +140,24 @@ class RDataFrameStab(object):
     @property
     def IsFake(self)->bool:
         return self.__IsFake
+    @property
+    def GenWeight(self)->float:
+        if self.__IsData:
+            raise ValueError('This function does not support Data type!')
+        else:
+            return self.__genweight
+    @GenWeight.setter
+    def GenWeight(self,genweight):
+        self.__genweight = genweight
+    @property
+    def GenWeight_Shape(self)->float:
+        if self.__IsData:
+            raise ValueError('This function does not support Data type!')
+        else:
+            return self.__genweight_shape
+    @GenWeight_Shape.setter
+    def GenWeight_Shape(self,genweight_shape):
+        self.__genweight_shape = genweight_shape
 
 def Millstone(DF:RDataFrameStab,HistSettings:dict,SF_Config:dict,DiLepton_Triggers_Condition:str,Run_List=[]):
 
@@ -149,6 +169,10 @@ def Millstone(DF:RDataFrameStab,HistSettings:dict,SF_Config:dict,DiLepton_Trigge
                 .Define('l2pt',f'if({PR}_l1_pt > {PR}_l2_pt) return {PR}_l2_pt;else return {PR}_l1_pt')\
                 .Define('l1eta',f'if({PR}_l1_pt > {PR}_l2_pt) return {PR}_l1_eta;else return {PR}_l2_eta')\
                 .Define('l2eta',f'if({PR}_l1_pt > {PR}_l2_pt) return {PR}_l2_eta;else return {PR}_l1_eta')\
+                .Define('l1phi',f'if({PR}_l1_pt > {PR}_l2_pt) return {PR}_l1_phi;else return {PR}_l2_phi')\
+                .Define('l2phi',f'if({PR}_l1_pt > {PR}_l2_pt) return {PR}_l2_phi;else return {PR}_l1_phi')\
+                .Define('l1_pdgid',f'if({PR}_l1_pt > {PR}_l2_pt) return {PR}_l1_pdgid;else return {PR}_l2_pdgid')\
+                .Define('l2_pdgid',f'if({PR}_l1_pt > {PR}_l2_pt) return {PR}_l2_pdgid;else return {PR}_l1_pdgid')\
                 .Define('l1_id',f'if({PR}_l1_pt > {PR}_l2_pt) return {PR}_l1_id;else return {PR}_l2_id')\
                 .Define('l2_id',f'if({PR}_l1_pt > {PR}_l2_pt) return {PR}_l2_id;else return {PR}_l1_id')
     else:
@@ -156,6 +180,10 @@ def Millstone(DF:RDataFrameStab,HistSettings:dict,SF_Config:dict,DiLepton_Trigge
                 .Define('l2pt',f'{PR}_l2_pt')\
                 .Define('l1eta',f'{PR}_l1_eta')\
                 .Define('l2eta',f'{PR}_l2_eta')\
+                .Define('l1phi',f'{PR}_l1_phi')\
+                .Define('l2phi',f'{PR}_l2_phi')\
+                .Define('l1_pdgid',f'{PR}_l1_pdgid')\
+                .Define('l2_pdgid',f'{PR}_l2_pdgid')\
                 .Define('l1_id',f'return {PR}_l1_id')\
                 .Define('l2_id',f'return {PR}_l2_id')
 
@@ -174,7 +202,9 @@ def Millstone(DF:RDataFrameStab,HistSettings:dict,SF_Config:dict,DiLepton_Trigge
         if DF.IsFake:
             df =df.Define('fr_w',f"{FakeRate(activate=SF_Config['FakeRate']['activate'], IsData=False,IsFake=SF_Config['FakeRate']['IsFake'],phys_region=PR,channel=DF.channel)}")\
                 .Define('PreFireWeight',f"{PreFireWeight(activate=SF_Config['PreFireWeight']['activate'],year =DF.year)}")\
-                .Define('genweight','genWeight/abs(genWeight) *puWeight*PreFireWeight*fr_w')
+                .Define("Ctag_SF",f"{CTagSF(activate=SF_Config['CtagSF']['activate'])}")\
+                .Define('genweight','genWeight/abs(genWeight) *puWeight*PreFireWeight*fr_w')\
+                .Define("genweight_shape","genweight * Ctag_SF")
         
         else: 
             df = df.Define('DiLeptons_TrigSF',f"{TrigSF(activate= SF_Config['TrigSF']['activate'],Type = SF_Config['TrigSF']['Type'],IsFake=DF.IsFake)}")\
@@ -182,8 +212,14 @@ def Millstone(DF:RDataFrameStab,HistSettings:dict,SF_Config:dict,DiLepton_Trigge
                     .Define('DiLeptons_RECOSF',f"{DiLeptons_RECOSF(activate = SF_Config['RECOSF']['activate'],channel =DF.channel,IsFake=DF.IsFake)}")\
                     .Define('PreFireWeight',f"{PreFireWeight(activate=SF_Config['PreFireWeight']['activate'],year =DF.year)}")\
                     .Define('K_region',f"kinematic({SF_Config['kinematic']['activate']},l1pt,l2pt,l1eta,l2eta)")\
+                    .Define('Gen_IsOS',f"{gen_isOS(activate = SF_Config['cf_SF']['activate'] , channel=DF.channel)}")\
                     .Define('ChargeFlipSF',f"{ChargeFlipSF(activate= SF_Config['cf_SF']['activate'],channel=DF.channel,Same_Sign=SF_Config['cf_SF']['Same_Sign'],sigma = SF_Config['cf_SF']['sigma'],IsFake=DF.IsFake)}")\
-                    .Define('genweight','genWeight/abs(genWeight) * DiLeptons_TrigSF * DiLeptons_IDSF * puWeight*PreFireWeight * DiLeptons_RECOSF * ChargeFlipSF')
+                    .Define('genweight','genWeight/abs(genWeight) * DiLeptons_TrigSF * DiLeptons_IDSF * puWeight*PreFireWeight * DiLeptons_RECOSF * ChargeFlipSF')\
+                    .Define("Ctag_SF",f"{CTagSF(activate=SF_Config['CtagSF']['activate'])}")\
+                    .Define("genweight_shape","genweight * Ctag_SF")
+        DF.GenWeight = df.Sum("genweight").GetValue()
+        DF.GenWeight_Shape = df.Sum("genweight_shape").GetValue()
+            
     if DF.Region == 'SignalRegion':
         df = df.Define("j1_FlavCvL","(tightJets_id_in24[0]!=-1) ? Jet_btagDeepFlavCvL[tightJets_id_in24[0]] : -1")\
                 .Define("j1_FlavCvB","(tightJets_id_in24[0]!=-1) ? Jet_btagDeepFlavCvB[tightJets_id_in24[0]] : -1")\
@@ -202,9 +238,11 @@ def Millstone(DF:RDataFrameStab,HistSettings:dict,SF_Config:dict,DiLepton_Trigge
         if DF.IsData != None:
             if DF.IsData :
                 Hists[name] = df.Histo1D((setting['name'],'',setting['nbins'],setting['lowedge'],setting['highedge']),setting['name'],'fr_w')
-
             else:
-                Hists[name] = df.Histo1D((setting['name'],'',setting['nbins'],setting['lowedge'],setting['highedge']),setting['name'],'genweight')
+                if SF_Config['CtagSF']['activate']:
+                    Hists[name] = df.Histo1D((setting['name'],'',setting['nbins'],setting['lowedge'],setting['highedge']),setting['name'],'genweight_shape')
+                else:
+                    Hists[name] = df.Histo1D((setting['name'],'',setting['nbins'],setting['lowedge'],setting['highedge']),setting['name'],'genweight')
         else:
             raise ValueError
     DF.Hists = Hists

@@ -76,7 +76,10 @@ class NEvents_Counter():
         self.__LepSF_File = settings['LepIDSF_File']
         
         self.__FakeRateFiles = settings['FakeRateFiles']
-
+        
+        self.__CtagSFOn = settings['CtagSF']
+        if self.__CtagSFOn:
+            self.__CtagFiles = settings['CtagSFInfo']
 
         self.__dfs = OrderedDict()
         self.__dfs['MC'] = OrderedDict()
@@ -109,7 +112,11 @@ class NEvents_Counter():
             print('Fake Rate Estimation: Activate')
         else:
             print('Fake Rate Estimation: Deactivate')
-
+        
+        if self.__CtagSFOn:
+            print('Charm Tagger Scale Factor: Activate')
+        else:
+            print('Charm Tagger Scale Factor: Deactivate')
 
         #self.__condition_weights = settings['Weights']
         self.__MET_Filters = settings['MET_Filters']
@@ -199,8 +206,8 @@ class NEvents_Counter():
             
             ROOT.gInterpreter.ProcessLine(Claim['TrigSF'].format(TrigSF_FileIn,branchName))
 
-        
-        
+        if self.__CtagSFOn:
+            ROOT.gInterpreter.ProcessLine(Claim['CtagSF'].format(self.__CtagFiles))
         #To Load IDSF function
     
         #DataFrame For Data 
@@ -213,11 +220,15 @@ class NEvents_Counter():
         
         #DataFrame For Simulation Events
         self.__NCounter = dict()
-
         self.__NCounter['Data'] = dict()
-        self.__NCounter['MC'] = dict()
+        #self.__NCounter['MC'] = dict()
+        
+        
+        
         if self.__FakeRate:
             self.__NCounter['FakeRate'] = dict()
+            self.__NCounter['FakeRate']['MC'] = dict()
+            self.__NCounter['FakeRate']['Data'] = dict()
         else:
             pass
         for idx,era in enumerate(self.__Eras):
@@ -248,10 +259,10 @@ class NEvents_Counter():
                     self.__dfs['Data'][era][dataset]['NotFake']= DF_NEventCalc(settings,SF_Config)
                     if idx == 0 and idx1 ==0:
                         self.__NCounter['Data']['PhysRegionCut'] = self.__dfs['Data'][era][dataset]['NotFake'].NEvents
-                        self.__NCounter['FakeRate']['PhysRegionCut'] = self.__dfs['Data'][era][dataset]['IsFake'].NEvents
+                        self.__NCounter['FakeRate']['Data']['PhysRegionCut'] = self.__dfs['Data'][era][dataset]['IsFake'].NEvents
                     else:
                         self.__NCounter['Data']['PhysRegionCut'] += self.__dfs['Data'][era][dataset]['NotFake'].NEvents
-                        self.__NCounter['FakeRate']['PhysRegionCut'] += self.__dfs['Data'][era][dataset]['IsFake'].NEvents
+                        self.__NCounter['FakeRate']['Data']['PhysRegionCut'] += self.__dfs['Data'][era][dataset]['IsFake'].NEvents
                 else:
                     SF_Config['FakeRate']['activate']= False
                     SF_Config['FakeRate']['IsFake'] = False
@@ -285,11 +296,14 @@ class NEvents_Counter():
                 print(f"{dataset}:{era}:Filter equipped success")
         
 
-
-
+        self.__Ctag_total_Yield = dict()
+        self.__Ctag_total_Yield_Shape = dict()
+        MC_Record = []
         for idx,process in enumerate(self.__MCPath.keys()):
             self.__dfs['MC'][process] = dict()
-            for idx1,phys_name in enumerate(self.__MCPath[process].keys()):
+            self.__NCounter[process] = dict()
+            Nprocess = 0
+            for phys_name in self.__MCPath[process].keys():
                 if self.__FakeRate:
                     if Skip_MC(phys_name,self.__year,Skip_Sample=True): continue
                 settings ={
@@ -311,6 +325,7 @@ class NEvents_Counter():
                 SF_Config['kinematic'] = dict()
                 SF_Config['cf_SF'] = dict()
                 SF_Config['FakeRate'] = dict()
+                SF_Config['CtagSF'] = dict()
                 if self.__IDSF:
                     SF_Config['IDSF']['activate'] = True
                 else:
@@ -339,6 +354,11 @@ class NEvents_Counter():
                     SF_Config['TrigSF']['activate'] = True
                 else:
                     SF_Config['TrigSF']['activate'] = False
+                if self.__CtagSFOn:
+                    SF_Config['CtagSF']['activate'] = True
+                else:
+                    SF_Config['CtagSF']['activate'] = False
+                
                 SF_Config['TrigSF']['Type']  = self.__TrigSF
                 SF_Config['PreFireWeight']['activate']   = True 
 
@@ -354,40 +374,75 @@ class NEvents_Counter():
                     self.__dfs['MC'][process][phys_name]['IsFake']= DF_NEventCalc(settings,SF_Config)
                     SF_Config['FakeRate']['IsFake'] =False
                     self.__dfs['MC'][process][phys_name]['NotFake']= DF_NEventCalc(settings,SF_Config)
-                    if idx == 0 and idx1 ==0:
-                        self.__NCounter['MC']['PhysRegionCut'] = self.__dfs['MC'][process][phys_name]['NotFake'].NEvents
+                    if Nprocess == 0:
+                        self.__NCounter[process]['PhysRegionCut'] = self.__dfs['MC'][process][phys_name]['NotFake'].NEvents
+                        MC_Record.append(process)
+                        if idx ==0:
+                            self.__NCounter['FakeRate']['MC']['PhysRegionCut'] = self.__dfs['MC'][process][phys_name]['IsFake'].NEvents
+                            self.__Ctag_total_Yield_Shape['PhysRegionCut'] = self.__dfs['MC'][process][phys_name]['NotFake'].Yield_Shape
+                            self.__Ctag_total_Yield['PhysRegionCut'] = self.__dfs['MC'][process][phys_name]['NotFake'].Yield
+                            self.__Ctag_total_Yield_Shape['PhysRegionCut'] = self.__dfs['MC'][process][phys_name]['IsFake'].Yield_Shape
+                            self.__Ctag_total_Yield['PhysRegionCut'] = self.__dfs['MC'][process][phys_name]['IsFake'].Yield
+                        else:
+                            self.__NCounter[process]['PhysRegionCut'] += self.__dfs['MC'][process][phys_name]['NotFake'].NEvents
+                            self.__NCounter['FakeRate']['MC']['PhysRegionCut'] += self.__dfs['MC'][process][phys_name]['IsFake'].NEvents
+                        
+                            self.__Ctag_total_Yield_Shape['PhysRegionCut'] += self.__dfs['MC'][process][phys_name]['NotFake'].Yield_Shape
+                            self.__Ctag_total_Yield['PhysRegionCut'] += self.__dfs['MC'][process][phys_name]['NotFake'].Yield
+                            self.__Ctag_total_Yield_Shape['PhysRegionCut'] += self.__dfs['MC'][process][phys_name]['IsFake'].Yield_Shape
+                            self.__Ctag_total_Yield['PhysRegionCut'] += self.__dfs['MC'][process][phys_name]['IsFake'].Yield
                     else:
-                        self.__NCounter['MC']['PhysRegionCut'] += self.__dfs['MC'][process][phys_name]['NotFake'].NEvents
-                    self.__NCounter['FakeRate']['PhysRegionCut'] += self.__dfs['MC'][process][phys_name]['IsFake'].NEvents
+                        self.__NCounter[process]['PhysRegionCut'] += self.__dfs['MC'][process][phys_name]['NotFake'].NEvents
+                        self.__NCounter['FakeRate']['MC']['PhysRegionCut'] += self.__dfs['MC'][process][phys_name]['IsFake'].NEvents
                     
+                        self.__Ctag_total_Yield_Shape['PhysRegionCut'] += self.__dfs['MC'][process][phys_name]['NotFake'].Yield_Shape
+                        self.__Ctag_total_Yield['PhysRegionCut'] += self.__dfs['MC'][process][phys_name]['NotFake'].Yield
+                        self.__Ctag_total_Yield_Shape['PhysRegionCut'] += self.__dfs['MC'][process][phys_name]['IsFake'].Yield_Shape
+                        self.__Ctag_total_Yield['PhysRegionCut'] += self.__dfs['MC'][process][phys_name]['IsFake'].Yield
                 else:
                     SF_Config['FakeRate']['activate']= False
                     SF_Config['FakeRate']['IsFake'] =False
                     self.__dfs['MC'][process][phys_name]= DF_NEventCalc(settings,SF_Config)
-                    if idx == 0 and idx1 ==0:
-                        self.__NCounter['MC']['PhysRegionCut'] = self.__dfs['MC'][process][phys_name].NEvents
+                    
+                    if Nprocess ==0:
+                        self.__NCounter[process]['PhysRegionCut'] = self.__dfs['MC'][process][phys_name].Yield
+                        if idx==0:
+                            self.__Ctag_total_Yield_Shape['PhysRegionCut'] = self.__dfs['MC'][process][phys_name].Yield_Shape
+                            self.__Ctag_total_Yield['PhysRegionCut'] = self.__dfs['MC'][process][phys_name].Yield
+                        else:
+                            self.__NCounter[process]['PhysRegionCut'] += self.__dfs['MC'][process][phys_name].Yield
+                            self.__Ctag_total_Yield_Shape['PhysRegionCut'] += self.__dfs['MC'][process][phys_name].Yield_Shape
+                            self.__Ctag_total_Yield['PhysRegionCut'] += self.__dfs['MC'][process][phys_name].Yield
+
                     else:
-                        self.__NCounter['MC']['PhysRegionCut'] += self.__dfs['MC'][process][phys_name].NEvents
+                        self.__NCounter[process]['PhysRegionCut'] += self.__dfs['MC'][process][phys_name].Yield
+                        self.__Ctag_total_Yield_Shape['PhysRegionCut'] += self.__dfs['MC'][process][phys_name].Yield_Shape
+                        self.__Ctag_total_Yield['PhysRegionCut'] += self.__dfs['MC'][process][phys_name].Yield
                 
-                self.Filter(idx=idx,idx1=idx1,Cut_Name='lhe_nleptonCut',Cut='lhe_nlepton>1',IsData=False,key1=process,key2=phys_name,FakeRateOn=self.__FakeRate)
-                self.Filter(idx = idx,idx1=idx1,Cut_Name='nHad_tau_Cut',Cut='nHad_tau==0',IsData=False,key1=process,key2=phys_name,FakeRateOn=self.__FakeRate) 
-                self.Filter(idx=idx,idx1=idx1,Cut_Name='ttcRegion_Cut',Cut=f'ttc_region=={self.__channel_rep}',IsData=False,key1=process,key2=phys_name,FakeRateOn=self.__FakeRate)
+                self.Filter(idx=idx,idx1=Nprocess,Cut_Name='lhe_nleptonCut',Cut='lhe_nlepton>1',IsData=False,key1=process,key2=phys_name,FakeRateOn=self.__FakeRate)
+
+                self.Filter(idx = idx,idx1=Nprocess,Cut_Name='nHad_tau_Cut',Cut='nHad_tau==0',IsData=False,key1=process,key2=phys_name,FakeRateOn=self.__FakeRate) 
+                
+                
+                self.Filter(idx=idx,idx1=Nprocess,Cut_Name='ttcRegion_Cut',Cut=f'ttc_region=={self.__channel_rep}',IsData=False,key1=process,key2=phys_name,FakeRateOn=self.__FakeRate)
+                
+                
                 METFilters = ' && '.join(self.__MET_Filters['MC'][process][phys_name]) 
-                self.Filter(idx=idx,idx1=idx1,Cut_Name='METFilters_Cut',Cut=f'{METFilters}',IsData=False,key1=process,key2=phys_name,FakeRateOn=self.__FakeRate)
-                self.Filter(idx = idx,idx1=idx1,Cut_Name='Triggers_Cut',Cut=f"{self.__DiLep_Conditions['MC']}",IsData=False,key1=process,key2=phys_name,FakeRateOn=self.__FakeRate) 
-                self.Filter(idx = idx,idx1=idx1,Cut_Name='ttcjets_Cut',Cut='ttc_jets',IsData=False,key1=process,key2=phys_name,FakeRateOn=self.__FakeRate) 
-                self.Filter(idx = idx,idx1=idx1,Cut_Name='mll_Cut_20',Cut='ttc_mll>20',IsData=False,key1=process,key2=phys_name,FakeRateOn=self.__FakeRate) 
+                self.Filter(idx=idx,idx1=Nprocess,Cut_Name='METFilters_Cut',Cut=f'{METFilters}',IsData=False,key1=process,key2=phys_name,FakeRateOn=self.__FakeRate)
+                self.Filter(idx = idx,idx1=Nprocess,Cut_Name='Triggers_Cut',Cut=f"{self.__DiLep_Conditions['MC']}",IsData=False,key1=process,key2=phys_name,FakeRateOn=self.__FakeRate) 
+                self.Filter(idx = idx,idx1=Nprocess,Cut_Name='ttcjets_Cut',Cut='ttc_jets',IsData=False,key1=process,key2=phys_name,FakeRateOn=self.__FakeRate) 
+                self.Filter(idx = idx,idx1=Nprocess,Cut_Name='mll_Cut_20',Cut='ttc_mll>20',IsData=False,key1=process,key2=phys_name,FakeRateOn=self.__FakeRate) 
                 if self.__channel == 'DoubleElectron':
-                    self.Filter(idx = idx,idx1=idx1,Cut_Name='ttc_l1pt',Cut='l1pt>30',IsData=False,key1=process,key2=phys_name,FakeRateOn=self.__FakeRate) 
-                    self.Filter(idx = idx,idx1=idx1,Cut_Name='mll_Cut_60_120',Cut='(ttc_mll>120 || ttc_mll<60)',IsData=False,key1=process,key2=phys_name,FakeRateOn=self.__FakeRate) 
+                    self.Filter(idx = idx,idx1=Nprocess,Cut_Name='ttc_l1pt',Cut='l1pt>30',IsData=False,key1=process,key2=phys_name,FakeRateOn=self.__FakeRate) 
+                    self.Filter(idx = idx,idx1=Nprocess,Cut_Name='mll_Cut_60_120',Cut='(ttc_mll>120 || ttc_mll<60)',IsData=False,key1=process,key2=phys_name,FakeRateOn=self.__FakeRate) 
                 elif self.__channel == 'DoubleMuon':
-                    self.Filter(idx = idx,idx1=idx1,Cut_Name='ttc_l1pt',Cut='l1pt>30',IsData=False,key1=process,key2=phys_name,FakeRateOn=self.__FakeRate) 
+                    self.Filter(idx = idx,idx1=Nprocess,Cut_Name='ttc_l1pt',Cut='l1pt>30',IsData=False,key1=process,key2=phys_name,FakeRateOn=self.__FakeRate) 
                 else:
-                    self.Filter(idx = idx,idx1=idx1,Cut_Name='ttc_dl_pt',Cut='l1pt>30 || l2pt>30',IsData=False,key1=process,key2=phys_name,FakeRateOn=self.__FakeRate) 
+                    self.Filter(idx = idx,idx1=Nprocess,Cut_Name='ttc_dl_pt',Cut='l1pt>30 || l2pt>30',IsData=False,key1=process,key2=phys_name,FakeRateOn=self.__FakeRate) 
 
-                self.Filter(idx = idx,idx1=idx1,Cut_Name='ttc_met_Cut',Cut='ttc_met>30',IsData=False,key1=process,key2=phys_name,FakeRateOn=self.__FakeRate) 
-                self.Filter(idx = idx,idx1=idx1,Cut_Name='ttc_drll_Cut',Cut='ttc_drll>0.3',IsData=False,key1=process,key2=phys_name,FakeRateOn=self.__FakeRate) 
-
+                self.Filter(idx = idx,idx1=Nprocess,Cut_Name='ttc_met_Cut',Cut='ttc_met>30',IsData=False,key1=process,key2=phys_name,FakeRateOn=self.__FakeRate) 
+                self.Filter(idx = idx,idx1=Nprocess,Cut_Name='ttc_drll_Cut',Cut='ttc_drll>0.3',IsData=False,key1=process,key2=phys_name,FakeRateOn=self.__FakeRate) 
+                Nprocess +=1
                 print(f"{process}:{phys_name}:Filter equipped success")
         if self.__channel =='DoubleElectron':
             Cuts_List =  ['PhysRegionCut','lhe_nleptonCut','nHad_tau_Cut','ttcRegion_Cut','METFilters_Cut','Triggers_Cut','ttcjets_Cut','mll_Cut_20','ttc_l1pt','mll_Cut_60_120','ttc_met_Cut','ttc_drll_Cut']
@@ -396,10 +451,12 @@ class NEvents_Counter():
         else:
             Cuts_List =  ['PhysRegionCut','lhe_nleptonCut','nHad_tau_Cut','ttcRegion_Cut','METFilters_Cut','Triggers_Cut','ttcjets_Cut','mll_Cut_20','ttc_dl_pt','ttc_met_Cut','ttc_drll_Cut']
 
-        for i in ['Data','FakeRate','MC']:
-            for j in Cuts_List:    
-                print(f'{i},{j}: {self.__NCounter[i][j]}')
-
+        for j in Cuts_List:
+            print(f"Data, {j}: {self.__NCounter['Data'][j]}")
+            for process in MC_Record:
+                print(f"{process}, {j}: {self.__NCounter[process][j] * self.__Ctag_total_Yield[j]/self.__Ctag_total_Yield_Shape[j]}")
+            if self.__FakeRate:
+                print(f"Fake, {j}: {self.__NCounter['FakeRate']['Data'][j] + self.__NCounter['FakeRate']['MC'][j] * self.__Ctag_total_Yield[j]/self.__Ctag_total_Yield_Shape[j]}")
 
     def Filter(self,idx:int,idx1:int,Cut_Name:str,Cut:str,IsData:bool,key1:str,key2:str,FakeRateOn=True):
         if IsData ==None:
@@ -411,22 +468,73 @@ class NEvents_Counter():
         if FakeRateOn:
             self.__dfs[NAME][key1][key2]['NotFake'].Filter(Cut)
             self.__dfs[NAME][key1][key2]['IsFake'].Filter(Cut)
-            if idx == 0 and idx1 ==0:
-                self.__NCounter[NAME][Cut_Name] = self.__dfs[NAME][key1][key2]['NotFake'].NEvents
-                if IsData:
-                    self.__NCounter['FakeRate'][Cut_Name] = self.__dfs[NAME][key1][key2]['IsFake'].NEvents
+            if idx1 ==0:
+                if not IsData:
+                    self.__NCounter[key1][Cut_Name] = self.__dfs[NAME][key1][key2]['NotFake'].Yield
+                else:pass
+                if idx ==0:
+                    if IsData:
+                        self.__NCounter[NAME][Cut_Name] = self.__dfs[NAME][key1][key2]['NotFake'].NEvents
+                        self.__NCounter['FakeRate'][NAME][Cut_Name] = self.__dfs[NAME][key1][key2]['IsFake'].NEvents
+            
+                    else:
+                        self.__NCounter['FakeRate'][NAME][Cut_Name] = self.__dfs[NAME][key1][key2]['IsFake'].Yield
+                        self.__Ctag_total_Yield[Cut_Name] = self.__dfs[NAME][key1][key2]['NotFake'].Yield
+                        self.__Ctag_total_Yield_Shape[Cut_Name] = self.__dfs[NAME][key1][key2]['NotFake'].Yield_Shape
+                        self.__Ctag_total_Yield[Cut_Name] += self.__dfs[NAME][key1][key2]['IsFake'].Yield
+                        self.__Ctag_total_Yield_Shape[Cut_Name] += self.__dfs[NAME][key1][key2]['IsFake'].Yield_Shape
                 else:
-                    self.__NCounter['FakeRate'][Cut_Name] += self.__dfs[NAME][key1][key2]['IsFake'].NEvents
+                    if IsData:
+                        self.__NCounter[NAME][Cut_Name] += self.__dfs[NAME][key1][key2]['NotFake'].NEvents
+                        self.__NCounter['FakeRate'][NAME][Cut_Name] += self.__dfs[NAME][key1][key2]['IsFake'].NEvents
+                    else:
+                        self.__NCounter[key1][Cut_Name] += self.__dfs[NAME][key1][key2]['NotFake'].Yield
+                        self.__NCounter['FakeRate'][NAME][Cut_Name] += self.__dfs[NAME][key1][key2]['IsFake'].Yield
+                        self.__Ctag_total_Yield[Cut_Name] += self.__dfs[NAME][key1][key2]['NotFake'].Yield
+                        self.__Ctag_total_Yield_Shape[Cut_Name] += self.__dfs[NAME][key1][key2]['NotFake'].Yield_Shape
+                        self.__Ctag_total_Yield[Cut_Name] += self.__dfs[NAME][key1][key2]['IsFake'].Yield
+                        self.__Ctag_total_Yield_Shape[Cut_Name] += self.__dfs[NAME][key1][key2]['IsFake'].Yield_Shape
+            
             else:
-                self.__NCounter[NAME][Cut_Name] += self.__dfs[NAME][key1][key2]['NotFake'].NEvents
-                self.__NCounter['FakeRate'][Cut_Name] += self.__dfs[NAME][key1][key2]['IsFake'].NEvents
+                if IsData:
+                    self.__NCounter[NAME][Cut_Name] += self.__dfs[NAME][key1][key2]['NotFake'].NEvents
+                    self.__NCounter['FakeRate'][NAME][Cut_Name] += self.__dfs[NAME][key1][key2]['IsFake'].NEvents
+                else:
+                    self.__NCounter[key1][Cut_Name] += self.__dfs[NAME][key1][key2]['NotFake'].Yield
+                    self.__NCounter['FakeRate'][NAME][Cut_Name] += self.__dfs[NAME][key1][key2]['IsFake'].Yield
+                    self.__Ctag_total_Yield[Cut_Name] += self.__dfs[NAME][key1][key2]['NotFake'].Yield
+                    self.__Ctag_total_Yield_Shape[Cut_Name] += self.__dfs[NAME][key1][key2]['NotFake'].Yield_Shape
+                    self.__Ctag_total_Yield[Cut_Name] += self.__dfs[NAME][key1][key2]['IsFake'].Yield
+                    self.__Ctag_total_Yield_Shape[Cut_Name] += self.__dfs[NAME][key1][key2]['IsFake'].Yield_Shape
+            
 
         else:
             self.__dfs[NAME][key1][key2].Filter(Cut)
-            if idx == 0 and idx1 ==0:
-                self.__NCounter[NAME][Cut_Name] = self.__dfs[NAME][key1][key2].NEvents
+            
+            if idx1 ==0:
+                if not IsData:
+                    self.__NCounter[key1][Cut_Name] = self.__dfs[NAME][key1][key2].Yield
+                if idx==0:
+                    if IsData:
+                        self.__NCounter[NAME][Cut_Name] = self.__dfs[NAME][key1][key2].NEvents
+                    else:
+                        self.__Ctag_total_Yield[Cut_Name] = self.__dfs[NAME][key1][key2].Yield
+                        self.__Ctag_total_Yield_Shape[Cut_Name] =  self.__dfs[NAME][key1][key2].Yield_Shape
+                else:
+                    if IsData:
+                        self.__NCounter[NAME][Cut_Name] += self.__dfs[NAME][key1][key2].NEvents
+                    else:
+                        self.__NCounter[NAME][Cut_Name] += self.__dfs[NAME][key1][key2].Yield
+                        self.__Ctag_total_Yield[Cut_Name] += self.__dfs[NAME][key1][key2].Yield
+                        self.__Ctag_total_Yield_Shape[Cut_Name] +=  self.__dfs[NAME][key1][key2].Yield_Shape
             else:
-                self.__NCounter[NAME][Cut_Name] += self.__dfs[NAME][key1][key2].NEvents
+                if IsData:
+                    self.__NCounter[NAME][Cut_Name] += self.__dfs[NAME][key1][key2].NEvents
+                else:
+                    self.__NCounter[NAME][Cut_Name] += self.__dfs[NAME][key1][key2].Yield
+                    self.__Ctag_total_Yield[Cut_Name] += self.__dfs[NAME][key1][key2].Yield
+                    self.__Ctag_total_Yield_Shape[Cut_Name] +=  self.__dfs[NAME][key1][key2].Yield_Shape
+
 
 
 

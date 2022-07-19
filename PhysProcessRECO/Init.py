@@ -478,7 +478,11 @@ def GenFakeRateFiles(year:str):
     with open(f'./data/year{year}/PhysProcessRECO/path/FakeRateFiles.json','wt') as f:
         json.dump(PATH,f,indent=4)
 
+def GenCtagFiles(year:str):
+    PATH = f"/eos/user/z/zhenggan/ExtraYukawa/PhysProcessRECO/year{year}/DeepJet_ctagSF_Summer20UL17_interp.root" 
 
+    with open(f'./data/year{year}/PhysProcessRECO/path/CtagShape.json','wt') as f:
+        json.dump(PATH,f,indent=4)
 
 
 

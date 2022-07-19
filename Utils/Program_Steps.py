@@ -94,7 +94,12 @@ def EventCounter(args):
     settings['lumi'] = args.lumi
     settings['region'] = args.region
     settings['FakeRate'] = args.FakeRate
+    settings['CtagSF']  = args.CtagSF
 
+    if args.CtagSF:
+        with open(f'./data/year{args.year}/PhysProcessRECO/path/CtagShape.json','rb') as f:
+            settings['CtagSFInfo'] = json.load(f)
+            print(settings['CtagSFInfo'])
     with open(f'./data/year{args.year}/PhysProcessRECO/configuration/data_xs.json','rb') as f:
         structure = json.load(f)
         settings['xs'] = structure['xs']
@@ -167,6 +172,8 @@ def PhysProcessRECO(args):
     settings['lumi'] = args.lumi
     settings['region'] = args.region
     settings['FakeRate'] = args.FakeRate
+    settings['CtagSF']  = args.CtagSF
+
 
     with open(f'./data/year{args.year}/PhysProcessRECO/configuration/data_xs.json','rb') as f:
         structure = json.load(f)
@@ -178,6 +185,9 @@ def PhysProcessRECO(args):
     
     with open(f'./data/year{args.year}/PhysProcessRECO/path/triggerSF.json','rb') as f:
         settings['trigSFInfo'] = json.load(f)
+    if args.CtagSF:
+        with open(f'./data/year{args.year}/PhysProcessRECO/path/CtagShape.json','rb') as f:
+            settings['CtagSFInfo'] = json.load(f)
 
     with open(f'./data/year{args.year}/TriggerSF/configuration/weights.json','rb') as f:
         settings['Weights'] = json.load(f)

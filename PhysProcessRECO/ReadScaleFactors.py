@@ -80,4 +80,14 @@ TH2D *h_fr_1 = (TH2D*)f1_fr->Get("fakerate");
 TFile *f2_fr = TFile::Open("{1}");
 TH2D *h_fr_2 = (TH2D*)f2_fr->Get("fakerate");
 '''
+Claim['CtagSF'] ='''
+
+#include "TFile.h"
+#include "TH2D.h"
+TFile*fctag=TFile::Open("{0}");
+TH2D*h_flavc=(TH2D*)fctag->Get("SFc_hist");
+TH2D*h_flavb=(TH2D*)fctag->Get("SFb_hist");
+TH2D*h_flavl=(TH2D*)fctag->Get("SFl_hist");
+
+'''
 

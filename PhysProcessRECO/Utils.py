@@ -40,7 +40,7 @@ def set_axis(histo,coordinate:str,title:str,is_energy:bool):
         axis.SetTitle(title)
 
 from collections import OrderedDict
-def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:float,channel='DoubleElectron',veto=False,ylog=0,TrigSF_On=3,IDSF_On=True,RECOSF_On=False,CFSF_On=False,eras=[],FakeRate_On=False,region=''):
+def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:float,channel='DoubleElectron',veto=False,ylog=0,TrigSF_On=3,IDSF_On=True,RECOSF_On=False,CFSF_On=False,eras=[],FakeRate_On=False,CTSF_On=False,region=''):
     Histo['MC']['DY'].SetFillColor(ROOT.kRed)
     Histo['MC']['VV'].SetFillColor(ROOT.kCyan - 9)
     Histo['MC']['VVV'].SetFillColor(ROOT.kSpring - 9)
@@ -305,6 +305,10 @@ def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:float,channel='DoubleElect
         FakeRate_postfix = '_FakeRate'
     else:
         FakeRate_postfix =''
+    if CTSF_On:
+        CTSF_postfix = '_CTSF'
+    else:
+        CTSF_postfix = ''
 
     era_post_fix = ''
     for a in eras:
@@ -312,8 +316,8 @@ def Plot(Histo:OrderedDict,year:str, x_name:str, lumi:float,channel='DoubleElect
     print('Save Plots') 
     
     
-    c.SaveAs(os.path.join(Dir,x_name+TrigSF_postfix+IDSF_postfix+RECOSF_postfix+CFSF_postfix+y_post_fix+FakeRate_postfix+era_post_fix+'.pdf'))
-    c.SaveAs(os.path.join(Dir,x_name+TrigSF_postfix+IDSF_postfix+RECOSF_postfix+CFSF_postfix+y_post_fix+FakeRate_postfix+era_post_fix+'.png'))
+    c.SaveAs(os.path.join(Dir,x_name+TrigSF_postfix+IDSF_postfix+RECOSF_postfix+CFSF_postfix+y_post_fix+FakeRate_postfix+CTSF_postfix+era_post_fix+'.pdf'))
+    c.SaveAs(os.path.join(Dir,x_name+TrigSF_postfix+IDSF_postfix+RECOSF_postfix+CFSF_postfix+y_post_fix+FakeRate_postfix+CTSF_postfix+era_post_fix+'.png'))
     
     c.Close()
     #pad1.Close()

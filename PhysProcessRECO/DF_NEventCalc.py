@@ -21,6 +21,8 @@ class DF_NEventCalc(object):
         self.__veto = settings.get('veto')
         self.__region = settings.get('region')
         self.__scale = settings.get('scale')        
+        
+        
         Nevents =  settings.get('nevents')      
         if self.__channel == 'DoubleElectron':
             channel_phys_region = 3
@@ -64,6 +66,10 @@ class DF_NEventCalc(object):
                 .Define('l2eta_tmp',f'if(Flag) return {self.__phys_region}_l2_eta;else return {self.__bkg_region}_l2_eta')\
                 .Define('l1id_tmp',f'if(Flag) return {self.__phys_region}_l1_id;else return {self.__bkg_region}_l1_id')\
                 .Define('l2id_tmp',f'if(Flag) return {self.__phys_region}_l2_id;else return {self.__bkg_region}_l2_id')\
+                .Define('l1phi_tmp',f'if(Flag) return {self.__phys_region}_l1_phi;else return {self.__bkg_region}_l1_phi')\
+                .Define('l2phi_tmp',f'if(Flag) return {self.__phys_region}_l2_phi;else return {self.__bkg_region}_l2_phi')\
+                .Define('l1pdgid_tmp',f'if(Flag) return {self.__phys_region}_l1_pdgid;else return {self.__bkg_region}_l1_pdgid')\
+                .Define('l2pdgid_tmp',f'if(Flag) return {self.__phys_region}_l2_pdgid;else return {self.__bkg_region}_l2_pdgid')
 
         
 
@@ -74,13 +80,21 @@ class DF_NEventCalc(object):
                     .Define('l2pt','if(l1pt_tmp > l2pt_tmp) return l2pt_tmp;else return l1pt_tmp;')\
                     .Define('l1eta','if(l1pt_tmp > l2pt_tmp) return l1eta_tmp;else return l2eta_tmp;')\
                     .Define('l2eta','if(l1pt_tmp > l2pt_tmp) return l2eta_tmp;else return l1eta_tmp;')\
+                    .Define('l1phi','if(l1pt_tmp > l2pt_tmp) return l1phi_tmp;else return l2phi_tmp;')\
+                    .Define('l2phi','if(l1pt_tmp > l2pt_tmp) return l2phi_tmp;else return l1phi_tmp;')\
                     .Define('l1_id','if(l1pt_tmp > l2pt_tmp) return l1id_tmp;else return l2id_tmp;')\
-                    .Define('l2_id','if(l1pt_tmp > l2pt_tmp) return l2id_tmp;else return l1id_tmp;')
+                    .Define('l2_id','if(l1pt_tmp > l2pt_tmp) return l2id_tmp;else return l1id_tmp;')\
+                    .Define('l1_pdgid','if(l1pt_tmp > l2pt_tmp) return l1pdgid_tmp;else return l2pdgid_tmp;')\
+                    .Define('l2_pdgid','if(l1pt_tmp > l2pt_tmp) return l2pdgid_tmp;else return l1pdgid_tmp;')
         else:
             self.__df = self.__df.Define('l1pt','l1pt_tmp')\
                     .Define('l2pt','l1pt_tmp')\
                     .Define('l1eta','l1eta_tmp')\
                     .Define('l2eta','l2eta_tmp')\
+                    .Define('l1phi','l1phi_tmp')\
+                    .Define('l2phi','l2phi_tmp')\
+                    .Define('l1_pdgid','l1pdgid_tmp')\
+                    .Define('l2_pdgid','l2pdgid_tmp')\
                     .Define('l1_id','l1id_tmp')\
                     .Define('l2_id','l2id_tmp')        
             
@@ -97,7 +111,9 @@ class DF_NEventCalc(object):
                 self.__df = self.__df.Filter('ttc_1P1F || ttc_0P2F || OPS_1P1F || OPS_0P2F')
                 self.__df = self.__df.Define('PreFireWeight',f"{PreFireWeight(activate=SF_Config['PreFireWeight']['activate'],year =self.__year)}")\
                         .Define('fr_w',f"if (Flag) return {FakeRate(activate=SF_Config['FakeRate']['activate'], IsData=False,IsFake=SF_Config['FakeRate']['IsFake'],phys_region=PR,channel=self.__channel)};else return {FakeRate(activate=SF_Config['FakeRate']['activate'], IsData=False,IsFake=SF_Config['FakeRate']['IsFake'],phys_region=self.__bkg_region,channel=self.__channel)}")\
-                        .Define('genweight','genWeight/abs(genWeight) * puWeight *PreFireWeight *fr_w')
+                        .Define('genweight','genWeight/abs(genWeight) * puWeight *PreFireWeight *fr_w')\
+                        .Define("Ctag_SF",f"{CTagSF(activate=SF_Config['CtagSF']['activate'])}")\
+                        .Define("genweight_shape","genweight * Ctag_SF")
             else:
                 self.__df = self.__df.Filter('ttc_2P0F || OPS_2P0F')
                 self.__df = self.__df.Define('DiLeptons_TrigSF',f"{TrigSF(activate= SF_Config['TrigSF']['activate'],Type = SF_Config['TrigSF']['Type'],IsFake=SF_Config['FakeRate']['IsFake'])}")\
@@ -105,8 +121,11 @@ class DF_NEventCalc(object):
                         .Define('DiLeptons_RECOSF',f"{DiLeptons_RECOSF(activate = SF_Config['RECOSF']['activate'],channel = self.__channel,IsFake=SF_Config['FakeRate']['IsFake'])}")\
                         .Define('PreFireWeight',f"{PreFireWeight(activate=SF_Config['PreFireWeight']['activate'],year =self.__year)}")\
                         .Define('K_region',f"kinematic({SF_Config['kinematic']['activate']},l1pt,l2pt,l1eta,l2eta)")\
+                        .Define('Gen_IsOS',f"{gen_isOS(activate = SF_Config['cf_SF']['activate'] , channel=self.__channel)}")\
                         .Define('ChargeFlipSF',f"if (Flag ) return {ChargeFlipSF(activate= SF_Config['cf_SF']['activate'],channel=self.__channel,Same_Sign=SF_Config['cf_SF']['Same_Sign'],sigma = SF_Config['cf_SF']['sigma'],IsFake=SF_Config['FakeRate']['IsFake'])};else return {ChargeFlipSF(activate= SF_Config['cf_SF']['activate'],channel=self.__channel,Same_Sign=False,sigma = SF_Config['cf_SF']['sigma'],IsFake=SF_Config['FakeRate']['IsFake'])}")\
-                        .Define('genweight','genWeight/abs(genWeight) * DiLeptons_TrigSF * DiLeptons_IDSF * puWeight*PreFireWeight * DiLeptons_RECOSF * ChargeFlipSF')
+                        .Define('genweight','genWeight/abs(genWeight) * DiLeptons_TrigSF * DiLeptons_IDSF * puWeight*PreFireWeight * DiLeptons_RECOSF * ChargeFlipSF')\
+                        .Define("Ctag_SF",f"{CTagSF(activate=SF_Config['CtagSF']['activate'])}")\
+                        .Define("genweight_shape","genweight * Ctag_SF")
 
         if self.__IsData:
             if SF_Config['FakeRate']['IsFake']:
@@ -114,8 +133,9 @@ class DF_NEventCalc(object):
             else:
                 self.__NEvents = self.__df.Count().GetValue()
         else:
-            self.__NEvents = self.__df.Sum('genweight').GetValue()*self.__scale
-
+            self.__NEvents = self.__df.Sum('genweight').GetValue()
+            self.__Yield =  self.__NEvents*self.__scale
+            self.__Yield_Shape = self.__df.Sum("genweight_shape").GetValue()*self.__scale
         self.__IsFake = SF_Config['FakeRate']['IsFake']
     def Filter(self,Selection:str)->None:
         self.__df = self.__df.Filter(Selection)
@@ -125,7 +145,22 @@ class DF_NEventCalc(object):
             else:
                 self.__NEvents = self.__df.Count().GetValue()
         else:
-            self.__NEvents =self.__df.Sum('genweight').GetValue()*self.__scale
+            
+            self.__NEvents =self.__df.Sum('genweight').GetValue()
+            self.__Yield =self.__NEvents*self.__scale
+            self.__Yield_Shape = self.__df.Sum('genweight_shape').GetValue()*self.__scale
+    @property
+    def Yield(self):
+        return self.__Yield
+    @Yield.setter
+    def Yield(self,Yield):
+        self.__Yield = Yield
+    @property
+    def Yield_Shape(self):
+        return self.__Yield_Shape
+    @Yield_Shape.setter
+    def Yield_Shape(self,Yield_Shape):
+        self.__Yield_Shape = Yield_Shape
 
     @property
     def NEvents(self):

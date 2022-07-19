@@ -79,9 +79,9 @@ def ChargeFlipSF(activate:bool,channel:str,Same_Sign:bool,sigma:float,IsFake=Fal
         if activate:
             if channel=='DoubleElectron':
                 if Same_Sign:
-                    return f'chargeflip_sf(h_SS,K_region,true,{sigma})'
+                    return f'chargeflip_sf(h_SS,K_region,0,Gen_IsOS,{sigma})'
                 elif not Same_Sign:
-                    return f'chargeflip_sf(h_OS,K_region,false,{sigma})'
+                    return f'chargeflip_sf(h_OS,K_region,1,Gen_IsOS,{sigma})'
                 else:    
                     raise ValueError('You should Specify the charges condition of two leptons.')
             else:
@@ -113,6 +113,24 @@ def FakeRate(activate:bool, IsData:bool,IsFake:bool,phys_region:str,channel:str)
             return '1.'
     else:
         return '1.'
+
+
+def CTagSF(activate:bool)->str:
+    if activate:
+        return f'CtagSF(h_flavc,h_flavb,h_flavl,n_tight_jet,tightJets_id_in24,Jet_puId, Jet_pt_nom, Jet_hadronFlavour,Jet_btagDeepFlavCvL,Jet_btagDeepFlavCvB)'
+    else:
+        return '1.'
+
+
+def gen_isOS(activate:bool,channel:str)->str:
+    if activate and channel =='DoubleElectron':
+    
+        return "gen_isOS(l1pt, l1eta, l1phi, l1_pdgid, l2pt, l2eta, l2phi, l2_pdgid, nGenDressedLepton, GenDressedLepton_pt, GenDressedLepton_eta, GenDressedLepton_phi, GenDressedLepton_pdgId)"    
+        
+    else:
+        return '-1'
+
+
 
 
 

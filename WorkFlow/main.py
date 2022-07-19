@@ -28,7 +28,7 @@ parser.add_argument('--IDSF',action="store_true",help="This option is to determi
 parser.add_argument('--CFSF',action="store_true",help="This option is to determine whether to apply charge flip SFs on MC Sample")   
 parser.add_argument('--FakeRate',action="store_true",help="This option is to determine whether to apply fake rate esitmation on MC Sample")   
 parser.add_argument('--RECOSF',action="store_true",help="This option is to determine whether to apply Leptons' RECO SF on MC Sample")
-parser.add_argument('--CTaggerSF',action="store_true",help="This option is to determine whether to apply Leptons' CTagger SF on MC Sample")
+parser.add_argument('--CtagSF',action="store_true",help="This option is to determine whether to apply Leptons' CTagger SF on MC Sample")
 parser.add_argument('--lumi',help='Luminosity',type=int,default =-1)
 
 
@@ -93,7 +93,8 @@ if args.mode == 'Init':
         GEN_METFilters(args.year)
         GenPaths_HLTTriggerCondition_ForAnalyzer_File(args.year)
         GenChargeFlipFiles(args.year)    
-        GenFakeRateFiles(args.year)    
+        GenFakeRateFiles(args.year)   
+        GenCtagFiles(args.year)
     
     else:
         pass

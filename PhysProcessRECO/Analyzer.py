@@ -54,6 +54,9 @@ class Analyzer():
         self.__Cross_Section = settings['xs']
         self.__region = settings['region']        
         
+        self.__CtagSFon = settings['CtagSF']
+
+
         if settings['lumi'] == -1:
         
             self.__lumi = self.__Cross_Section['lumi']
@@ -76,6 +79,8 @@ class Analyzer():
         
         self.__FakeRateFiles = settings['FakeRateFiles']
 
+        if self.__CtagSFon:
+            self.__CtagFiles = settings['CtagSFInfo']
 
         self.__histos = OrderedDict()
         self.__histos['MC'] = OrderedDict()
@@ -112,6 +117,10 @@ class Analyzer():
             print('Fake Rate Estimation: Activate')
         else:
             print('Fake Rate Estimation: Deactivate')
+        if self.__CtagSFon:
+            print('Ctagging Scale Factor: Activate')
+        else:
+            print('Ctagging Scale Factor: Deactivate')
 
 
         #self.__condition_weights = settings['Weights']
@@ -194,14 +203,15 @@ class Analyzer():
             else:
                 branchName = 'l1l2eta'
             
-            with open('./data/year2017/PhysProcessRECO/path/triggerSF.json','r') as f:
+            with open(f'./data/year{self.__year}/PhysProcessRECO/path/triggerSF.json','r') as f:
                 TrigSFInfo = json.load(f)
             TrigSF_FileIn = TrigSFInfo['file'][self.__channel][branchName]
             
             ROOT.gInterpreter.ProcessLine(Claim['TrigSF'].format(TrigSF_FileIn,branchName))
 
-        
-        
+        if self.__CtagSFon:
+
+            ROOT.gInterpreter.ProcessLine(Claim['CtagSF'].format(self.__CtagFiles)) 
         
         #To Load IDSF function
     
@@ -242,6 +252,10 @@ class Analyzer():
                 else:
                     settings['IsFake'] = False
                     self.__dfs['MC'][process][phys_name]= RDataFrameStab(settings)
+        
+        if self.__CtagSFon:
+            pre_CtagSF_applied_yield =0
+            CtagSF_applied_yield = 0 
 
         for process in self.__MCPath.keys():
             for phys_name in self.__MCPath[process].keys():
@@ -255,7 +269,7 @@ class Analyzer():
                 SF_Config['PreFireWeight'] = dict()
                 SF_Config['kinematic'] = dict()
                 SF_Config['cf_SF'] = dict()
-                
+                SF_Config['CtagSF'] = dict() 
 
                 if self.__IDSF:
                     SF_Config['IDSF']['activate'] = True
@@ -287,6 +301,11 @@ class Analyzer():
                     SF_Config['TrigSF']['activate'] = True
                 else:
                     SF_Config['TrigSF']['activate'] = False
+                if self.__CtagSFon:
+                    SF_Config['CtagSF']['activate'] = True
+                else:
+                    SF_Config['CtagSF']['activate'] = False
+                
                 SF_Config['TrigSF']['Type']  = self.__TrigSF
                 SF_Config['PreFireWeight']['activate']   = True 
 
@@ -298,12 +317,20 @@ class Analyzer():
                     SF_Config['FakeRate']['activate']= True
                     SF_Config['FakeRate']['IsFake'] =True
                     Millstone(self.__dfs['MC'][process][phys_name]['IsFake'],HistSettings=HistSettings,SF_Config=SF_Config,DiLepton_Triggers_Condition = self.__DiLep_Conditions['MC'],Run_List=[])
+                
                     SF_Config['FakeRate']['IsFake'] =False
                     Millstone(self.__dfs['MC'][process][phys_name]['NotFake'],HistSettings=HistSettings,SF_Config=SF_Config,DiLepton_Triggers_Condition = self.__DiLep_Conditions['MC'],Run_List=[])
+                    
+                    if self.__CtagSFon:
+                        pre_CtagSF_applied_yield += self.__dfs['MC'][process][phys_name]['NotFake'].GenWeight
+                        CtagSF_applied_yield += self.__dfs['MC'][process][phys_name]['NotFake'].GenWeight_Shape
                 else:
                     SF_Config['FakeRate']['activate']= False
                     SF_Config['FakeRate']['IsFake'] =False
                     Millstone(self.__dfs['MC'][process][phys_name],HistSettings=HistSettings,SF_Config=SF_Config,DiLepton_Triggers_Condition = self.__DiLep_Conditions['MC'],Run_List=[])
+                    if self.__CtagSFon:
+                        pre_CtagSF_applied_yield += self.__dfs['MC'][process][phys_name].GenWeight
+                        CtagSF_applied_yield += self.__dfs['MC'][process][phys_name].GenWeight_Shape
 
                     
                 print(f"{process}:{phys_name}:Filter equipped success")
@@ -351,6 +378,12 @@ class Analyzer():
                     Millstone(self.__dfs['Data'][era][dataset] , HistSettings=HistSettings,SF_Config=SF_Config,DiLepton_Triggers_Condition =self.__DiLep_Conditions["Data"][era][dataset],Run_List =self.__DiLepton_Triggers[era])
                 print(f"{dataset}:{era}:Filter equipped success")
         if not self.__debug:
+            if self.__CtagSFon:
+                CharmTag_Ratio = pre_CtagSF_applied_yield/CtagSF_applied_yield
+            else:
+                CharmTag_Ratio = 1.
+
+
             for histname in HistSettings[self.__region].keys():
                 HistoGrams = OrderedDict()
                 HistoGrams['MC'] = OrderedDict()
@@ -363,7 +396,6 @@ class Analyzer():
                 for idx,process in enumerate(self.__MCPath.keys()):
                     for idx2,phys_name in enumerate(self.__MCPath[process].keys()):
                         #self.__dfs['MC'][MC].Hists[histname].Draw()
-                        
                         if self.__FakeRate:
                             if Skip_MC(phys_name,self.__year,Skip_Sample=True):continue
                             print(phys_name)
@@ -376,7 +408,7 @@ class Analyzer():
                                 HistoGrams['MC']['FakeRate'].Add(h)
 
                             h = self.__dfs['MC'][process][phys_name]['NotFake'].Hists[histname].GetValue()
-                            h.Scale((self.__Cross_Section[process][phys_name]*self.__lumi)/float(self.__NumberOfEvents[process][phys_name]))
+                            h.Scale((self.__Cross_Section[process][phys_name]*self.__lumi*CharmTag_Ratio)/float(self.__NumberOfEvents[process][phys_name]))
                             Temps['MC'][phys_name] = overunder_flowbin(h)
                         else:
                             print(phys_name)
@@ -497,4 +529,4 @@ class Analyzer():
                     else:
                         HistoGrams['MC']['TT'].Add(Temps['MC']['TTTo1L'])
                 print(f'Starting to plot for {histname}...')
-                Plot(HistoGrams,x_name=histname ,lumi=self.__lumi,channel=self.__channel,year=self.__year,ylog=self.__ylog,TrigSF_On = self.__TrigSF, IDSF_On= self.__IDSF,RECOSF_On =self.__RECOSF,CFSF_On =self.__CFSF,eras = self.__Eras,region=self.__region,FakeRate_On = self.__FakeRate)
+                Plot(HistoGrams,x_name=histname ,lumi=self.__lumi,channel=self.__channel,year=self.__year,ylog=self.__ylog,TrigSF_On = self.__TrigSF, IDSF_On= self.__IDSF,RECOSF_On =self.__RECOSF,CFSF_On =self.__CFSF,eras = self.__Eras,region=self.__region,FakeRate_On = self.__FakeRate,CTSF_On=self.__CtagSFon)

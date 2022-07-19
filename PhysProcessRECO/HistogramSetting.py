@@ -154,58 +154,58 @@ HistSettings['SignalRegion']['HT']['highedge'] = 500
 
 HistSettings['SignalRegion']['j1_FlavCvL'] = manager.dict()
 HistSettings['SignalRegion']['j1_FlavCvL']['name'] = 'j1_FlavCvL'
-HistSettings['SignalRegion']['j1_FlavCvL']['nbins'] = 50
+HistSettings['SignalRegion']['j1_FlavCvL']['nbins'] = 15
 HistSettings['SignalRegion']['j1_FlavCvL']['lowedge'] = 0
 HistSettings['SignalRegion']['j1_FlavCvL']['highedge'] = 1
 
 HistSettings['SignalRegion']['j2_FlavCvL'] = manager.dict()
 HistSettings['SignalRegion']['j2_FlavCvL']['name'] = 'j2_FlavCvL'
-HistSettings['SignalRegion']['j2_FlavCvL']['nbins'] = 50
+HistSettings['SignalRegion']['j2_FlavCvL']['nbins'] = 15
 HistSettings['SignalRegion']['j2_FlavCvL']['lowedge'] = 0
 HistSettings['SignalRegion']['j2_FlavCvL']['highedge'] = 1
 
 
 HistSettings['SignalRegion']['j3_FlavCvL'] = manager.dict()
 HistSettings['SignalRegion']['j3_FlavCvL']['name'] = 'j3_FlavCvL'
-HistSettings['SignalRegion']['j3_FlavCvL']['nbins'] = 50
+HistSettings['SignalRegion']['j3_FlavCvL']['nbins'] = 15
 HistSettings['SignalRegion']['j3_FlavCvL']['lowedge'] = 0
 HistSettings['SignalRegion']['j3_FlavCvL']['highedge'] = 1
 
 HistSettings['SignalRegion']['j1_FlavB'] = manager.dict()
 HistSettings['SignalRegion']['j1_FlavB']['name'] = 'j1_FlavB'
-HistSettings['SignalRegion']['j1_FlavB']['nbins'] = 50
+HistSettings['SignalRegion']['j1_FlavB']['nbins'] = 15
 HistSettings['SignalRegion']['j1_FlavB']['lowedge'] = 0
 HistSettings['SignalRegion']['j1_FlavB']['highedge'] = 1
 
 HistSettings['SignalRegion']['j2_FlavB'] = manager.dict()
 HistSettings['SignalRegion']['j2_FlavB']['name'] = 'j2_FlavB'
-HistSettings['SignalRegion']['j2_FlavB']['nbins'] = 50
+HistSettings['SignalRegion']['j2_FlavB']['nbins'] = 15
 HistSettings['SignalRegion']['j2_FlavB']['lowedge'] = 0
 HistSettings['SignalRegion']['j2_FlavB']['highedge'] = 1
 
 
 HistSettings['SignalRegion']['j3_FlavB'] = manager.dict()
 HistSettings['SignalRegion']['j3_FlavB']['name'] = 'j3_FlavB'
-HistSettings['SignalRegion']['j3_FlavB']['nbins'] = 50
+HistSettings['SignalRegion']['j3_FlavB']['nbins'] = 15
 HistSettings['SignalRegion']['j3_FlavB']['lowedge'] = 0
 HistSettings['SignalRegion']['j3_FlavB']['highedge'] = 1
 
 HistSettings['SignalRegion']['j1_FlavCvB'] = manager.dict()
 HistSettings['SignalRegion']['j1_FlavCvB']['name'] = 'j1_FlavCvB'
-HistSettings['SignalRegion']['j1_FlavCvB']['nbins'] = 50
+HistSettings['SignalRegion']['j1_FlavCvB']['nbins'] = 15
 HistSettings['SignalRegion']['j1_FlavCvB']['lowedge'] = 0
 HistSettings['SignalRegion']['j1_FlavCvB']['highedge'] = 1
 
 HistSettings['SignalRegion']['j2_FlavCvB'] = manager.dict()
 HistSettings['SignalRegion']['j2_FlavCvB']['name'] = 'j2_FlavCvB'
-HistSettings['SignalRegion']['j2_FlavCvB']['nbins'] = 50
+HistSettings['SignalRegion']['j2_FlavCvB']['nbins'] = 15
 HistSettings['SignalRegion']['j2_FlavCvB']['lowedge'] = 0
 HistSettings['SignalRegion']['j2_FlavCvB']['highedge'] = 1
 
 
 HistSettings['SignalRegion']['j3_FlavCvB'] = manager.dict()
 HistSettings['SignalRegion']['j3_FlavCvB']['name'] = 'j3_FlavCvB'
-HistSettings['SignalRegion']['j3_FlavCvB']['nbins'] = 50
+HistSettings['SignalRegion']['j3_FlavCvB']['nbins'] = 15
 HistSettings['SignalRegion']['j3_FlavCvB']['lowedge'] = 0
 HistSettings['SignalRegion']['j3_FlavCvB']['highedge'] = 1
 

@@ -100,22 +100,18 @@ int kinematic(bool activate , float l1_pt, float l2_pt, float l1_eta, float l2_e
 }
 
 
-double chargeflip_sf(TH2D*h,int kinematic_region,bool same_sign, float sigma){
+double chargeflip_sf(TH2D*h,int kinematic_region,int reco_isOS,int gen_isOS, float sigma){
 
-    
     int index = kinematic_region+1;
     float sf = 1.0;
-    float sign;
-    if(!same_sign){
-        sign = -1;
+    
+    if((reco_isOS == 0 ) && (gen_isOS ==1)){
+        float SS_SF = h->GetBinContent(h->FindBin(index));
+        float SS_sigma = h->GetBinError(h->FindBin(index));
+        sf = SS_SF + sigma*SS_sigma;
     }
-    else{
-        sign = 1 ;
-    }
-
-    float r_SF = h->GetBinContent(index);
-    float r_sigma = h->GetBinError(index);
-    sf = r_SF + sign*sigma * r_sigma;
+    
+    
     if(sf < 0.) sf=0.;
     return static_cast<double>(sf);
 }
@@ -177,6 +173,67 @@ double fr_weight(TH2D* h_fr_l1, TH2D * h_fr_l2, bool Flag_1P1F, bool Flag_0P2F, 
     }
     return static_cast<double>(w_temp);
 }
+
+double CtagSF(TH2D *h_flavc,TH2D *h_flavb,TH2D *h_flavl,int n_tight_jet , ROOT::VecOps::RVec<Int_t> tightJets_id_in24,ROOT::VecOps::RVec<Int_t> JetpuId,ROOT::VecOps::RVec<Float_t> Jet_pt, ROOT::VecOps::RVec<Int_t> Jet_hadflav, ROOT::VecOps::RVec<Float_t> CvsL, ROOT::VecOps::RVec<Float_t> CvsB){
+    float sf = 1.0;
+    for(int i = 0 ; i < n_tight_jet; i++){
+        int index = tightJets_id_in24[i];
+
+        if(JetpuId[index] == 0 && Jet_pt[index] < 50) continue;
+        if(Jet_hadflav[index] ==4){
+            sf *= h_flavc->GetBinContent(h_flavc->FindBin(CvsL[index],CvsB[index]));
+        }
+        else if(Jet_hadflav[index] ==5){
+            sf *= h_flavb->GetBinContent(h_flavb->FindBin(CvsL[index],CvsB[index]));
+        }
+        else{
+            sf *= h_flavl->GetBinContent(h_flavl->FindBin(CvsL[index],CvsB[index]));
+        }
+        return sf;
+    }
+    return sf;
+}
+
+
+int gen_isOS(float l1_pt, float l1_eta, float l1_phi, int l1_pdgid, float l2_pt, float l2_eta, float l2_phi, int l2_pdgid, int ngenlepton, ROOT::VecOps::RVec<Float_t> gen_pt, ROOT::VecOps::RVec<Float_t> gen_eta, ROOT::VecOps::RVec<Float_t> gen_phi, ROOT::VecOps::RVec<Int_t> gen_pdgid){
+
+    int isOS = -1;
+    float deltaR_lep1 = 99.;
+    float deltaR_lep2 = 99.;
+    int genlep1_idx =-1;
+    int genlep2_idx = -1;
+    
+    for(int i = 0 ; i < ngenlepton ; i++){
+        if(!(fabs(l1_pdgid) == fabs(gen_pdgid[i]))) continue;
+        float deltaR_tmp = deltaR(l1_eta,l1_phi,gen_eta[i],gen_phi[i]);
+        if(deltaR_tmp > 0.3) continue;
+        if(deltaR_tmp < deltaR_lep1){
+
+            deltaR_lep1 = deltaR_tmp;
+            genlep1_idx = i ;
+        }
+    
+    }
+    for(int i = 0 ; i < ngenlepton ; i++){
+        if(!(fabs(l2_pdgid) == fabs(gen_pdgid[i]))) continue;
+        float deltaR_tmp = deltaR(l2_eta,l2_phi,gen_eta[i],gen_phi[i]);
+        if(deltaR_tmp > 0.3) continue;
+        if(deltaR_tmp < deltaR_lep2){
+            deltaR_lep2 = deltaR_tmp;
+            genlep2_idx = i ;
+        }
+    
+    }
+
+    if((genlep1_idx == -1) || (genlep2_idx == -1) || (genlep1_idx==genlep2_idx)) return isOS;
+
+    if ((gen_pdgid[genlep1_idx]*gen_pdgid[genlep2_idx])<0) isOS = 1;
+    else isOS = 0;
+    return isOS;
+
+
+}
+
 
 
 
